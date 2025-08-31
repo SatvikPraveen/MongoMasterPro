@@ -1,7 +1,5 @@
 # MongoMasterPro
 
-**Location: `/README.md`**
-
 A comprehensive MongoDB learning and mastery platform designed for developers, DBAs, and data engineers. This project provides hands-on experience with MongoDB concepts from basics to advanced enterprise patterns through real-world scenarios and practical exercises.
 
 ## 🎯 Project Overview
