@@ -1,0 +1,359 @@
+{
+  "//": "Location: `/data/generators/schemas.json`",
+  "//": "Data schemas and constraints for MongoMasterPro data generation",
+
+  "categories": [
+    "Programming",
+    "Data Science",
+    "Web Development",
+    "Database",
+    "DevOps",
+    "Machine Learning",
+    "Cybersecurity",
+    "Mobile Development",
+    "Cloud Computing",
+    "Blockchain",
+    "Game Development",
+    "UI/UX Design",
+    "Artificial Intelligence",
+    "Internet of Things",
+    "Quality Assurance",
+    "Business Intelligence",
+    "Digital Marketing",
+    "Project Management",
+    "Network Administration",
+    "System Architecture"
+  ],
+
+  "programming_languages": [
+    "JavaScript",
+    "Python",
+    "Java",
+    "C#",
+    "C++",
+    "Go",
+    "Rust",
+    "PHP",
+    "Ruby",
+    "Swift",
+    "Kotlin",
+    "TypeScript",
+    "Scala",
+    "R",
+    "MATLAB",
+    "SQL",
+    "NoSQL",
+    "MongoDB",
+    "PostgreSQL"
+  ],
+
+  "difficulty_levels": ["beginner", "intermediate", "advanced"],
+
+  "course_statuses": ["draft", "published", "archived"],
+
+  "user_statuses": ["active", "inactive", "suspended"],
+
+  "completion_statuses": ["not_started", "in_progress", "completed", "dropped"],
+
+  "event_types": [
+    "login",
+    "logout",
+    "course_view",
+    "enrollment",
+    "completion",
+    "quiz_attempt",
+    "video_play",
+    "download",
+    "forum_post",
+    "assignment_submit",
+    "certificate_download",
+    "profile_update"
+  ],
+
+  "currencies": ["USD", "EUR", "GBP", "CAD", "AUD", "JPY"],
+
+  "timezones": [
+    "UTC",
+    "America/New_York",
+    "America/Los_Angeles",
+    "Europe/London",
+    "Europe/Paris",
+    "Asia/Tokyo",
+    "Asia/Shanghai",
+    "Australia/Sydney"
+  ],
+
+  "languages": ["en", "es", "fr", "de", "ja", "zh", "pt", "ru", "ar", "hi"],
+
+  "course_tags": [
+    "tutorial",
+    "hands-on",
+    "project-based",
+    "beginner-friendly",
+    "advanced",
+    "certification",
+    "practical",
+    "theory",
+    "interactive",
+    "self-paced",
+    "live-sessions",
+    "mentorship",
+    "career-focused",
+    "industry-standard",
+    "open-source",
+    "enterprise",
+    "freelancer"
+  ],
+
+  "specializations": {
+    "Programming": [
+      "Frontend Development",
+      "Backend Development",
+      "Full Stack",
+      "API Development",
+      "Microservices",
+      "Software Architecture"
+    ],
+    "Data Science": [
+      "Data Analysis",
+      "Statistical Modeling",
+      "Data Visualization",
+      "Big Data",
+      "Data Engineering",
+      "Business Intelligence"
+    ],
+    "Web Development": [
+      "React.js",
+      "Vue.js",
+      "Angular",
+      "Node.js",
+      "Express.js",
+      "Django",
+      "Flask",
+      "Laravel",
+      "WordPress"
+    ],
+    "Database": [
+      "MongoDB",
+      "PostgreSQL",
+      "MySQL",
+      "Redis",
+      "Elasticsearch",
+      "Database Design",
+      "Query Optimization",
+      "Data Modeling"
+    ],
+    "DevOps": [
+      "Docker",
+      "Kubernetes",
+      "AWS",
+      "Azure",
+      "GCP",
+      "CI/CD",
+      "Infrastructure as Code",
+      "Monitoring",
+      "Security"
+    ],
+    "Machine Learning": [
+      "Deep Learning",
+      "Neural Networks",
+      "Computer Vision",
+      "Natural Language Processing",
+      "Reinforcement Learning",
+      "MLOps"
+    ]
+  },
+
+  "course_modules": {
+    "beginner": [
+      "Introduction and Setup",
+      "Basic Concepts",
+      "Getting Started",
+      "First Project",
+      "Best Practices",
+      "Next Steps"
+    ],
+    "intermediate": [
+      "Advanced Concepts",
+      "Real-world Applications",
+      "Performance Optimization",
+      "Integration Patterns",
+      "Testing Strategies",
+      "Production Deployment"
+    ],
+    "advanced": [
+      "Architecture Patterns",
+      "Scalability Solutions",
+      "Security Implementation",
+      "Performance Tuning",
+      "Enterprise Integration",
+      "Leadership & Strategy"
+    ]
+  },
+
+  "assignment_types": [
+    "Coding Challenge",
+    "Project Build",
+    "Case Study Analysis",
+    "System Design",
+    "Code Review",
+    "Portfolio Project",
+    "Research Paper",
+    "Presentation",
+    "Peer Review"
+  ],
+
+  "resource_types": [
+    "Video Lectures",
+    "Interactive Exercises",
+    "Code Examples",
+    "Reference Materials",
+    "Community Access",
+    "Live Q&A Sessions",
+    "Downloadable Resources",
+    "Practice Datasets",
+    "Template Files",
+    "Cheat Sheets",
+    "Documentation",
+    "External Links"
+  ],
+
+  "certification_types": [
+    "Course Completion Certificate",
+    "Professional Certification",
+    "Industry Recognition",
+    "Verified Certificate",
+    "Honor Code Certificate"
+  ],
+
+  "user_roles": [
+    "student",
+    "instructor",
+    "admin",
+    "moderator",
+    "teaching_assistant"
+  ],
+
+  "payment_methods": [
+    "credit_card",
+    "paypal",
+    "bank_transfer",
+    "cryptocurrency",
+    "gift_card"
+  ],
+
+  "social_platforms": [
+    "linkedin",
+    "github",
+    "twitter",
+    "portfolio",
+    "blog",
+    "youtube"
+  ],
+
+  "review_sentiments": {
+    "5": {
+      "titles": [
+        "Excellent course!",
+        "Highly recommended",
+        "Outstanding content",
+        "Perfect for beginners",
+        "Amazing instructor",
+        "Life-changing course"
+      ],
+      "comments": [
+        "This course exceeded my expectations. The instructor explains complex concepts clearly and provides excellent examples.",
+        "Perfect balance of theory and practical application. I feel confident implementing what I learned.",
+        "Outstanding course structure and content quality. Would definitely recommend to anyone interested in this topic."
+      ]
+    },
+    "4": {
+      "titles": [
+        "Great course overall",
+        "Very informative",
+        "Well structured",
+        "Good content quality",
+        "Solid foundation",
+        "Worth the investment"
+      ],
+      "comments": [
+        "Really good course with practical examples. Could use a few more advanced topics but overall very satisfied.",
+        "Great content and well-organized modules. The assignments were challenging but helpful.",
+        "Instructor knows the subject well and presents it clearly. Minor issues with some outdated examples."
+      ]
+    },
+    "3": {
+      "titles": [
+        "Decent course",
+        "Average content",
+        "Okay for the price",
+        "Mixed feelings",
+        "Room for improvement",
+        "It's alright"
+      ],
+      "comments": [
+        "The course covers the basics well but lacks depth in some areas. Good starting point though.",
+        "Content is okay but the presentation could be more engaging. Some sections felt rushed.",
+        "Average course. Gets the job done but nothing exceptional. Could benefit from more interactive elements."
+      ]
+    },
+    "2": {
+      "titles": [
+        "Disappointing",
+        "Could be better",
+        "Not what I expected",
+        "Outdated content",
+        "Poor organization",
+        "Needs improvement"
+      ],
+      "comments": [
+        "Course content is outdated and doesn't reflect current best practices. Expected more for the price.",
+        "Poor organization and some incorrect information. Would not recommend until major updates are made.",
+        "The course failed to meet my expectations. Content is superficial and lacks practical applications."
+      ]
+    },
+    "1": {
+      "titles": [
+        "Terrible course",
+        "Waste of time",
+        "Very disappointed",
+        "Poor quality",
+        "Refund requested",
+        "Completely useless"
+      ],
+      "comments": [
+        "Complete waste of time and money. Instructor seems unprepared and content is severely outdated.",
+        "Poor audio quality, disorganized content, and factual errors throughout. Cannot recommend.",
+        "This course is far below acceptable standards. Save your money and look elsewhere."
+      ]
+    }
+  },
+
+  "data_constraints": {
+    "email_domains": [
+      "gmail.com",
+      "yahoo.com",
+      "outlook.com",
+      "hotmail.com",
+      "university.edu",
+      "company.com",
+      "tech.io",
+      "student.edu"
+    ],
+    "price_ranges": {
+      "beginner": { "min": 19.99, "max": 99.99 },
+      "intermediate": { "min": 49.99, "max": 199.99 },
+      "advanced": { "min": 99.99, "max": 399.99 }
+    },
+    "duration_ranges": {
+      "beginner": { "min": 3.0, "max": 15.0 },
+      "intermediate": { "min": 8.0, "max": 30.0 },
+      "advanced": { "min": 20.0, "max": 60.0 }
+    },
+    "enrollment_patterns": {
+      "peak_months": [1, 9, 10],
+      "peak_days": [1, 2, 3],
+      "peak_hours": [18, 19, 20, 21]
+    }
+  }
+}
