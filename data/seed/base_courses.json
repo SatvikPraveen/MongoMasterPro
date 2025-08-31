@@ -1,0 +1,289 @@
+[
+  {
+    "//": "Location: `/data/seed/base_courses.json`",
+    "//": "Core course catalog for MongoMasterPro foundational setup"
+  },
+  {
+    "_id": "507f1f77bcf86cd799439021",
+    "title": "MongoDB Fundamentals: From Zero to Hero",
+    "description": "Complete introduction to MongoDB covering CRUD operations, data modeling, indexing, and aggregation framework. Perfect for developers new to NoSQL databases who want to master MongoDB from the ground up.",
+    "instructor_id": "507f1f77bcf86cd799439012",
+    "category": "Database",
+    "tags": [
+      "mongodb",
+      "nosql",
+      "fundamentals",
+      "beginner-friendly",
+      "crud",
+      "indexing"
+    ],
+    "difficulty_level": "beginner",
+    "duration_hours": 12.5,
+    "price": 79.99,
+    "currency": "USD",
+    "content": {
+      "modules": [
+        "Module 1: Introduction to NoSQL and MongoDB",
+        "Module 2: Installation and Setup",
+        "Module 3: CRUD Operations Mastery",
+        "Module 4: Data Types and Schema Design",
+        "Module 5: Indexing for Performance",
+        "Module 6: Aggregation Framework Basics",
+        "Module 7: Data Validation and Best Practices",
+        "Module 8: MongoDB Atlas Cloud Setup",
+        "Module 9: Building Your First Application",
+        "Module 10: Next Steps and Advanced Topics"
+      ],
+      "resources": [
+        "Video Lectures (8+ hours)",
+        "Interactive Code Exercises",
+        "Real-world Examples Database",
+        "MongoDB Compass GUI Tutorial",
+        "Cheat Sheets and Reference Cards",
+        "Community Forum Access"
+      ],
+      "assignments": [
+        "Project 1: E-commerce Product Catalog",
+        "Project 2: Blog Platform with Comments",
+        "Project 3: User Management System",
+        "Final Project: Complete CRUD Application"
+      ]
+    },
+    "enrollment_count": 0,
+    "rating": {
+      "average": 0.0,
+      "count": 0
+    },
+    "status": "published",
+    "created_at": "2024-01-15T00:00:00Z",
+    "updated_at": "2024-01-15T00:00:00Z"
+  },
+  {
+    "_id": "507f1f77bcf86cd799439022",
+    "title": "Advanced MongoDB Performance Tuning and Optimization",
+    "description": "Deep dive into MongoDB performance optimization, covering index strategies, query optimization, sharding, replication, and monitoring. Learn to handle high-scale production environments with confidence.",
+    "instructor_id": "507f1f77bcf86cd799439012",
+    "category": "Database",
+    "tags": [
+      "mongodb",
+      "performance",
+      "optimization",
+      "advanced",
+      "sharding",
+      "replication"
+    ],
+    "difficulty_level": "advanced",
+    "duration_hours": 24.0,
+    "price": 199.99,
+    "currency": "USD",
+    "content": {
+      "modules": [
+        "Module 1: Performance Analysis and Profiling",
+        "Module 2: Index Design and Optimization",
+        "Module 3: Query Performance Tuning",
+        "Module 4: Aggregation Pipeline Optimization",
+        "Module 5: Memory Management and WiredTiger",
+        "Module 6: Replica Set Configuration and Tuning",
+        "Module 7: Sharding Strategy and Implementation",
+        "Module 8: Connection Pooling and Load Balancing",
+        "Module 9: Monitoring and Alerting Setup",
+        "Module 10: Capacity Planning and Scaling",
+        "Module 11: Backup and Recovery Strategies",
+        "Module 12: Production Troubleshooting"
+      ],
+      "resources": [
+        "Advanced Video Tutorials (16+ hours)",
+        "Performance Testing Scripts",
+        "Real Production Case Studies",
+        "Monitoring Dashboard Templates",
+        "Optimization Checklists",
+        "Expert Q&A Sessions"
+      ],
+      "assignments": [
+        "Performance Audit of Sample Database",
+        "Sharding Strategy Design Document",
+        "Monitoring and Alerting Implementation",
+        "Capstone: Production Optimization Plan"
+      ]
+    },
+    "enrollment_count": 0,
+    "rating": {
+      "average": 0.0,
+      "count": 0
+    },
+    "status": "published",
+    "created_at": "2024-01-20T00:00:00Z",
+    "updated_at": "2024-01-20T00:00:00Z"
+  },
+  {
+    "_id": "507f1f77bcf86cd799439023",
+    "title": "Full-Stack Web Development with MongoDB and Node.js",
+    "description": "Build modern web applications using MongoDB, Express.js, and Node.js. Learn to create RESTful APIs, handle authentication, and deploy scalable applications to the cloud.",
+    "instructor_id": "507f1f77bcf86cd799439013",
+    "category": "Web Development",
+    "tags": [
+      "mongodb",
+      "nodejs",
+      "express",
+      "fullstack",
+      "api",
+      "authentication"
+    ],
+    "difficulty_level": "intermediate",
+    "duration_hours": 18.5,
+    "price": 129.99,
+    "currency": "USD",
+    "content": {
+      "modules": [
+        "Module 1: Setting Up the Development Environment",
+        "Module 2: Node.js and Express.js Fundamentals",
+        "Module 3: MongoDB Integration with Mongoose",
+        "Module 4: RESTful API Design and Implementation",
+        "Module 5: Authentication and Authorization",
+        "Module 6: Data Validation and Error Handling",
+        "Module 7: File Upload and Image Processing",
+        "Module 8: Real-time Features with Socket.io",
+        "Module 9: Testing APIs and Database Operations",
+        "Module 10: Deployment and Production Setup",
+        "Module 11: Performance Optimization",
+        "Module 12: Maintenance and Monitoring"
+      ],
+      "resources": [
+        "Comprehensive Video Course (12+ hours)",
+        "Starter Code Templates",
+        "Postman API Collections",
+        "Deployment Configuration Files",
+        "Security Best Practices Guide",
+        "Live Coding Sessions"
+      ],
+      "assignments": [
+        "Project 1: Task Management API",
+        "Project 2: Social Media Platform Backend",
+        "Project 3: E-commerce API with Payments",
+        "Capstone: Full-Stack Application Deployment"
+      ]
+    },
+    "enrollment_count": 0,
+    "rating": {
+      "average": 0.0,
+      "count": 0
+    },
+    "status": "published",
+    "created_at": "2024-01-25T00:00:00Z",
+    "updated_at": "2024-01-25T00:00:00Z"
+  },
+  {
+    "_id": "507f1f77bcf86cd799439024",
+    "title": "Data Science with MongoDB: Analytics and Machine Learning",
+    "description": "Leverage MongoDB's powerful aggregation framework for data analytics and machine learning workflows. Learn to process large datasets, create analytics pipelines, and integrate with Python data science tools.",
+    "instructor_id": "507f1f77bcf86cd799439015",
+    "category": "Data Science",
+    "tags": [
+      "mongodb",
+      "data-science",
+      "analytics",
+      "machine-learning",
+      "python",
+      "aggregation"
+    ],
+    "difficulty_level": "intermediate",
+    "duration_hours": 16.0,
+    "price": 149.99,
+    "currency": "USD",
+    "content": {
+      "modules": [
+        "Module 1: MongoDB for Data Science Overview",
+        "Module 2: Advanced Aggregation Framework",
+        "Module 3: Time Series Data Analysis",
+        "Module 4: Geospatial Data Processing",
+        "Module 5: Text Search and Natural Language Processing",
+        "Module 6: Integration with Python Data Stack",
+        "Module 7: Building Analytics Dashboards",
+        "Module 8: Machine Learning Feature Engineering",
+        "Module 9: Model Training Data Pipelines",
+        "Module 10: Real-time Analytics with Change Streams",
+        "Module 11: Performance Optimization for Analytics",
+        "Module 12: Production ML Pipelines"
+      ],
+      "resources": [
+        "Video Lectures with Jupyter Notebooks",
+        "Sample Datasets for Practice",
+        "Python Scripts and Libraries Setup",
+        "Dashboard Templates",
+        "ML Pipeline Code Examples",
+        "Research Papers and Case Studies"
+      ],
+      "assignments": [
+        "Exploratory Data Analysis Project",
+        "Time Series Forecasting Model",
+        "Customer Segmentation Analysis",
+        "Real-time Analytics Dashboard"
+      ]
+    },
+    "enrollment_count": 0,
+    "rating": {
+      "average": 0.0,
+      "count": 0
+    },
+    "status": "published",
+    "created_at": "2024-02-01T00:00:00Z",
+    "updated_at": "2024-02-01T00:00:00Z"
+  },
+  {
+    "_id": "507f1f77bcf86cd799439025",
+    "title": "MongoDB Schema Design Patterns and Best Practices",
+    "description": "Master the art of MongoDB schema design with proven patterns for different use cases. Learn when to embed vs. reference, how to model complex relationships, and optimize for your application's query patterns.",
+    "instructor_id": "507f1f77bcf86cd799439012",
+    "category": "Database",
+    "tags": [
+      "mongodb",
+      "schema-design",
+      "data-modeling",
+      "patterns",
+      "best-practices",
+      "optimization"
+    ],
+    "difficulty_level": "intermediate",
+    "duration_hours": 14.0,
+    "price": 109.99,
+    "currency": "USD",
+    "content": {
+      "modules": [
+        "Module 1: Schema Design Fundamentals",
+        "Module 2: Embedded vs. Referenced Documents",
+        "Module 3: One-to-One Relationship Patterns",
+        "Module 4: One-to-Many Relationship Strategies",
+        "Module 5: Many-to-Many Relationship Solutions",
+        "Module 6: Polymorphic Pattern Implementation",
+        "Module 7: Tree Structure Modeling",
+        "Module 8: Time Series Data Patterns",
+        "Module 9: Schema Versioning and Migration",
+        "Module 10: Anti-patterns and Common Mistakes",
+        "Module 11: Performance Impact of Schema Design",
+        "Module 12: Real-world Design Case Studies"
+      ],
+      "resources": [
+        "Interactive Schema Design Workshops",
+        "Pattern Implementation Examples",
+        "Schema Migration Scripts",
+        "Performance Comparison Studies",
+        "Design Decision Frameworks",
+        "Industry Case Study Collection"
+      ],
+      "assignments": [
+        "E-commerce Platform Schema Design",
+        "Social Network Data Model",
+        "Content Management System Schema",
+        "Final Project: Complex Application Design"
+      ]
+    },
+    "enrollment_count": 0,
+    "rating": {
+      "average": 0.0,
+      "count": 0
+    },
+    "status": "published",
+    "created_at": "2024-02-05T00:00:00Z",
+    "updated_at": "2024-02-05T00:00:00Z"
+  }
+]

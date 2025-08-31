@@ -1,0 +1,170 @@
+[
+  {
+    "//": "Location: `/data/seed/base_users.json`",
+    "//": "Small foundational dataset for MongoMasterPro initial setup"
+  },
+  {
+    "_id": "507f1f77bcf86cd799439011",
+    "email": "admin@mongomaster.com",
+    "username": "admin",
+    "password_hash": "$2b$10$rQZ1vKn7tFzr8YhN.E1oC.2X3q4W5e6R7t8Y9u0I1o2P3a4S5d6F",
+    "profile": {
+      "first_name": "Admin",
+      "last_name": "User",
+      "bio": "System administrator for MongoMasterPro learning platform",
+      "avatar_url": "https://api.dicebear.com/7.x/avataaars/svg?seed=admin",
+      "social_links": []
+    },
+    "preferences": {
+      "language": "en",
+      "timezone": "UTC",
+      "email_notifications": true,
+      "difficulty_level": "advanced"
+    },
+    "status": "active",
+    "roles": ["admin", "instructor"],
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z"
+  },
+  {
+    "_id": "507f1f77bcf86cd799439012",
+    "email": "john.doe@mongomaster.com",
+    "username": "johndoe",
+    "password_hash": "$2b$10$rQZ1vKn7tFzr8YhN.E1oC.2X3q4W5e6R7t8Y9u0I1o2P3a4S5d6F",
+    "profile": {
+      "first_name": "John",
+      "last_name": "Doe",
+      "bio": "Senior MongoDB Expert with 10+ years of database experience. Passionate about teaching best practices and performance optimization.",
+      "avatar_url": "https://api.dicebear.com/7.x/avataaars/svg?seed=johndoe",
+      "social_links": [
+        "https://linkedin.com/in/johndoe-mongodb",
+        "https://github.com/johndoe-db"
+      ],
+      "certifications": [
+        "MongoDB Certified Developer",
+        "MongoDB Certified DBA",
+        "AWS Solutions Architect"
+      ],
+      "experience_years": 12,
+      "specializations": ["Database", "Performance Tuning", "Data Modeling"]
+    },
+    "preferences": {
+      "language": "en",
+      "timezone": "America/New_York",
+      "email_notifications": true,
+      "difficulty_level": "advanced"
+    },
+    "instructor_stats": {
+      "total_courses": 0,
+      "total_students": 0,
+      "average_rating": 0.0,
+      "total_revenue": 0.0
+    },
+    "status": "active",
+    "roles": ["instructor"],
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z"
+  },
+  {
+    "_id": "507f1f77bcf86cd799439013",
+    "email": "jane.smith@mongomaster.com",
+    "username": "janesmith",
+    "password_hash": "$2b$10$rQZ1vKn7tFzr8YhN.E1oC.2X3q4W5e6R7t8Y9u0I1o2P3a4S5d6F",
+    "profile": {
+      "first_name": "Jane",
+      "last_name": "Smith",
+      "bio": "Full-stack developer and database architect specializing in modern web applications and scalable data solutions.",
+      "avatar_url": "https://api.dicebear.com/7.x/avataaars/svg?seed=janesmith",
+      "social_links": [
+        "https://linkedin.com/in/janesmith-dev",
+        "https://github.com/janesmith-fullstack",
+        "https://janesmith.dev"
+      ],
+      "certifications": [
+        "MongoDB Certified Developer",
+        "React Certified Developer",
+        "Google Cloud Professional"
+      ],
+      "experience_years": 8,
+      "specializations": ["Web Development", "Database", "Full Stack"]
+    },
+    "preferences": {
+      "language": "en",
+      "timezone": "Europe/London",
+      "email_notifications": true,
+      "difficulty_level": "advanced"
+    },
+    "instructor_stats": {
+      "total_courses": 0,
+      "total_students": 0,
+      "average_rating": 0.0,
+      "total_revenue": 0.0
+    },
+    "status": "active",
+    "roles": ["instructor"],
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z"
+  },
+  {
+    "_id": "507f1f77bcf86cd799439014",
+    "email": "student@example.com",
+    "username": "student_demo",
+    "password_hash": "$2b$10$rQZ1vKn7tFzr8YhN.E1oC.2X3q4W5e6R7t8Y9u0I1o2P3a4S5d6F",
+    "profile": {
+      "first_name": "Demo",
+      "last_name": "Student",
+      "bio": "Aspiring developer learning MongoDB and modern web technologies",
+      "avatar_url": "https://api.dicebear.com/7.x/avataaars/svg?seed=student",
+      "social_links": ["https://github.com/student-demo"]
+    },
+    "preferences": {
+      "language": "en",
+      "timezone": "UTC",
+      "email_notifications": true,
+      "difficulty_level": "beginner"
+    },
+    "status": "active",
+    "roles": ["student"],
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z"
+  },
+  {
+    "_id": "507f1f77bcf86cd799439015",
+    "email": "alex.chen@techcorp.com",
+    "username": "alexchen",
+    "password_hash": "$2b$10$rQZ1vKn7tFzr8YhN.E1oC.2X3q4W5e6R7t8Y9u0I1o2P3a4S5d6F",
+    "profile": {
+      "first_name": "Alex",
+      "last_name": "Chen",
+      "bio": "Data scientist and machine learning engineer with expertise in big data processing and analytics",
+      "avatar_url": "https://api.dicebear.com/7.x/avataaars/svg?seed=alexchen",
+      "social_links": [
+        "https://linkedin.com/in/alexchen-data",
+        "https://github.com/alexchen-ml"
+      ],
+      "certifications": [
+        "MongoDB Certified Developer",
+        "AWS Machine Learning Specialist",
+        "Google Cloud Data Engineer"
+      ],
+      "experience_years": 6,
+      "specializations": ["Data Science", "Machine Learning", "Database"]
+    },
+    "preferences": {
+      "language": "en",
+      "timezone": "Asia/Shanghai",
+      "email_notifications": true,
+      "difficulty_level": "intermediate"
+    },
+    "instructor_stats": {
+      "total_courses": 0,
+      "total_students": 0,
+      "average_rating": 0.0,
+      "total_revenue": 0.0
+    },
+    "status": "active",
+    "roles": ["instructor", "student"],
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z"
+  }
+]

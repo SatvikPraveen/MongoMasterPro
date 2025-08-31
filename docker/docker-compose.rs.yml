@@ -1,0 +1,171 @@
+# Location: `/docker/docker-compose.rs.yml`
+
+version: "3.8"
+
+services:
+  mongo-rs-primary:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: ${MONGO_RS_PRIMARY_CONTAINER:-mongo-rs-primary}
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:-mongomaster123}
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE:-learning_platform}
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-rs-primary-data:/data/db
+      - mongo-rs-primary-config:/data/configdb
+      - mongo-rs-primary-log:/var/log/mongodb
+      - ../scripts:/app/scripts:ro
+      - ../data:/app/data:ro
+      - ../tests:/app/tests:ro
+      - ../config:/app/config:ro
+      - ../docs/results:/app/docs/results
+    networks:
+      - mongo-rs-network
+    command: >
+      bash -c "
+        mongod --bind_ip_all --replSet ${REPLICA_SET_NAME:-rs0} --port 27017 --dbpath /data/db --logpath /var/log/mongodb/mongod.log --logappend --auth --keyFile /app/config/replica.key &
+        sleep 5 &&
+        wait
+      "
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')", "--quiet"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  mongo-rs-secondary1:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: ${MONGO_RS_SECONDARY1_CONTAINER:-mongo-rs-secondary1}
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:-mongomaster123}
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo-rs-secondary1-data:/data/db
+      - mongo-rs-secondary1-config:/data/configdb
+      - mongo-rs-secondary1-log:/var/log/mongodb
+      - ../config:/app/config:ro
+    networks:
+      - mongo-rs-network
+    command: >
+      bash -c "
+        mongod --bind_ip_all --replSet ${REPLICA_SET_NAME:-rs0} --port 27017 --dbpath /data/db --logpath /var/log/mongodb/mongod.log --logappend --auth --keyFile /app/config/replica.key &
+        sleep 5 &&
+        wait
+      "
+    depends_on:
+      mongo-rs-primary:
+        condition: service_healthy
+
+  mongo-rs-secondary2:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: ${MONGO_RS_SECONDARY2_CONTAINER:-mongo-rs-secondary2}
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:-mongomaster123}
+    ports:
+      - "27019:27017"
+    volumes:
+      - mongo-rs-secondary2-data:/data/db
+      - mongo-rs-secondary2-config:/data/configdb
+      - mongo-rs-secondary2-log:/var/log/mongodb
+      - ../config:/app/config:ro
+    networks:
+      - mongo-rs-network
+    command: >
+      bash -c "
+        mongod --bind_ip_all --replSet ${REPLICA_SET_NAME:-rs0} --port 27017 --dbpath /data/db --logpath /var/log/mongodb/mongod.log --logappend --auth --keyFile /app/config/replica.key &
+        sleep 5 &&
+        wait
+      "
+    depends_on:
+      mongo-rs-primary:
+        condition: service_healthy
+
+  mongo-rs-arbiter:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: mongo-rs-arbiter
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:-mongomaster123}
+    ports:
+      - "27020:27017"
+    volumes:
+      - mongo-rs-arbiter-data:/data/db
+      - mongo-rs-arbiter-config:/data/configdb
+      - ../config:/app/config:ro
+    networks:
+      - mongo-rs-network
+    command: >
+      bash -c "
+        mongod --bind_ip_all --replSet ${REPLICA_SET_NAME:-rs0} --port 27017 --dbpath /data/db --logappend --auth --keyFile /app/config/replica.key &
+        sleep 5 &&
+        wait
+      "
+    depends_on:
+      mongo-rs-primary:
+        condition: service_healthy
+
+  mongo-express-rs:
+    image: mongo-express:1.0.0-alpha
+    container_name: mongo-express-rs
+    restart: unless-stopped
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_INITDB_ROOT_USERNAME:-admin}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:-mongomaster123}
+      ME_CONFIG_MONGODB_SERVER: mongo-rs-primary
+      ME_CONFIG_MONGODB_PORT: 27017
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: express123
+    ports:
+      - "8082:8081"
+    networks:
+      - mongo-rs-network
+    depends_on:
+      mongo-rs-primary:
+        condition: service_healthy
+
+volumes:
+  mongo-rs-primary-data:
+    name: mongo-rs-primary-data
+  mongo-rs-primary-config:
+    name: mongo-rs-primary-config
+  mongo-rs-primary-log:
+    name: mongo-rs-primary-log
+  mongo-rs-secondary1-data:
+    name: mongo-rs-secondary1-data
+  mongo-rs-secondary1-config:
+    name: mongo-rs-secondary1-config
+  mongo-rs-secondary1-log:
+    name: mongo-rs-secondary1-log
+  mongo-rs-secondary2-data:
+    name: mongo-rs-secondary2-data
+  mongo-rs-secondary2-config:
+    name: mongo-rs-secondary2-config
+  mongo-rs-secondary2-log:
+    name: mongo-rs-secondary2-log
+  mongo-rs-arbiter-data:
+    name: mongo-rs-arbiter-data
+  mongo-rs-arbiter-config:
+    name: mongo-rs-arbiter-config
+
+networks:
+  mongo-rs-network:
+    name: mongo-rs-network
+    driver: bridge

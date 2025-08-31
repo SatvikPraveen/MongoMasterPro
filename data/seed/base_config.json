@@ -1,0 +1,326 @@
+{
+  "//": "Location: `/data/seed/base_config.json`",
+  "//": "System configuration for MongoMasterPro platform",
+
+  "platform": {
+    "name": "MongoMasterPro",
+    "version": "1.0.0",
+    "description": "Comprehensive MongoDB learning and mastery platform",
+    "environment": "development",
+    "release_date": "2024-01-01T00:00:00Z"
+  },
+
+  "database": {
+    "primary_db": "learning_platform",
+    "test_db": "learning_platform_test",
+    "analytics_db": "analytics",
+    "collections": {
+      "users": {
+        "indexes": ["email", "username", "status", "created_at"],
+        "validation": true,
+        "capped": false
+      },
+      "courses": {
+        "indexes": [
+          "title",
+          "instructor_id",
+          "category",
+          "status",
+          "rating.average"
+        ],
+        "validation": true,
+        "capped": false
+      },
+      "enrollments": {
+        "indexes": ["user_id", "course_id", "completion_status", "enrolled_at"],
+        "validation": true,
+        "capped": false
+      },
+      "reviews": {
+        "indexes": ["course_id", "user_id", "rating", "created_at"],
+        "validation": true,
+        "capped": false
+      },
+      "categories": {
+        "indexes": ["name", "parent_id", "status"],
+        "validation": true,
+        "capped": false
+      },
+      "analytics_events": {
+        "indexes": ["user_id", "event_type", "timestamp"],
+        "validation": true,
+        "capped": false,
+        "ttl": 7776000
+      }
+    }
+  },
+
+  "security": {
+    "authentication": {
+      "enabled": true,
+      "methods": ["SCRAM-SHA-256"],
+      "session_timeout": 3600,
+      "password_policy": {
+        "min_length": 8,
+        "require_uppercase": true,
+        "require_lowercase": true,
+        "require_numbers": true,
+        "require_special_chars": false
+      }
+    },
+    "authorization": {
+      "rbac_enabled": true,
+      "roles": {
+        "admin": {
+          "permissions": ["read", "write", "delete", "admin"],
+          "collections": ["*"]
+        },
+        "instructor": {
+          "permissions": ["read", "write"],
+          "collections": [
+            "courses",
+            "users",
+            "enrollments",
+            "reviews",
+            "analytics_events"
+          ]
+        },
+        "student": {
+          "permissions": ["read", "write"],
+          "collections": [
+            "users",
+            "enrollments",
+            "reviews",
+            "analytics_events"
+          ],
+          "restrictions": {
+            "users": "own_documents_only",
+            "enrollments": "own_documents_only",
+            "reviews": "own_documents_only"
+          }
+        },
+        "readonly": {
+          "permissions": ["read"],
+          "collections": ["courses", "categories"]
+        }
+      }
+    }
+  },
+
+  "features": {
+    "data_generation": {
+      "enabled": true,
+      "modes": ["lite", "full"],
+      "lite_config": {
+        "users": 1000,
+        "courses": 100,
+        "enrollments": 5000,
+        "reviews": 1500,
+        "categories": 20,
+        "analytics_events": 10000
+      },
+      "full_config": {
+        "users": 10000,
+        "courses": 1000,
+        "enrollments": 50000,
+        "reviews": 15000,
+        "categories": 50,
+        "analytics_events": 100000
+      }
+    },
+    "validation": {
+      "enabled": true,
+      "strict_mode": false,
+      "auto_validation": true,
+      "validation_rules": {
+        "email_format": true,
+        "password_strength": true,
+        "data_types": true,
+        "required_fields": true,
+        "range_validation": true
+      }
+    },
+    "performance": {
+      "profiling": {
+        "enabled": true,
+        "slow_op_threshold_ms": 100,
+        "sample_rate": 1.0
+      },
+      "caching": {
+        "enabled": true,
+        "cache_size_gb": 1,
+        "ttl_seconds": 3600
+      },
+      "connection_pooling": {
+        "max_pool_size": 100,
+        "min_pool_size": 5,
+        "max_idle_time_ms": 30000
+      }
+    },
+    "monitoring": {
+      "enabled": true,
+      "metrics_collection": true,
+      "log_level": "info",
+      "alerts": {
+        "slow_queries": true,
+        "connection_issues": true,
+        "disk_space": true,
+        "memory_usage": true
+      }
+    }
+  },
+
+  "learning_paths": [
+    {
+      "id": "mongodb_fundamentals",
+      "name": "MongoDB Fundamentals",
+      "description": "Complete introduction to MongoDB for beginners",
+      "difficulty": "beginner",
+      "estimated_hours": 40,
+      "modules": ["00_setup", "01_crud", "02_indexes", "03_schema_design"],
+      "prerequisites": [],
+      "certification": "MongoDB Fundamentals Certificate"
+    },
+    {
+      "id": "mongodb_advanced",
+      "name": "Advanced MongoDB",
+      "description": "Advanced MongoDB concepts for experienced developers",
+      "difficulty": "advanced",
+      "estimated_hours": 80,
+      "modules": [
+        "04_aggregation",
+        "05_transactions",
+        "06_replication",
+        "07_sharding",
+        "08_change_streams",
+        "09_security",
+        "10_performance"
+      ],
+      "prerequisites": ["mongodb_fundamentals"],
+      "certification": "MongoDB Advanced Professional Certificate"
+    },
+    {
+      "id": "mongodb_expert",
+      "name": "MongoDB Expert Track",
+      "description": "Expert-level MongoDB for architects and DBAs",
+      "difficulty": "expert",
+      "estimated_hours": 120,
+      "modules": ["11_capstones", "custom_projects", "mentorship_program"],
+      "prerequisites": ["mongodb_fundamentals", "mongodb_advanced"],
+      "certification": "MongoDB Expert Master Certificate"
+    }
+  ],
+
+  "integrations": {
+    "docker": {
+      "enabled": true,
+      "compose_files": ["docker-compose.yml", "docker-compose.rs.yml"],
+      "networks": ["mongo-network", "mongo-rs-network"]
+    },
+    "monitoring_tools": {
+      "mongo_express": {
+        "enabled": true,
+        "port": 8081,
+        "basic_auth": {
+          "username": "admin",
+          "password": "express123"
+        }
+      },
+      "prometheus": {
+        "enabled": false,
+        "port": 9216,
+        "metrics_path": "/metrics"
+      }
+    },
+    "external_services": {
+      "email": {
+        "enabled": false,
+        "provider": "sendgrid",
+        "templates": ["welcome", "course_completion", "certificate"]
+      },
+      "payment": {
+        "enabled": false,
+        "providers": ["stripe", "paypal"],
+        "currencies": ["USD", "EUR", "GBP"]
+      }
+    }
+  },
+
+  "development": {
+    "debug_mode": true,
+    "verbose_logging": false,
+    "auto_reload": true,
+    "test_data_reset": true,
+    "sample_data": {
+      "load_on_startup": true,
+      "include_analytics": true,
+      "realistic_timestamps": true
+    }
+  },
+
+  "production": {
+    "debug_mode": false,
+    "ssl_enabled": true,
+    "backup_schedule": "0 2 * * *",
+    "log_retention_days": 30,
+    "performance_monitoring": true,
+    "auto_scaling": {
+      "enabled": true,
+      "min_replicas": 3,
+      "max_replicas": 10,
+      "cpu_threshold": 70,
+      "memory_threshold": 80
+    }
+  },
+
+  "api": {
+    "version": "v1",
+    "base_url": "/api/v1",
+    "rate_limiting": {
+      "enabled": true,
+      "requests_per_minute": 1000,
+      "burst_limit": 100
+    },
+    "cors": {
+      "enabled": true,
+      "origins": ["http://localhost:3000", "https://mongomaster.com"],
+      "credentials": true
+    },
+    "documentation": {
+      "swagger_enabled": true,
+      "openapi_version": "3.0.0",
+      "public_endpoints": ["/health", "/docs", "/api-docs"]
+    }
+  },
+
+  "localization": {
+    "default_language": "en",
+    "supported_languages": ["en", "es", "fr", "de", "ja", "zh"],
+    "timezone_support": true,
+    "date_formats": {
+      "en": "MM/DD/YYYY",
+      "eu": "DD/MM/YYYY",
+      "iso": "YYYY-MM-DD"
+    }
+  },
+
+  "analytics": {
+    "event_tracking": {
+      "enabled": true,
+      "real_time": true,
+      "batch_processing": true,
+      "retention_days": 90
+    },
+    "reporting": {
+      "daily_reports": true,
+      "weekly_summaries": true,
+      "monthly_analytics": true,
+      "custom_dashboards": true
+    },
+    "privacy": {
+      "anonymize_ip": true,
+      "gdpr_compliant": true,
+      "data_retention_policy": 730
+    }
+  }
+}
