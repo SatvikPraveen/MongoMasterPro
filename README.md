@@ -568,7 +568,7 @@ We welcome contributions to make MongoMasterPro even better!
 
 ```bash
 # Fork and clone
-git clone https://github.com/SatvikPraveen/MongoMasterPro.git
+git clone https://github.com/YOUR_USERNAME/MongoMasterPro.git
 cd MongoMasterPro
 
 # Create development branch
@@ -594,6 +594,10 @@ git push origin feature/your-feature-name
 - **Python**: PEP 8 compliance for data generators
 - **Documentation**: Clear examples and explanations
 - **Testing**: Include validation for all new features
+
+**For detailed contribution guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md)**
+
+
 
 ## 📈 Performance Expectations
 
