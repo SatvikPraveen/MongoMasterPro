@@ -262,7 +262,7 @@ make start
 ## Documentation
 
 - **README.md** - Complete project documentation
-- **ISSUES_AND_FIXES.md** - What was wrong and how it was fixed
+- **docs/internal/ISSUES_AND_FIXES.md** - What was wrong and how it was fixed
 - **docs/learning_path.md** - Detailed curriculum
 - **docs/troubleshooting.md** - Common issues and solutions
 - **docs/cheat_sheets/** - Quick reference guides
