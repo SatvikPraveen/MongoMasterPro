@@ -1,7 +1,7 @@
 // File: scripts/04_aggregation/window_functions.js
 // Window operators for analytics: $setWindowFields, ranking, moving averages
 
-use("mongomasterpro");
+use("learning_platform");
 
 print("MongoDB Aggregation: Window Functions");
 print("=" * 50);

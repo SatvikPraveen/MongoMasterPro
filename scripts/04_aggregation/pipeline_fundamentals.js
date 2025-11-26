@@ -1,7 +1,7 @@
 // File: scripts/04_aggregation/pipeline_fundamentals.js
 // Basic aggregation pipeline stages: match, group, sort, limit
 
-use("mongomasterpro");
+use("learning_platform");
 
 print("MongoDB Aggregation: Pipeline Fundamentals");
 print("=" * 50);

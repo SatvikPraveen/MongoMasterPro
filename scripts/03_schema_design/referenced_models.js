@@ -1,7 +1,7 @@
 // File: scripts/03_schema_design/referenced_models.js
 // One-to-many, many-to-many reference patterns and normalization
 
-use("mongomasterpro");
+use("learning_platform");
 
 print("MongoDB Schema Design: Referenced Models");
 print("=" * 50);

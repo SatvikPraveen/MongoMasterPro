@@ -1,7 +1,7 @@
 // File: scripts/03_schema_design/validate_schemas.js
 // Schema validation rules, constraints, and data integrity checks
 
-use("mongomasterpro");
+use("learning_platform");
 
 print("MongoDB Schema Design: Schema Validation");
 print("=" * 50);

@@ -1,7 +1,7 @@
 // File: scripts/01_crud/inserts_updates.js
 // Combined insert/update operations with MongoDB best practices
 
-use("mongomasterpro");
+use("learning_platform");
 
 print("MongoDB CRUD: Insert & Update Operations");
 print("=" * 50);

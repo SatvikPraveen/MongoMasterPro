@@ -1,7 +1,7 @@
 // File: scripts/02_indexes/specialized_indexes.js
 // Text, geo, partial, TTL and specialized index types
 
-use("mongomasterpro");
+use("learning_platform");
 
 print("MongoDB Indexes: Specialized Types");
 print("=" * 50);
@@ -258,7 +258,7 @@ try {
   );
   print("✓ TTL index on audit logs (30 day expiry) created");
 
-  use("mongomasterpro"); // Switch back
+  use("learning_platform"); // Switch back
 } catch (e) {
   print(`⚠ Audit log TTL index: ${e.message}`);
 }

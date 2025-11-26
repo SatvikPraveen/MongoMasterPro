@@ -1,7 +1,7 @@
 // File: scripts/05_transactions/session_management.js
 // Session lifecycle, configuration, and advanced session handling
 
-use("mongomasterpro");
+use("learning_platform");
 
 print("MongoDB Transactions: Session Management");
 print("=" * 50);

@@ -2,7 +2,7 @@
 // Location: scripts/04_aggregation/geo_text_time.js
 // Specialized aggregations: geospatial, text search, and time-series operations
 
-use("mongomasterpro");
+use("learning_platform");
 
 print("MongoDB Aggregation: Geospatial, Text & Time-Series");
 print("=" * 50);

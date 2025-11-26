@@ -6,9 +6,10 @@ import json
 import random
 import argparse
 import sys
+import os
 from datetime import datetime, timedelta
 from faker import Faker
-from bson import ObjectId
+from bson.objectid import ObjectId
 import hashlib
 import uuid
 
@@ -380,11 +381,13 @@ class MongoDataGenerator:
 
     def save_data(self, data, filename):
         """Save generated data to JSON file"""
-        output_file = f"../generated/{filename}"
-
+        # Get the directory where the script is running from
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        generated_dir = os.path.join(os.path.dirname(script_dir), 'generated')
+        
         # Ensure generated directory exists
-        import os
-        os.makedirs("../generated", exist_ok=True)
+        os.makedirs(generated_dir, exist_ok=True)
+        output_file = os.path.join(generated_dir, filename)
 
         # Convert datetime objects to ISO format
         def json_serializer(obj):

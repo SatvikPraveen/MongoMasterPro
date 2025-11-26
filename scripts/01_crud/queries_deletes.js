@@ -1,7 +1,7 @@
 // File: scripts/01_crud/queries_deletes.js
 // Combined query/delete operations with MongoDB best practices
 
-use("mongomasterpro");
+use("learning_platform");
 
 print("MongoDB CRUD: Query & Delete Operations");
 print("=" * 50);

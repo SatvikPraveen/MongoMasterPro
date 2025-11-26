@@ -1,7 +1,7 @@
 // File: scripts/02_indexes/performance_analysis.js
 // Query performance analysis, explain plans, and optimization
 
-use("mongomasterpro");
+use("learning_platform");
 
 print("MongoDB Indexes: Performance Analysis");
 print("=" * 50);

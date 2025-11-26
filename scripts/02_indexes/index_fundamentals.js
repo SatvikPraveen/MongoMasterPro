@@ -1,7 +1,7 @@
 // File: scripts/02_indexes/index_fundamentals.js
 // Single, compound, multikey indexes and fundamentals
 
-use("mongomasterpro");
+use("learning_platform");
 
 print("MongoDB Indexes: Fundamentals");
 print("=" * 50);

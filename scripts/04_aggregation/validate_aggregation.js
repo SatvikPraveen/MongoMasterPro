@@ -1,7 +1,7 @@
 // File: scripts/04_aggregation/validate_aggregation.js
 // Output validation and performance testing for aggregation pipelines
 
-use("mongomasterpro");
+use("learning_platform");
 
 print("MongoDB Aggregation: Validation & Performance");
 print("=" * 50);

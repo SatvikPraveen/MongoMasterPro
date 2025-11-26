@@ -1,7 +1,7 @@
 // File: scripts/03_schema_design/embedded_models.js
 // One-to-few, denormalization patterns and embedded document examples
 
-use("mongomasterpro");
+use("learning_platform");
 
 print("MongoDB Schema Design: Embedded Models");
 print("=" * 50);

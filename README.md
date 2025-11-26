@@ -73,10 +73,10 @@ docker-compose -f docker/docker-compose.rs.yml up -d
 sleep 30
 
 # Run bootstrap script
-docker exec mongomasterpro_mongo1_1 mongosh --file /scripts/bootstrap.js
+docker exec mongo-primary mongosh --file /docker-entrypoint-initdb.d/00_bootstrap.js
 
 # Generate data
-python data/generators/generate_data.py --mode lite
+python data/generators/generate_data.py --mode lite --output data/generated
 ```
 
 ### Environment Verification
@@ -86,7 +86,7 @@ python data/generators/generate_data.py --mode lite
 mongosh --eval "rs.status()" --host localhost:27017
 
 # Verify data creation
-mongosh mongomasterpro --eval "
+mongosh learning_platform --eval "
   print('Users:', db.users.countDocuments());
   print('Courses:', db.courses.countDocuments());
   print('Enrollments:', db.enrollments.countDocuments());
@@ -343,30 +343,34 @@ make restore        # Restore from backup
 ### Testing & Validation
 
 ```bash
-make test           # Run all validation tests
-make test-crud      # Test CRUD operations
-make test-indexes   # Validate index performance
-make test-schemas   # Test schema designs
-make benchmark      # Run performance benchmarks
+make test           # Run all test suite validation
+make validate       # Validate setup and schemas
+make shell          # Connect to MongoDB shell (learning_platform)
 ```
 
-### Development Tools
+### Utilities & Automation
 
 ```bash
-make shell          # Connect to MongoDB shell
-make shell-primary  # Connect to primary node
-make shell-secondary # Connect to secondary node
-make compass        # Connection string for MongoDB Compass
-make monitoring     # Show performance metrics
+# Backup and restore
+./backup-restore.sh backup          # Create full backup
+./backup-restore.sh restore         # Restore from latest backup
+./backup-restore.sh list            # List available backups
+./backup-restore.sh cleanup         # Clean old backups
+
+# Automated testing
+./test-runner.sh                    # Run comprehensive test suite
+./test-runner.sh --verbose          # Show detailed test output
+
+# Monitoring and diagnostics
+node scripts/advanced/monitoring_dashboard.js  # Real-time performance metrics
 ```
 
-### Documentation
+### Key Documentation Files
 
-```bash
-make docs           # Generate documentation
-make examples       # Show usage examples
-make cheatsheet     # Display quick reference
-```
+- **[QUICK_START.md](QUICK_START.md)** - Get started in 5 minutes
+- **[DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md)** - Complete documentation index
+- **[PROJECT_STATUS.md](PROJECT_STATUS.md)** - Current project status and achievements
+- **[RESTORATION_SUMMARY.md](RESTORATION_SUMMARY.md)** - All fixes and improvements applied
 
 ## 🧪 Testing & Validation
 
@@ -382,31 +386,44 @@ MongoMasterPro includes comprehensive testing frameworks:
 ### Performance Testing
 
 ```bash
-# Quick performance check
-make benchmark
+# Comprehensive automated test suite
+./test-runner.sh
 
 # Detailed performance analysis
 cd scripts/10_performance
 mongosh benchmarking.js
 mongosh optimization_tuning.js
 mongosh validate_performance.js
+
+# Real-time monitoring dashboard
+node scripts/advanced/monitoring_dashboard.js
 ```
 
-### Module-Specific Testing
+### Backup & Recovery Testing
 
 ```bash
-# Test individual modules
-make test-module MODULE=01_crud
-make test-module MODULE=04_aggregation
-make test-module MODULE=10_performance
+# Create backup before testing
+./backup-restore.sh backup
 
-# Generate module reports
-make report MODULE=02_indexes
+# Run test suite
+./test-runner.sh
+
+# Restore if needed
+./backup-restore.sh restore
+
+# List available backups
+./backup-restore.sh list
 ```
 
 ## 📖 Documentation & Resources
 
-### Core Documentation
+### Getting Started (⭐ Start Here)
+
+- **[QUICK_START.md](QUICK_START.md)** - 5-minute setup guide with common commands
+- **[DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md)** - Complete documentation roadmap
+- **[PROJECT_STATUS.md](PROJECT_STATUS.md)** - Production-ready status and feature list
+
+### Core Learning Documentation
 
 - **[Learning Path](docs/learning_path.md)** - Detailed curriculum with time estimates
 - **[Troubleshooting Guide](docs/troubleshooting.md)** - Common issues and solutions
@@ -419,18 +436,19 @@ make report MODULE=02_indexes
 - **[Transaction Patterns](docs/cheat_sheets/transaction_patterns.md)** - ACID transaction examples
 - **[Performance Tuning](docs/cheat_sheets/performance_tuning.md)** - Optimization checklists
 
+### Restoration & Enhancement Records
+
+- **[RESTORATION_SUMMARY.md](RESTORATION_SUMMARY.md)** - All fixes and improvements applied (35+ files updated)
+- **[ISSUES_AND_FIXES.md](ISSUES_AND_FIXES.md)** - Detailed issue documentation with solutions
+
 ### Portfolio Artifacts
 
-- **[KPI Dashboards](docs/portfolio/kpi_dashboards/)** - Interactive analytics examples
 - **[Architecture Designs](docs/portfolio/architecture_designs/)** - System design documents
-- **[Case Studies](docs/portfolio/optimization_case_studies/)** - Real optimization examples
+- **[Results](docs/results/)** - Performance reports and schema diagrams
 
-### Results & Metrics
+### Development & CI/CD
 
-- **[Explain Plans](docs/results/explain_plans/)** - Query execution analysis
-- **[Performance Reports](docs/results/performance_reports/)** - Benchmark results
-- **[Schema Diagrams](docs/results/schema_diagrams/)** - Data model visualizations
-- **[Benchmark Data](docs/results/benchmark_results/)** - Performance metrics
+- **.github/workflows/ci-cd.yml** - Automated GitHub Actions pipeline for testing
 
 ## 🔧 Configuration Options
 
@@ -492,27 +510,29 @@ Create your own learning sequences:
 make setup
 cd scripts/02_indexes && mongosh index_fundamentals.js
 cd ../10_performance && mongosh profiling_analysis.js
-cd ../10_performance && mongosh benchmarking.js
+cd ../10_performance && mongosh optimization_tuning.js
 
 # Data modeling deep-dive
-cd scripts/03_schema_design && mongosh patterns_guide.md
-cd ../03_schema_design && mongosh embedded_models.js
+cd scripts/03_schema_design && mongosh embedded_models.js
 cd ../03_schema_design && mongosh referenced_models.js
+cd ../03_schema_design && mongosh schema_migrations.js
 ```
 
 ### Integration with MongoDB Tools
 
 ```bash
-# MongoDB Compass connection
-make compass
+# Connect with MongoDB Compass
+# mongodb+srv://admin:securepassword@localhost:27017/learning_platform?authSource=admin
 
-# Export aggregation pipelines
-mongoexport --host localhost:27017 --db mongomasterpro \
-           --collection results --out exports/results.json
+# Export collection data
+mongoexport --host localhost:27017 --db learning_platform \
+           --collection courses --out exports/courses.json \
+           --authenticationDatabase admin
 
 # Import custom datasets
-mongoimport --host localhost:27017 --db mongomasterpro \
-           --collection custom_data --file data/custom.json
+mongoimport --host localhost:27017 --db learning_platform \
+           --collection custom_data --file data/custom.json \
+           --authenticationDatabase admin
 ```
 
 ### Production Deployment Patterns
@@ -575,21 +595,28 @@ git push origin feature/your-feature-name
 
 ## 📈 Performance Expectations
 
-Expected performance metrics after completing the course:
+Benchmark performance metrics for the e-learning platform:
 
-### Query Performance
+### Query Performance Targets
 
 - **Simple Queries**: <10ms average response time
 - **Complex Aggregations**: <100ms for most pipelines
-- **Index Scans**: >95% of queries should use indexes
+- **Index Scans**: >95% of queries use indexes
 - **Bulk Operations**: >10,000 ops/second throughput
 
-### System Performance
+### System Performance Targets
 
-- **Memory Usage**: <4GB for full datasets
+- **Memory Usage**: <4GB for full 50K+ record datasets
 - **Storage Efficiency**: >70% data to storage ratio
 - **Connection Pool**: <80% utilization under load
 - **Replication Lag**: <1 second in normal conditions
+
+### Data Scale
+
+- **Users**: 5K (lite) to 50K (full)
+- **Courses**: 500 (lite) to 5K (full)
+- **Enrollments**: 25K (lite) to 200K+ (full)
+- **Activities**: 100K (lite) to 1M+ (full)
 
 ### Optimization Targets
 
@@ -613,25 +640,46 @@ A: Absolutely! The patterns and configurations are production-ready and follow M
 
 ### Technical Questions
 
-**Q: What MongoDB version is supported?**
-A: MongoMasterPro is designed for MongoDB 5.0+ and takes advantage of the latest features like window functions and time-series collections.
+**Q: What MongoDB version is required?**
+A: MongoDB 7.0 is installed in Docker containers. The learning modules support MongoDB 5.0+ features including window functions and time-series collections.
 
 **Q: Can I run this on my laptop?**
-A: Yes, the lite mode works well on systems with 8GB RAM. Full mode is recommended for systems with 16GB+ RAM.
+A: Yes, lite mode works on systems with 8GB RAM. Full mode is recommended for 16GB+ RAM systems. Docker handles resource management.
 
 **Q: How do I scale the datasets?**
-A: Use the data generator parameters to create custom dataset sizes. The system scales from 1K to 1M+ records.
+A: Use data generator parameters to create custom sizes:
+```bash
+python data/generators/generate_data.py --users 25000 --courses 2500 --mode full
+```
+The system scales from 5K to 200K+ records.
+
+**Q: What's the difference between lite and full modes?**
+A: Lite mode creates 5K users/500 courses for development. Full mode creates 50K+ users/5K courses for production-level testing.
+
+**Q: How do I use the backup and restore utilities?**
+A: Simple commands:
+```bash
+./backup-restore.sh backup    # Auto-timestamped backup
+./backup-restore.sh restore   # Restore latest backup
+./backup-restore.sh list      # Show available backups
+```
 
 ### Troubleshooting
 
 **Q: MongoDB won't start in Docker**
-A: Check port conflicts, ensure Docker has sufficient memory allocation, and verify the replica set key file permissions.
+A: Check port conflicts (`port 27017` must be free), ensure Docker has 4GB+ memory, verify the replica set key file permissions. See [troubleshooting.md](docs/troubleshooting.md) for detailed solutions.
 
 **Q: Performance benchmarks are slower than expected**
-A: Ensure adequate system resources, check Docker memory limits, and verify SSD storage is being used.
+A: Ensure adequate system resources (8GB+ RAM recommended), check Docker memory limits in docker-compose.yml, verify SSD storage is being used. Run `./test-runner.sh --verbose` for diagnostics.
 
 **Q: Data generation is taking too long**
-A: Start with lite mode, use parallel processing options in the generator, or reduce the dataset size.
+A: Start with `make data-lite` for development, use the data generator parameters to reduce dataset size, or check available system RAM. Lite mode typically completes in <2 minutes.
+
+**Q: Tests are failing with database errors**
+A: Ensure MongoDB is running (`make start`), database is initialized (`make setup`), and schemas are validated. Check `make logs` for detailed error messages.
+
+**Q: "Database mongomasterpro not found" error?**
+A: Update your connection strings to use `learning_platform` instead. All modules have been updated to use the standardized database name.
 
 ## 🎉 Success Stories & Testimonials
 
