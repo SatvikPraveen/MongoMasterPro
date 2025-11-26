@@ -2,15 +2,16 @@
 # Location: `/data/generators/generate_data.py`
 # Unified data generator for MongoMasterPro with lite/full modes
 
-import json
-import random
 import argparse
-import os
-from datetime import datetime
-from faker import Faker
-from bson.objectid import ObjectId
 import hashlib
+import json
+import os
+import random
 import uuid
+from datetime import datetime
+
+from bson.objectid import ObjectId
+from faker import Faker
 
 fake = Faker()
 
