@@ -5,15 +5,15 @@
 import json
 import random
 import argparse
-import sys
 import os
-from datetime import datetime, timedelta
+from datetime import datetime
 from faker import Faker
 from bson.objectid import ObjectId
 import hashlib
 import uuid
 
 fake = Faker()
+
 
 class MongoDataGenerator:
     def __init__(self, mode='lite'):
@@ -65,8 +65,13 @@ class MongoDataGenerator:
             "difficulty_levels": ["beginner", "intermediate", "advanced"],
             "course_statuses": ["draft", "published", "archived"],
             "user_statuses": ["active", "inactive", "suspended"],
-            "completion_statuses": ["not_started", "in_progress", "completed", "dropped"],
-            "event_types": ["login", "logout", "course_view", "enrollment", "completion", "quiz_attempt"]
+            "completion_statuses": [
+                "not_started", "in_progress", "completed", "dropped"
+            ],
+            "event_types": [
+                "login", "logout", "course_view", "enrollment",
+                "completion", "quiz_attempt"
+            ]
         }
 
     def generate_object_id(self):
@@ -93,7 +98,10 @@ class MongoDataGenerator:
                     "first_name": profile['name'].split()[0],
                     "last_name": profile['name'].split()[-1],
                     "bio": fake.text(max_nb_chars=200),
-                    "avatar_url": f"https://api.dicebear.com/7.x/avataaars/svg?seed={profile['username']}",
+                    "avatar_url": (
+                        f"https://api.dicebear.com/7.x/avataaars/svg?"
+                        f"seed={profile['username']}"
+                    ),
                     "social_links": [
                         f"https://linkedin.com/in/{profile['username']}",
                         f"https://github.com/{profile['username']}"
@@ -130,18 +138,35 @@ class MongoDataGenerator:
                 "profile": {
                     "first_name": fake.first_name(),
                     "last_name": fake.last_name(),
-                    "bio": f"Expert {random.choice(self.schemas['categories'])} instructor with {random.randint(3, 15)}+ years experience",
-                    "avatar_url": f"https://api.dicebear.com/7.x/avataaars/svg?seed={fake.user_name()}",
+                    "bio": (
+                        f"Expert {random.choice(self.schemas['categories'])} instructor "
+                        f"with {random.randint(3, 15)}+ years experience"
+                    ),
+                    "avatar_url": (
+                        f"https://api.dicebear.com/7.x/avataaars/svg?"
+                        f"seed={fake.user_name()}"
+                    ),
                     "social_links": [
                         f"https://linkedin.com/in/{fake.user_name()}",
                         f"https://github.com/{fake.user_name()}"
                     ],
                     "certifications": [
-                        f"Certified {random.choice(self.schemas['categories'])} Professional",
-                        f"Advanced {random.choice(self.schemas['categories'])} Specialist"
+                        (
+                            f"Certified "
+                            f"{random.choice(self.schemas['categories'])} Professional"
+                        ),
+                        (
+                            f"Advanced {random.choice(self.schemas['categories'])} "
+                            f"Specialist"
+                        )
                     ],
                     "experience_years": random.randint(3, 15),
-                    "specializations": random.sample(self.schemas['categories'], k=random.randint(2, 4))
+                    "specializations": (
+                        random.sample(
+                            self.schemas['categories'],
+                            k=random.randint(2, 4)
+                        )
+                    )
                 },
                 "preferences": {
                     "language": "en",
@@ -180,8 +205,12 @@ class MongoDataGenerator:
                 "level": 0,
                 "course_count": 0,
                 "status": "active",
-                "created_at": fake.date_time_between(start_date='-1y', end_date='now'),
-                "updated_at": fake.date_time_between(start_date='-30d', end_date='now')
+                "created_at": (
+                    fake.date_time_between(start_date='-1y', end_date='now')
+                ),
+                "updated_at": (
+                    fake.date_time_between(start_date='-30d', end_date='now')
+                )
             }
             categories.append(category)
 
@@ -191,13 +220,20 @@ class MongoDataGenerator:
             subcategory = {
                 "_id": self.generate_object_id(),
                 "name": f"{parent['name']} - {fake.word().title()}",
-                "description": f"Specialized {parent['name'].lower()} topics and advanced concepts",
+                "description": (
+                    f"Specialized {parent['name'].lower()} topics and "
+                    f"advanced concepts"
+                ),
                 "parent_id": parent['_id'],
                 "level": 1,
                 "course_count": 0,
                 "status": "active",
-                "created_at": fake.date_time_between(start_date='-6m', end_date='now'),
-                "updated_at": fake.date_time_between(start_date='-30d', end_date='now')
+                "created_at": (
+                    fake.date_time_between(start_date='-6m', end_date='now')
+                ),
+                "updated_at": (
+                    fake.date_time_between(start_date='-30d', end_date='now')
+                )
             }
             categories.append(subcategory)
 
@@ -228,10 +264,13 @@ class MongoDataGenerator:
                 "instructor_id": instructor['_id'],
                 "category": category['name'],
                 "tags": random.sample([
-                    category['name'].lower(), "tutorial", "hands-on", "project-based",
-                    "beginner-friendly", "advanced", "certification", "practical"
+                    category['name'].lower(), "tutorial", "hands-on",
+                    "project-based", "beginner-friendly", "advanced",
+                    "certification", "practical"
                 ], k=random.randint(3, 6)),
-                "difficulty_level": random.choice(self.schemas['difficulty_levels']),
+                "difficulty_level": (
+                    random.choice(self.schemas['difficulty_levels'])
+                ),
                 "duration_hours": round(random.uniform(5.0, 40.0), 1),
                 "price": round(random.uniform(29.99, 299.99), 2),
                 "currency": "USD",
@@ -258,8 +297,12 @@ class MongoDataGenerator:
                     self.schemas['course_statuses'],
                     weights=[0.1, 0.85, 0.05]
                 )[0],
-                "created_at": fake.date_time_between(start_date='-1y', end_date='now'),
-                "updated_at": fake.date_time_between(start_date='-30d', end_date='now')
+                "created_at": (
+                    fake.date_time_between(start_date='-1y', end_date='now')
+                ),
+                "updated_at": (
+                    fake.date_time_between(start_date='-30d', end_date='now')
+                )
             }
             courses.append(course)
 
@@ -300,15 +343,35 @@ class MongoDataGenerator:
                 "course_id": course['_id'],
                 "progress": {
                     "percentage": progress_percentage,
-                    "completed_modules": random.randint(0, progress_percentage // 10),
+                    "completed_modules": (
+                        random.randint(0, progress_percentage // 10)
+                    ),
                     "current_module": f"Module {random.randint(1, 8)}",
-                    "last_accessed": fake.date_time_between(start_date=enrolled_date, end_date='now')
+                    "last_accessed": (
+                        fake.date_time_between(
+                            start_date=enrolled_date,
+                            end_date='now'
+                        )
+                    )
                 },
                 "completion_status": completion_status,
-                "completion_date": fake.date_time_between(start_date=enrolled_date, end_date='now') if completion_status == "completed" else None,
-                "certificate_issued": completion_status == "completed" and random.choice([True, False]),
+                "completion_date": (
+                    fake.date_time_between(
+                        start_date=enrolled_date,
+                        end_date='now'
+                    ) if completion_status == "completed" else None
+                ),
+                "certificate_issued": (
+                    completion_status == "completed" and
+                    random.choice([True, False])
+                ),
                 "enrolled_at": enrolled_date,
-                "updated_at": fake.date_time_between(start_date=enrolled_date, end_date='now')
+                "updated_at": (
+                    fake.date_time_between(
+                        start_date=enrolled_date,
+                        end_date='now'
+                    )
+                )
             }
             enrollments.append(enrollment)
 
@@ -320,31 +383,47 @@ class MongoDataGenerator:
         reviews = []
 
         # Only create reviews for completed or in-progress enrollments
-        eligible_enrollments = [e for e in enrollments if e['completion_status'] in ['completed', 'in_progress']]
+        eligible_enrollments = [
+            e for e in enrollments
+            if e['completion_status'] in ['completed', 'in_progress']
+        ]
 
-        for i in range(min(self.config['reviews'], len(eligible_enrollments))):
+        for i in range(
+            min(self.config['reviews'], len(eligible_enrollments))
+        ):
             enrollment = random.choice(eligible_enrollments)
 
             # Higher ratings for completed courses
             if enrollment['completion_status'] == 'completed':
-                rating = random.choices([3, 4, 5], weights=[0.1, 0.3, 0.6])[0]
+                rating = (
+                    random.choices([3, 4, 5], weights=[0.1, 0.3, 0.6])[0]
+                )
             else:
-                rating = random.choices([2, 3, 4, 5], weights=[0.1, 0.2, 0.4, 0.3])[0]
+                rating = (
+                    random.choices(
+                        [2, 3, 4, 5],
+                        weights=[0.1, 0.2, 0.4, 0.3]
+                    )[0]
+                )
 
             review = {
                 "_id": self.generate_object_id(),
                 "user_id": enrollment['user_id'],
                 "course_id": enrollment['course_id'],
                 "rating": rating,
-                "title": f"{fake.sentence(nb_words=6)}",
+                "title": fake.sentence(nb_words=6),
                 "comment": fake.text(max_nb_chars=400),
                 "helpful_votes": random.randint(0, 50),
                 "verified_purchase": True,
-                "created_at": fake.date_time_between(
-                    start_date=enrollment['enrolled_at'],
-                    end_date='now'
+                "created_at": (
+                    fake.date_time_between(
+                        start_date=enrollment['enrolled_at'],
+                        end_date='now'
+                    )
                 ),
-                "updated_at": fake.date_time_between(start_date='-7d', end_date='now')
+                "updated_at": (
+                    fake.date_time_between(start_date='-7d', end_date='now')
+                )
             }
             reviews.append(review)
 
@@ -366,14 +445,26 @@ class MongoDataGenerator:
                 "_id": self.generate_object_id(),
                 "user_id": user['_id'],
                 "event_type": event_type,
-                "course_id": random.choice(courses)['_id'] if event_type in ['course_view', 'enrollment', 'completion'] else None,
+                "course_id": (
+                    random.choice(courses)['_id']
+                    if event_type in [
+                        'course_view', 'enrollment', 'completion'
+                    ]
+                    else None
+                ),
                 "session_id": str(uuid.uuid4()),
                 "properties": {
                     "user_agent": fake.user_agent(),
                     "ip_address": fake.ipv4(),
-                    "duration_seconds": random.randint(30, 3600) if event_type in ['course_view', 'video_play'] else None
+                    "duration_seconds": (
+                        random.randint(30, 3600)
+                        if event_type in ['course_view', 'video_play']
+                        else None
+                    )
                 },
-                "timestamp": fake.date_time_between(start_date='-3m', end_date='now')
+                "timestamp": (
+                    fake.date_time_between(start_date='-3m', end_date='now')
+                )
             }
             events.append(event)
 
@@ -383,8 +474,11 @@ class MongoDataGenerator:
         """Save generated data to JSON file"""
         # Get the directory where the script is running from
         script_dir = os.path.dirname(os.path.abspath(__file__))
-        generated_dir = os.path.join(os.path.dirname(script_dir), 'generated')
-        
+        generated_dir = os.path.join(
+            os.path.dirname(script_dir),
+            'generated'
+        )
+
         # Ensure generated directory exists
         os.makedirs(generated_dir, exist_ok=True)
         output_file = os.path.join(generated_dir, filename)
@@ -393,10 +487,17 @@ class MongoDataGenerator:
         def json_serializer(obj):
             if isinstance(obj, datetime):
                 return obj.isoformat()
-            raise TypeError(f"Object of type {type(obj)} is not JSON serializable")
+            raise TypeError(
+                f"Object of type {type(obj)} is not JSON serializable"
+            )
 
         with open(output_file, 'w') as f:
-            json.dump(data, f, indent=2, default=json_serializer)
+            json.dump(
+                data,
+                f,
+                indent=2,
+                default=json_serializer
+            )
 
         print(f"✅ Saved {len(data)} records to {output_file}")
 
@@ -427,7 +528,7 @@ class MongoDataGenerator:
         self.save_data(analytics_events, "analytics_events.json")
 
         print(f"🎉 Data generation complete! Generated {self.mode} dataset.")
-        print(f"📁 Files saved to: ../generated/")
+        print("📁 Files saved to: ../generated/")
 
         # Generate summary report
         summary = {
@@ -449,16 +550,29 @@ class MongoDataGenerator:
         }
 
         self.save_data([summary], "generation_summary.json")
-        print(f"📋 Generation summary saved to ../generated/generation_summary.json")
+        print("📋 Generation summary saved to ../generated/"
+              "generation_summary.json")
+
 
 def main():
-    parser = argparse.ArgumentParser(description='MongoDB data generator for MongoMasterPro')
-    parser.add_argument('--mode', choices=['lite', 'full'], default='lite',
-                        help='Generation mode: lite (5K records) or full (50K+ records)')
-    parser.add_argument('--collection', choices=[
-        'users', 'instructors', 'courses', 'categories',
-        'enrollments', 'reviews', 'analytics_events', 'all'
-    ], default='all', help='Generate specific collection or all')
+    parser = argparse.ArgumentParser(
+        description='MongoDB data generator for MongoMasterPro'
+    )
+    parser.add_argument(
+        '--mode',
+        choices=['lite', 'full'],
+        default='lite',
+        help='Generation mode: lite (5K records) or full (50K+ records)'
+    )
+    parser.add_argument(
+        '--collection',
+        choices=[
+            'users', 'instructors', 'courses', 'categories',
+            'enrollments', 'reviews', 'analytics_events', 'all'
+        ],
+        default='all',
+        help='Generate specific collection or all'
+    )
 
     args = parser.parse_args()
 
@@ -470,6 +584,7 @@ def main():
         print(f"Generating {args.collection} in {args.mode} mode...")
         # Individual collection generation logic would go here
         generator.generate_all()  # For now, generate all
+
 
 if __name__ == "__main__":
     main()
