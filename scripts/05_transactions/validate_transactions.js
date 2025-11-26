@@ -1,7 +1,7 @@
 // File: scripts/05_transactions/validate_transactions.js
 // Comprehensive transaction validation and consistency checks
 
-use("mongomasterpro");
+use("learning_platform");
 
 print("MongoDB Transactions: Validation & Testing");
 print("=" * 50);

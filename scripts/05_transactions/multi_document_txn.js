@@ -1,7 +1,7 @@
 // File: scripts/05_transactions/multi_document_txn.js
 // ACID multi-document transactions for data consistency
 
-use("mongomasterpro");
+use("learning_platform");
 
 print("MongoDB Transactions: Multi-Document ACID Operations");
 print("=" * 50);

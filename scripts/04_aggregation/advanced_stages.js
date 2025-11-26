@@ -1,7 +1,7 @@
 // File: scripts/04_aggregation/advanced_stages.js
 // Advanced aggregation stages: $lookup, $unwind, $facet, $bucket
 
-use("mongomasterpro");
+use("learning_platform");
 
 print("MongoDB Aggregation: Advanced Stages");
 print("=" * 50);

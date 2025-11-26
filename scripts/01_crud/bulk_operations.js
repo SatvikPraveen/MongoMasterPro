@@ -1,7 +1,7 @@
 // File: scripts/01_crud/bulk_operations.js
 // Advanced bulk write patterns and optimization strategies
 
-use("mongomasterpro");
+use("learning_platform");
 
 print("MongoDB CRUD: Bulk Operations");
 print("=" * 50);
@@ -611,7 +611,7 @@ function collectBulkMetrics(operationName, operations) {
     use("mmp_analytics");
     db.bulk_operation_metrics.insertOne(metrics);
 
-    use("mongomasterpro"); // Switch back
+    use("learning_platform"); // Switch back
 
     print(`✓ ${operationName} metrics:`);
     print(`  Duration: ${duration}ms`);
@@ -675,7 +675,7 @@ use("mmp_analytics");
 const metricsCount = db.bulk_operation_metrics.countDocuments();
 print(`  Bulk operation metrics recorded: ${metricsCount}`);
 
-use("mongomasterpro"); // Switch back
+use("learning_platform"); // Switch back
 
 print("\n🎯 Key Learnings:");
 print("• bulkWrite() for efficient batch operations");

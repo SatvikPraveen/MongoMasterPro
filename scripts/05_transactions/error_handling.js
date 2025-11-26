@@ -1,7 +1,7 @@
 // File: scripts/05_transactions/error_handling.js
 // Transaction error handling, retry logic, and rollback mechanisms
 
-use("mongomasterpro");
+use("learning_platform");
 
 print("MongoDB Transactions: Error Handling & Recovery");
 print("=" * 50);

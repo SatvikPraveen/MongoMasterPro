@@ -643,7 +643,7 @@ class DataGenerator {
   async insertData() {
     print("Starting data insertion process...");
 
-    use("mongomasterpro");
+    use("learning_platform");
 
     try {
       // Insert users first (needed for foreign keys)

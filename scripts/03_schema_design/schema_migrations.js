@@ -1,7 +1,7 @@
 // File: scripts/03_schema_design/schema_migrations.js
 // Schema versioning and migration patterns for evolving data structures
 
-use("mongomasterpro");
+use("learning_platform");
 
 print("MongoDB Schema Design: Migrations & Versioning");
 print("=" * 50);

@@ -19,7 +19,7 @@ class EndToEndWorkflowTests {
       process.env.MONGODB_URI || "mongodb://localhost:27017"
     );
     await this.client.connect();
-    this.db = this.client.db("mongomasterpro_integration_test");
+    this.db = this.client.db("learning_platform_test");
     console.log("✓ End-to-End Workflow Tests - Setup complete");
   }
 

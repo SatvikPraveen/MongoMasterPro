@@ -19,6 +19,7 @@ services:
       - mongo-rs-primary-data:/data/db
       - mongo-rs-primary-config:/data/configdb
       - mongo-rs-primary-log:/var/log/mongodb
+      - ../docker/init:/docker-entrypoint-initdb.d:ro
       - ../scripts:/app/scripts:ro
       - ../data:/app/data:ro
       - ../tests:/app/tests:ro

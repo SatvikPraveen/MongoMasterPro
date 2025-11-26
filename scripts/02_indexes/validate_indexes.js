@@ -1,7 +1,7 @@
 // File: scripts/02_indexes/validate_indexes.js
 // Index existence, performance checks, and optimization validation
 
-use("mongomasterpro");
+use("learning_platform");
 
 print("MongoDB Indexes: Validation & Testing");
 print("=" * 50);

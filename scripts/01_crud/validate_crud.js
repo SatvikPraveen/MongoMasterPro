@@ -1,7 +1,7 @@
 // File: scripts/01_crud/validate_crud.js
 // Comprehensive validation and assertions for CRUD operations
 
-use("mongomasterpro");
+use("learning_platform");
 
 print("MongoDB CRUD: Validation & Testing");
 print("=" * 50);

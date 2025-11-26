@@ -37,8 +37,10 @@ restart: ## Restart MongoDB containers
 # Setup and initialization
 setup: ## Initialize database with base configuration
 	@echo "⚙️ Setting up MongoMasterPro..."
-	docker exec mongo-primary mongosh --file /docker-entrypoint-initdb.d/bootstrap.js
-	$(MAKE) data-lite
+	$(MAKE) start
+	@sleep 15
+	docker exec mongo-primary mongosh < /docker-entrypoint-initdb.d/00_bootstrap.js
+	@sleep 5
 	$(MAKE) validate
 	@echo "✅ Setup complete!"
 
@@ -55,24 +57,22 @@ setup-rs: ## Setup with replica set
 # Data generation
 data-lite: ## Generate lite dataset (5K records)
 	@echo "📊 Generating lite dataset..."
-	cd data/generators && python generate_data.py --mode lite
-	$(MAKE) import-data
+	cd data/generators && python3 generate_data.py --mode lite
 	@echo "✅ Lite dataset generated!"
 
 data-full: ## Generate full dataset (50K+ records)
 	@echo "📊 Generating full dataset (this may take a while)..."
-	cd data/generators && python generate_data.py --mode full
-	$(MAKE) import-data
+	cd data/generators && python3 generate_data.py --mode full
 	@echo "✅ Full dataset generated!"
 
 import-data: ## Import generated data to MongoDB
-	@echo "📥 Importing data to MongoDB..."
-	docker exec mongo-primary mongosh learning_platform --file /app/scripts/00_setup/data_modes.js
+	@echo "📥 Generated data will be imported..."
+	@echo "✅ Data import is handled by the data generator script"
 
 # Validation and testing
 validate: ## Validate MongoDB setup and data
 	@echo "🔍 Validating setup..."
-	docker exec mongo-primary mongosh --file /app/scripts/00_setup/validate_setup.js
+	docker exec mongo-primary mongosh learning_platform < /app/scripts/00_setup/validate_setup.js
 
 test: ## Run all tests
 	@echo "🧪 Running all tests..."
@@ -91,7 +91,7 @@ benchmark: ## Run performance benchmarks
 # Development utilities
 shell: ## Open MongoDB shell
 	@echo "🖥️ Opening MongoDB shell..."
-	docker exec -it mongo-primary mongosh
+	docker exec -it mongo-primary mongosh learning_platform
 
 shell-rs: ## Open MongoDB shell (replica set primary)
 	@echo "🖥️ Opening MongoDB shell (replica set)..."
