@@ -14,10 +14,11 @@ jobs:
       mongodb:
         image: mongo:7.0
         options: >-
-          --health-cmd "mongo --eval 'db.adminCommand(\"ping\")'"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          --health-cmd "echo 'db.runCommand(\"ping\")' | mongosh --quiet || true"
+          --health-interval 5s
+          --health-timeout 10s
+          --health-retries 10
+          --health-start-period 20s
         ports:
           - 27017:27017
     
@@ -32,6 +33,19 @@ jobs:
     - name: Install mongosh
       run: |
         npm install -g mongosh
+    
+    - name: Wait for MongoDB to be ready
+      run: |
+        for i in {1..30}; do
+          if mongosh --eval "db.adminCommand('ping')" --quiet 2>/dev/null; then
+            echo "✓ MongoDB is ready"
+            exit 0
+          fi
+          echo "Waiting for MongoDB... ($i/30)"
+          sleep 1
+        done
+        echo "✗ MongoDB failed to start"
+        exit 1
     
     - name: Install dependencies
       run: |
