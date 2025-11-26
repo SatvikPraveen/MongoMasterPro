@@ -354,14 +354,14 @@ make shell          # Connect to MongoDB shell (learning_platform)
 
 ```bash
 # Backup and restore
-./backup-restore.sh backup          # Create full backup
-./backup-restore.sh restore         # Restore from latest backup
-./backup-restore.sh list            # List available backups
-./backup-restore.sh cleanup         # Clean old backups
+./scripts/utilities/backup-restore.sh backup          # Create full backup
+./scripts/utilities/backup-restore.sh restore         # Restore from latest backup
+./scripts/utilities/backup-restore.sh list            # List available backups
+./scripts/utilities/backup-restore.sh cleanup         # Clean old backups
 
 # Automated testing
-./test-runner.sh                    # Run comprehensive test suite
-./test-runner.sh --verbose          # Show detailed test output
+./scripts/utilities/test-runner.sh                    # Run comprehensive test suite
+./scripts/utilities/test-runner.sh --verbose          # Show detailed test output
 
 # Monitoring and diagnostics
 node scripts/advanced/monitoring_dashboard.js  # Real-time performance metrics
@@ -370,9 +370,9 @@ node scripts/advanced/monitoring_dashboard.js  # Real-time performance metrics
 ### Key Documentation Files
 
 - **[QUICK_START.md](QUICK_START.md)** - Get started in 5 minutes
-- **[DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md)** - Complete documentation index
-- **[PROJECT_STATUS.md](PROJECT_STATUS.md)** - Current project status and achievements
-- **[RESTORATION_SUMMARY.md](RESTORATION_SUMMARY.md)** - All fixes and improvements applied
+- **[docs/internal/DOCUMENTATION_INDEX.md](docs/internal/DOCUMENTATION_INDEX.md)** - Complete documentation index
+- **[docs/internal/PROJECT_STATUS.md](docs/internal/PROJECT_STATUS.md)** - Current project status and achievements
+- **[docs/internal/RESTORATION_SUMMARY.md](docs/internal/RESTORATION_SUMMARY.md)** - All fixes and improvements applied
 
 ## 🧪 Testing & Validation
 
@@ -389,7 +389,7 @@ MongoMasterPro includes comprehensive testing frameworks:
 
 ```bash
 # Comprehensive automated test suite
-./test-runner.sh
+./scripts/utilities/test-runner.sh
 
 # Detailed performance analysis
 cd scripts/10_performance
@@ -405,16 +405,16 @@ node scripts/advanced/monitoring_dashboard.js
 
 ```bash
 # Create backup before testing
-./backup-restore.sh backup
+./scripts/utilities/backup-restore.sh backup
 
 # Run test suite
-./test-runner.sh
+./scripts/utilities/test-runner.sh
 
 # Restore if needed
-./backup-restore.sh restore
+./scripts/utilities/backup-restore.sh restore
 
 # List available backups
-./backup-restore.sh list
+./scripts/utilities/backup-restore.sh list
 ```
 
 ## 📖 Documentation & Resources
@@ -422,8 +422,8 @@ node scripts/advanced/monitoring_dashboard.js
 ### Getting Started (⭐ Start Here)
 
 - **[QUICK_START.md](QUICK_START.md)** - 5-minute setup guide with common commands
-- **[DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md)** - Complete documentation roadmap
-- **[PROJECT_STATUS.md](PROJECT_STATUS.md)** - Production-ready status and feature list
+- **[docs/internal/DOCUMENTATION_INDEX.md](docs/internal/DOCUMENTATION_INDEX.md)** - Complete documentation roadmap
+- **[docs/internal/PROJECT_STATUS.md](docs/internal/PROJECT_STATUS.md)** - Production-ready status and feature list
 
 ### Core Learning Documentation
 
@@ -440,8 +440,8 @@ node scripts/advanced/monitoring_dashboard.js
 
 ### Restoration & Enhancement Records
 
-- **[RESTORATION_SUMMARY.md](RESTORATION_SUMMARY.md)** - All fixes and improvements applied (35+ files updated)
-- **[ISSUES_AND_FIXES.md](ISSUES_AND_FIXES.md)** - Detailed issue documentation with solutions
+- **[docs/internal/RESTORATION_SUMMARY.md](docs/internal/RESTORATION_SUMMARY.md)** - All fixes and improvements applied (35+ files updated)
+- **[docs/internal/ISSUES_AND_FIXES.md](docs/internal/ISSUES_AND_FIXES.md)** - Detailed issue documentation with solutions
 
 ### Portfolio Artifacts
 
@@ -672,7 +672,7 @@ A: Simple commands:
 A: Check port conflicts (`port 27017` must be free), ensure Docker has 4GB+ memory, verify the replica set key file permissions. See [troubleshooting.md](docs/troubleshooting.md) for detailed solutions.
 
 **Q: Performance benchmarks are slower than expected**
-A: Ensure adequate system resources (8GB+ RAM recommended), check Docker memory limits in docker-compose.yml, verify SSD storage is being used. Run `./test-runner.sh --verbose` for diagnostics.
+A: Ensure adequate system resources (8GB+ RAM recommended), check Docker memory limits in docker-compose.yml, verify SSD storage is being used. Run `./scripts/utilities/test-runner.sh --verbose` for diagnostics.
 
 **Q: Data generation is taking too long**
 A: Start with `make data-lite` for development, use the data generator parameters to reduce dataset size, or check available system RAM. Lite mode typically completes in <2 minutes.

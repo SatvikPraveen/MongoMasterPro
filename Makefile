@@ -168,3 +168,24 @@ quickstart: ## Complete setup for new users
 	@echo "  1. Run 'make module-crud' to start with CRUD operations"
 	@echo "  2. Check 'make help' for all available commands"
 	@echo "  3. Open 'make shell' to explore MongoDB interactively"
+
+# Utility scripts
+test-all: ## Run comprehensive tests with test-runner.sh
+	@echo "🧪 Running comprehensive test suite..."
+	./scripts/utilities/test-runner.sh
+
+backup: ## Create database backup
+	@echo "💾 Creating backup..."
+	./scripts/utilities/backup-restore.sh backup
+
+restore: ## Restore database from backup
+	@echo "♻️ Restoring from backup..."
+	./scripts/utilities/backup-restore.sh restore
+
+backup-list: ## List available backups
+	@echo "📋 Available backups:"
+	./scripts/utilities/backup-restore.sh list
+
+backup-cleanup: ## Clean old backups
+	@echo "🧹 Cleaning old backups..."
+	./scripts/utilities/backup-restore.sh cleanup 7
