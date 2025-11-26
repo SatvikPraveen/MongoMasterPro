@@ -439,7 +439,7 @@ class MongoDataGenerator:
             user = random.choice(users)
             event_type = random.choices(
                 self.schemas['event_types'],
-                weights=[0.2, 0.15, 0.3, 0.1, 0.05, 0.2]
+                weights=[0.2, 0.15, 0.3, 0.1, 0.15, 0.1]
             )[0]
 
             event = {
@@ -459,7 +459,7 @@ class MongoDataGenerator:
                     "ip_address": fake.ipv4(),
                     "duration_seconds": (
                         random.randint(30, 3600)
-                        if event_type in ['course_view', 'video_play']
+                        if event_type == 'course_view'
                         else None
                     )
                 },
