@@ -1,4 +1,4 @@
-// Location: `/docker/init/bootstrap.js`
+// Location: `/docker/init/00_bootstrap.js`
 // MongoDB Bootstrap Script - Consolidated setup for users, roles, databases, collections, and indexes
 
 print("🚀 Starting MongoMasterPro Bootstrap Process...");

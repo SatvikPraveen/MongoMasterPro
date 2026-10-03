@@ -123,3 +123,9 @@ mongod.conf.orig
 # Backup files
 *.bak
 *.backup
+
+# Local assistant / editor state
+.claude/
+
+# Experiment scratch output (curated baselines are committed under experiments/results/)
+experiments/results/tmp/

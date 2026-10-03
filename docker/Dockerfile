@@ -19,7 +19,7 @@ COPY config/mongodb.conf /etc/mongod.conf
 COPY config/mongodb-rs.conf /etc/mongod-rs.conf
 
 # Copy initialization scripts
-COPY docker/init/bootstrap.js /docker-entrypoint-initdb.d/
+COPY docker/init/00_bootstrap.js /docker-entrypoint-initdb.d/
 
 # Copy all project scripts
 COPY scripts/ /app/scripts/
@@ -27,7 +27,7 @@ COPY data/ /app/data/
 COPY tests/ /app/tests/
 
 # Set permissions
-RUN chmod +x /docker-entrypoint-initdb.d/bootstrap.js
+RUN chmod +x /docker-entrypoint-initdb.d/00_bootstrap.js
 RUN chmod -R +r /app/
 
 # Create data directories

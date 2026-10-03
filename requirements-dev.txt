@@ -1,0 +1,18 @@
+# Development, testing and analysis dependencies for MongoMasterPro.
+# Install with:  pip install -r requirements-dev.txt
+-r data/generators/requirements.txt
+
+# Experiment analysis
+pandas==3.0.6
+numpy==2.5.3
+scipy==1.18.1
+matplotlib==3.11.2
+
+# Testing
+pytest==9.1.1
+jsonschema==4.26.0
+
+# Linting / formatting
+black==25.11.0
+flake8==7.3.0
+isort==7.0.0

@@ -50,7 +50,7 @@ setup-rs: ## Setup with replica set
 	sleep 5
 	docker exec mongo-rs-primary mongosh --eval "rs.initiate({_id: 'rs0', members: [{_id: 0, host: 'mongo-rs-primary:27017'}, {_id: 1, host: 'mongo-rs-secondary1:27017'}, {_id: 2, host: 'mongo-rs-secondary2:27017'}]})"
 	sleep 10
-	docker exec mongo-rs-primary mongosh --file /docker-entrypoint-initdb.d/bootstrap.js
+	docker exec mongo-rs-primary mongosh --file /docker-entrypoint-initdb.d/00_bootstrap.js
 	$(MAKE) data-lite
 	@echo "✅ Replica set setup complete!"
 
