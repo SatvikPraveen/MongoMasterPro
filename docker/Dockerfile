@@ -1,6 +1,6 @@
 # Location: `/docker/Dockerfile`
 
-FROM mongo:7.0
+FROM mongo:8.2
 
 # Set working directory
 WORKDIR /app
