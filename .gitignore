@@ -29,6 +29,8 @@ eggs/
 .eggs/
 lib/
 lib64/
+# The Python build-artefact rule above must not hide the experiment harness.
+!experiments/lib/
 parts/
 sdist/
 var/

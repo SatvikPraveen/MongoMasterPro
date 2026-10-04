@@ -35,6 +35,8 @@ const mongoshGlobals = {
   EJSON: "readonly",
   cat: "readonly",
   version: "readonly",
+  bsonsize: "readonly",
+  BSON: "readonly",
 };
 
 const relaxedRules = {
@@ -65,6 +67,10 @@ export default [
       "no-unreachable": "error",
       ...relaxedRules,
     },
+  },
+  {
+    files: ["experiments/specs/*.js"],
+    languageOptions: { globals: { MMP: "readonly" } },
   },
   {
     files: ["tests/**/*.js", "scripts/utilities/*.mjs", "tests/**/*.mjs", "eslint.config.mjs"],
