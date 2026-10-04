@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "If you use MongoMasterPro, its reference dataset or its experiment harness, please cite it as below."
+title: "MongoMasterPro: a reproducible MongoDB learning and experimentation platform"
+type: software
+authors:
+  - family-names: Praveen
+    given-names: Satvik
+    email: satvikpraveen707@gmail.com
+repository-code: "https://github.com/SatvikPraveen/MongoMasterPro"
+license: MIT
+version: 2.0.0
+date-released: 2026-10-03
+keywords:
+  - MongoDB
+  - document databases
+  - benchmarking
+  - reproducible research
+  - database education
+abstract: >-
+  MongoMasterPro packages a deterministic, checksummed synthetic e-learning
+  dataset, eleven executable learning modules verified against MongoDB 6.0,
+  7.0 and 8.0, and a benchmark harness that records raw per-trial samples with
+  full environment provenance and analyses them with rank-based statistics.
