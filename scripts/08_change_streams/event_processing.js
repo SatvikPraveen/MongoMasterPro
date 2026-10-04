@@ -9,9 +9,9 @@
  */
 
 // Database connections
-const db = db.getSiblingDB("lms_primary");
-const eventsDB = db.getSiblingDB("lms_events");
-const processingDB = db.getSiblingDB("lms_processing");
+const db = db.getSiblingDB("mmp_change_streams");
+const eventsDB = db.getSiblingDB("mmp_events");
+const processingDB = db.getSiblingDB("mmp_processing");
 
 print("\n" + "=".repeat(80));
 print("MONGODB EVENT PROCESSING");

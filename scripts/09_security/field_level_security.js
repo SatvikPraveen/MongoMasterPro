@@ -8,7 +8,7 @@
  * client-side field-level encryption, and sensitive data protection.
  */
 
-const db = db.getSiblingDB("lms_primary");
+const db = db.getSiblingDB("mmp_security");
 const adminDB = db.getSiblingDB("admin");
 
 print("\n" + "=".repeat(80));
@@ -315,7 +315,7 @@ const keyVault = db.getSiblingDB("encryption").getCollection("__keyVault");
   print("\n2️⃣ SCHEMA MAP CONFIGURATION:");
   print(`
 const schemaMap = {
-    "lms_primary.users": {
+    "mmp_security.users": {
         bsonType: "object",
         properties: {
             ssn: {

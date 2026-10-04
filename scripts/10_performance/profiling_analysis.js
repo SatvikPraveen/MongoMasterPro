@@ -8,7 +8,7 @@
  * Analyzes slow operations, query patterns, and database performance metrics.
  */
 
-const db = db.getSiblingDB("lms_primary");
+const db = db.getSiblingDB("mmp_performance");
 const adminDB = db.getSiblingDB("admin");
 
 print("\n" + "=".repeat(80));
@@ -63,7 +63,7 @@ db.setProfilingLevel(1, {
     sampleRate: 0.5,  // Sample 50% of operations
     filter: {
         $or: [
-            { ns: "lms_primary.users" },
+            { ns: "mmp_performance.users" },
             { "command.find": "courses" },
             { "command.aggregate": { $exists: true } }
         ]

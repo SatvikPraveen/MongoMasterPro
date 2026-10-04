@@ -9,8 +9,8 @@
  */
 
 // Database connections
-const db = db.getSiblingDB("lms_primary");
-const auditDB = db.getSiblingDB("lms_audit");
+const db = db.getSiblingDB("mmp_change_streams");
+const auditDB = db.getSiblingDB("mmp_audit");
 
 print("\n" + "=".repeat(80));
 print("MONGODB REAL-TIME AUDIT TRAIL");

@@ -8,8 +8,8 @@
  * Provides real-time KPIs, business intelligence, and performance metrics.
  */
 
-const db = db.getSiblingDB("lms_primary");
-const analyticsDB = db.getSiblingDB("lms_analytics");
+const db = db.getSiblingDB("mmp_capstones");
+const analyticsDB = db.getSiblingDB("mmp_analytics");
 const adminDB = db.getSiblingDB("admin");
 
 print("\n" + "=".repeat(80));

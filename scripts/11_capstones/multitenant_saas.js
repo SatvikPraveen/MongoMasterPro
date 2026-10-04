@@ -8,8 +8,12 @@
  * Demonstrates tenant isolation, data segregation, and scalable SaaS patterns.
  */
 
-const db = db.getSiblingDB("lms_multitenant");
+const db = db.getSiblingDB("mmp_multitenant");
 const adminDB = db.getSiblingDB("admin");
+
+// The capstone sandbox is disposable: reset it so repeated runs do not collide
+// on the unique tenantId index.
+db.dropDatabase();
 
 print("\n" + "=".repeat(80));
 print("MONGODB MULTI-TENANT SAAS PLATFORM");

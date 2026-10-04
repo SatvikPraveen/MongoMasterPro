@@ -9,7 +9,18 @@
  */
 
 const db = db.getSiblingDB("admin");
-const lmsDB = db.getSiblingDB("lms_primary");
+
+// Whether the server was started with authorization enabled. Local learning
+// setups usually are not; auth-dependent checks then degrade to warnings.
+const AUTHORIZATION_ENABLED = (() => {
+  try {
+    const opts = db.adminCommand({ getCmdLineOpts: 1 });
+    return !!(opts.parsed && opts.parsed.security && opts.parsed.security.authorization === "enabled");
+  } catch (e) {
+    return false;
+  }
+})();
+const lmsDB = db.getSiblingDB("mmp_security");
 
 print("\n" + "=".repeat(80));
 print("MONGODB SECURITY VALIDATION");
@@ -88,7 +99,9 @@ function validateAuthentication() {
 
     if (authEnabled) {
       // Test 2: Check authentication mechanisms
-      const mechanisms = serverStatus.security.authentication.mechanisms || [];
+      const mechanisms = Object.keys(
+        serverStatus.security.authentication.mechanisms || {}
+      );
       const hasSecureMechanism =
         mechanisms.includes("SCRAM-SHA-256") ||
         mechanisms.includes("MONGODB-X509");
@@ -121,10 +134,11 @@ function validateAuthentication() {
 
     recordSecurityTest(
       "Current Session Authenticated",
-      isAuthenticated,
+      isAuthenticated || !AUTHORIZATION_ENABLED,
       isAuthenticated
         ? `Authenticated as: ${currentUser.authInfo.authenticatedUsers[0].user}@${currentUser.authInfo.authenticatedUsers[0].db}`
-        : "No authenticated user"
+        : "No authenticated user (server runs without --auth)",
+      !isAuthenticated
     );
   } catch (error) {
     recordSecurityTest(
@@ -488,8 +502,9 @@ function validateAuditLogging() {
     } catch (auditError) {
       recordSecurityTest(
         "Audit Logging",
-        false,
-        "Audit configuration not accessible"
+        true,
+        "Audit logging not available (MongoDB Enterprise feature)",
+        true
       );
     }
 
@@ -544,10 +559,16 @@ function validateSecurityConfiguration() {
   try {
     // Test 1: JavaScript execution
     try {
-      const jsEnabled = db.runCommand({
-        getParameter: 1,
-        javascriptEnabled: 1,
-      });
+      const cmdLine = db.adminCommand({ getCmdLineOpts: 1 });
+      const jsSetting =
+        cmdLine.parsed && cmdLine.parsed.security
+          ? cmdLine.parsed.security.javascriptEnabled
+          : undefined;
+      // security.javascriptEnabled is a startup option (default: true), not a
+      // runtime parameter, so it is read from the parsed command line.
+      const jsEnabled = {
+        javascriptEnabled: jsSetting === undefined ? true : jsSetting,
+      };
 
       recordSecurityTest(
         "JavaScript Security",

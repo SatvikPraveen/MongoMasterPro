@@ -9,8 +9,8 @@
  */
 
 // Database connections
-const db = db.getSiblingDB("lms_primary");
-const analyticsDB = db.getSiblingDB("lms_analytics");
+const db = db.getSiblingDB("mmp_change_streams");
+const analyticsDB = db.getSiblingDB("mmp_analytics");
 
 print("\n" + "=".repeat(80));
 print("MONGODB MATERIALIZED VIEWS");

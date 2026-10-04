@@ -9,7 +9,24 @@
  */
 
 // Database connections
-const db = db.getSiblingDB("lms_primary");
+const db = db.getSiblingDB("mmp_replication");
+
+// Seed a small sample so the read-preference demonstrations have data to read.
+if (db.users.countDocuments() === 0) {
+  const seededUsers = db.users.insertMany([
+    { name: "Ada Lovelace", email: "ada@example.com", role: "student" },
+    { name: "Alan Turing", email: "alan@example.com", role: "student" },
+    { name: "Grace Hopper", email: "grace@example.com", role: "instructor" },
+  ]);
+  const seededCourses = db.courses.insertMany([
+    { title: "Replica Set Internals", status: "active", instructorId: seededUsers.insertedIds[2] },
+    { title: "Read Scaling Patterns", status: "active", instructorId: seededUsers.insertedIds[2] },
+  ]);
+  db.enrollments.insertMany([
+    { userId: seededUsers.insertedIds[0], courseId: seededCourses.insertedIds[0], enrolledAt: new Date() },
+    { userId: seededUsers.insertedIds[1], courseId: seededCourses.insertedIds[1], enrolledAt: new Date() },
+  ]);
+}
 
 print("\n" + "=".repeat(80));
 print("MONGODB READ PREFERENCES");
@@ -240,9 +257,11 @@ function demonstrateMaxStaleness() {
 
   try {
     // Set max staleness to 120 seconds
-    db.getMongo().setReadPref("secondaryPreferred", [], {
-      maxStalenessSeconds: 120,
-    });
+    // maxStalenessSeconds is a connection-level option; set it in the URI
+    // (…?readPreference=secondaryPreferred&maxStalenessSeconds=120). The
+    // shell helper only takes mode, tag sets and hedge options.
+    db.getMongo().setReadPref("secondaryPreferred");
+    print("Connection string form: mongodb://host/?readPreference=secondaryPreferred&maxStalenessSeconds=120");
 
     const start = new Date();
     const result = db.courses.find({ status: "active" }).limit(10).toArray();
@@ -252,9 +271,8 @@ function demonstrateMaxStaleness() {
     print(`Query time: ${end - start}ms`);
 
     // Example with shorter staleness
-    db.getMongo().setReadPref("secondaryPreferred", [], {
-      maxStalenessSeconds: 30,
-    });
+    // maxStalenessSeconds=30 is set through the connection URI, not setReadPref().
+    db.getMongo().setReadPref("secondaryPreferred");
     print("✅ Configured stricter staleness: 30 seconds");
   } catch (error) {
     print("❌ Max staleness configuration failed:");

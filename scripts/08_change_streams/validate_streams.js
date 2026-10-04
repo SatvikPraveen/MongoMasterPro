@@ -10,7 +10,7 @@
 
 // Database connections
 const db = db.getSiblingDB('lms_primary');
-const testDB = db.getSiblingDB('lms_test_streams');
+const testDB = db.getSiblingDB('mmp_change_streams_test');
 
 print("\n" + "=".repeat(80));
 print("MONGODB CHANGE STREAMS VALIDATION");
@@ -26,6 +26,18 @@ let streamValidation = {
 };
 
 // Helper function to record test results
+// Change-stream cursors block in next()/hasNext() when no event is available.
+// tryNext() returns null immediately, so poll it with a deadline instead.
+function nextWithin(stream, timeoutMs) {
+    const deadline = Date.now() + timeoutMs;
+    while (Date.now() < deadline) {
+        const event = stream.tryNext();
+        if (event) return event;
+        sleep(50);
+    }
+    return null;
+}
+
 function recordStreamTest(name, passed, message, warning = false) {
     streamValidation.total++;
     if (warning) {
@@ -239,27 +251,6 @@ function validateEventCapture() {
         let capturedEvents = [];
         let eventCount = 0;
 
-        // Start event capture in background (simulate with timeout)
-        const capturePromise = new Promise((resolve) => {
-            const captureStart = Date.now();
-            const maxWaitTime = 10000; // 10 seconds
-
-            function captureEvents() {
-                try {
-                    while (eventStream.hasNext() && (Date.now() - captureStart) < maxWaitTime) {
-                        const event = eventStream.next();
-                        capturedEvents.push(event);
-                        eventCount++;
-                    }
-                } catch (error) {
-                    // Timeout or no more events
-                }
-                resolve();
-            }
-
-            setTimeout(captureEvents, 1000); // Give operations time to execute
-        });
-
         // Execute operations
         operations.forEach(op => {
             try {
@@ -278,8 +269,20 @@ function validateEventCapture() {
             }
         });
 
-        // Wait for event capture
-        await capturePromise;
+        // Drain the stream synchronously. tryNext() returns null when no event
+        // is currently available, so poll briefly instead of blocking on next().
+        const captureStart = Date.now();
+        const maxWaitTime = 10000; // 10 seconds
+        while (capturedEvents.length < operations.length && Date.now() - captureStart < maxWaitTime) {
+            const event = eventStream.tryNext();
+            if (event) {
+                capturedEvents.push(event);
+                eventCount++;
+            } else {
+                sleep(100);
+            }
+        }
+        eventStream.close();
 
         recordStreamTest(
             "Event Capture Count",
@@ -417,8 +420,8 @@ function validateResumeTokens() {
         let resumeToken = null;
 
         try {
-            if (initialStream.hasNext()) {
-                firstEvent = initialStream.next();
+            firstEvent = nextWithin(initialStream, 5000);
+            if (firstEvent) {
                 resumeToken = firstEvent._id;
 
                 recordStreamTest(
@@ -457,9 +460,7 @@ function validateResumeTokens() {
                     // Check if resumed stream captures new event
                     let newEvent = null;
                     try {
-                        if (resumedStream.hasNext()) {
-                            newEvent = resumedStream.next();
-                        }
+                        newEvent = nextWithin(resumedStream, 5000);
                     } catch (error) {
                         // Timeout is expected
                     }
@@ -542,8 +543,8 @@ function validateStreamPerformance() {
         const maxCaptureTime = 10000; // 10 seconds
 
         try {
-            while (perfStream.hasNext() && (Date.now() - captureStart) < maxCaptureTime) {
-                perfStream.next();
+            while (eventsCaptured < 100 && (Date.now() - captureStart) < maxCaptureTime) {
+                if (!nextWithin(perfStream, 1000)) break;
                 eventsCaptured++;
             }
         } catch (error) {
@@ -666,7 +667,7 @@ function validateErrorHandling() {
             if (timeoutStream) {
                 // Test timeout behavior
                 try {
-                    const hasNext = timeoutStream.hasNext();
+                    const hasNext = timeoutStream.tryNext() !== null;
                     recordStreamTest(
                         "Timeout Behavior",
                         true,

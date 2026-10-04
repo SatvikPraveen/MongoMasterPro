@@ -9,9 +9,19 @@
  */
 
 // Database connections
-const db = db.getSiblingDB("lms_primary");
+const db = db.getSiblingDB("mmp_sharding");
 const adminDB = db.getSiblingDB("admin");
 const configDB = db.getSiblingDB("config");
+
+// Preflight: this module targets a sharded cluster and must run against a mongos router.
+// On a replica set or standalone it is skipped rather than reported as failing.
+if (db.hello().msg !== "isdbgrid") {
+  const h = db.hello();
+  print("\n⏭️  SKIPPED: sharding module requires a connection to mongos.");
+  print(`   Connected to: ${h.setName ? "replica set " + h.setName : "standalone mongod"}`);
+  print("   Start a local sharded cluster with: make start-sharded");
+  quit(0);
+}
 
 print("\n" + "=".repeat(80));
 print("MONGODB SHARDING VALIDATION");

@@ -8,9 +8,9 @@
  * Demonstrates version management, backward compatibility, and production migration strategies.
  */
 
-const db = db.getSiblingDB("lms_primary");
-const migrationDB = db.getSiblingDB("lms_migrations");
-const backupDB = db.getSiblingDB("lms_backup");
+const db = db.getSiblingDB("mmp_capstones");
+const migrationDB = db.getSiblingDB("mmp_migrations");
+const backupDB = db.getSiblingDB("mmp_backup");
 
 print("\n" + "=".repeat(80));
 print("MONGODB MIGRATION PROJECT");

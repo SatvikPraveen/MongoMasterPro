@@ -136,27 +136,27 @@ function createLMSCustomRoles() {
       description: "Student access to courses and assignments",
       privileges: [
         {
-          resource: { db: "lms_primary", collection: "courses" },
+          resource: { db: "mmp_security", collection: "courses" },
           actions: ["find"],
         },
         {
-          resource: { db: "lms_primary", collection: "enrollments" },
+          resource: { db: "mmp_security", collection: "enrollments" },
           actions: ["find", "insert", "update"],
         },
         {
-          resource: { db: "lms_primary", collection: "assignments" },
+          resource: { db: "mmp_security", collection: "assignments" },
           actions: ["find"],
         },
         {
-          resource: { db: "lms_primary", collection: "submissions" },
+          resource: { db: "mmp_security", collection: "submissions" },
           actions: ["find", "insert", "update"],
         },
         {
-          resource: { db: "lms_primary", collection: "grades" },
+          resource: { db: "mmp_security", collection: "grades" },
           actions: ["find"],
         },
         {
-          resource: { db: "lms_primary", collection: "users" },
+          resource: { db: "mmp_security", collection: "users" },
           actions: ["find", "update"],
         },
       ],
@@ -167,27 +167,27 @@ function createLMSCustomRoles() {
       description: "Instructor access to manage courses and grade assignments",
       privileges: [
         {
-          resource: { db: "lms_primary", collection: "courses" },
+          resource: { db: "mmp_security", collection: "courses" },
           actions: ["find", "insert", "update"],
         },
         {
-          resource: { db: "lms_primary", collection: "assignments" },
+          resource: { db: "mmp_security", collection: "assignments" },
           actions: ["find", "insert", "update", "remove"],
         },
         {
-          resource: { db: "lms_primary", collection: "submissions" },
+          resource: { db: "mmp_security", collection: "submissions" },
           actions: ["find"],
         },
         {
-          resource: { db: "lms_primary", collection: "grades" },
+          resource: { db: "mmp_security", collection: "grades" },
           actions: ["find", "insert", "update"],
         },
         {
-          resource: { db: "lms_primary", collection: "enrollments" },
+          resource: { db: "mmp_security", collection: "enrollments" },
           actions: ["find"],
         },
         {
-          resource: { db: "lms_primary", collection: "users" },
+          resource: { db: "mmp_security", collection: "users" },
           actions: ["find"],
         },
       ],
@@ -198,7 +198,7 @@ function createLMSCustomRoles() {
       description: "Administrative access to all LMS operations",
       privileges: [
         {
-          resource: { db: "lms_primary", collection: "" },
+          resource: { db: "mmp_security", collection: "" },
           actions: [
             "find",
             "insert",
@@ -210,15 +210,15 @@ function createLMSCustomRoles() {
         },
       ],
       inheritedRoles: [
-        { role: "dbAdmin", db: "lms_primary" },
-        { role: "userAdmin", db: "lms_primary" },
+        { role: "dbAdmin", db: "mmp_security" },
+        { role: "userAdmin", db: "mmp_security" },
       ],
     },
     {
       name: "lmsAnalystRole",
       description: "Read-only access for analytics and reporting",
       privileges: [
-        { resource: { db: "lms_primary", collection: "" }, actions: ["find"] },
+        { resource: { db: "mmp_security", collection: "" }, actions: ["find"] },
         {
           resource: { db: "lms_analytics", collection: "" },
           actions: ["find"],
@@ -234,7 +234,7 @@ function createLMSCustomRoles() {
       name: "lmsBackupRole",
       description: "Backup operations for LMS databases",
       privileges: [
-        { resource: { db: "lms_primary", collection: "" }, actions: ["find"] },
+        { resource: { db: "mmp_security", collection: "" }, actions: ["find"] },
         {
           resource: { db: "lms_analytics", collection: "" },
           actions: ["find"],
@@ -274,8 +274,8 @@ use admin
 db.createRole({
     role: "lmsContentBase",
     privileges: [
-        { resource: { db: "lms_primary", collection: "courses" }, actions: ["find"] },
-        { resource: { db: "lms_primary", collection: "assignments" }, actions: ["find"] }
+        { resource: { db: "mmp_security", collection: "courses" }, actions: ["find"] },
+        { resource: { db: "mmp_security", collection: "assignments" }, actions: ["find"] }
     ],
     roles: []
 })
@@ -284,7 +284,7 @@ db.createRole({
 db.createRole({
     role: "lmsStudentExtended",
     privileges: [
-        { resource: { db: "lms_primary", collection: "submissions" }, actions: ["find", "insert", "update"] }
+        { resource: { db: "mmp_security", collection: "submissions" }, actions: ["find", "insert", "update"] }
     ],
     roles: [
         { role: "lmsContentBase", db: "admin" }
@@ -295,9 +295,9 @@ db.createRole({
 db.createRole({
     role: "lmsInstructorExtended",
     privileges: [
-        { resource: { db: "lms_primary", collection: "courses" }, actions: ["insert", "update"] },
-        { resource: { db: "lms_primary", collection: "assignments" }, actions: ["insert", "update", "remove"] },
-        { resource: { db: "lms_primary", collection: "grades" }, actions: ["find", "insert", "update"] }
+        { resource: { db: "mmp_security", collection: "courses" }, actions: ["insert", "update"] },
+        { resource: { db: "mmp_security", collection: "assignments" }, actions: ["insert", "update", "remove"] },
+        { resource: { db: "mmp_security", collection: "grades" }, actions: ["find", "insert", "update"] }
     ],
     roles: [
         { role: "lmsContentBase", db: "admin" }
@@ -374,19 +374,19 @@ function demonstrateResourceTargeting() {
   print(`
 // Specific collection access
 {
-    resource: { db: "lms_primary", collection: "users" },
+    resource: { db: "mmp_security", collection: "users" },
     actions: ["find", "update"]
 }
 
 // All collections in database
 {
-    resource: { db: "lms_primary", collection: "" },
+    resource: { db: "mmp_security", collection: "" },
     actions: ["find"]
 }
 
 // Specific collections with pattern matching
 {
-    resource: { db: "lms_primary", collection: "user_*" },
+    resource: { db: "mmp_security", collection: "user_*" },
     actions: ["find", "insert", "update"]
 }
 
@@ -423,25 +423,25 @@ function createLMSUsers() {
   const lmsUsers = [
     {
       username: "student_alice",
-      database: "lms_primary",
+      database: "mmp_security",
       roles: ["lmsStudentRole"],
       description: "Regular student user",
     },
     {
       username: "instructor_bob",
-      database: "lms_primary",
+      database: "mmp_security",
       roles: ["lmsInstructorRole"],
       description: "Course instructor",
     },
     {
       username: "admin_charlie",
-      database: "lms_primary",
+      database: "mmp_security",
       roles: ["lmsAdminRole"],
       description: "LMS administrator",
     },
     {
       username: "analyst_diana",
-      database: "lms_primary",
+      database: "mmp_security",
       roles: ["lmsAnalystRole"],
       description: "Data analyst for reporting",
     },
@@ -475,7 +475,7 @@ function demonstrateRoleModification() {
 
   print(`
 // Grant additional role to user
-use lms_primary
+use mmp_security
 db.grantRolesToUser("student_alice", [
     { role: "lmsAnalystRole", db: "admin" }
 ])
@@ -497,9 +497,9 @@ db.updateUser("instructor_bob", {
 use admin
 db.updateRole("lmsStudentRole", {
     privileges: [
-        { resource: { db: "lms_primary", collection: "courses" }, actions: ["find"] },
-        { resource: { db: "lms_primary", collection: "assignments" }, actions: ["find"] },
-        { resource: { db: "lms_primary", collection: "forums" }, actions: ["find", "insert"] }
+        { resource: { db: "mmp_security", collection: "courses" }, actions: ["find"] },
+        { resource: { db: "mmp_security", collection: "assignments" }, actions: ["find"] },
+        { resource: { db: "mmp_security", collection: "forums" }, actions: ["find", "insert"] }
     ]
 })
 
@@ -524,7 +524,7 @@ function implementFieldLevelSecurity() {
 
   print(`
 // Create view with restricted fields for students
-use lms_primary
+use mmp_security
 
 db.createView("student_user_view", "users", [
     {
@@ -546,9 +546,9 @@ use admin
 db.createRole({
     role: "lmsStudentViewRole",
     privileges: [
-        { resource: { db: "lms_primary", collection: "student_user_view" }, actions: ["find"] },
-        { resource: { db: "lms_primary", collection: "courses" }, actions: ["find"] },
-        { resource: { db: "lms_primary", collection: "enrollments" }, actions: ["find", "insert", "update"] }
+        { resource: { db: "mmp_security", collection: "student_user_view" }, actions: ["find"] },
+        { resource: { db: "mmp_security", collection: "courses" }, actions: ["find"] },
+        { resource: { db: "mmp_security", collection: "enrollments" }, actions: ["find", "insert", "update"] }
     ],
     roles: []
 })
@@ -622,7 +622,7 @@ db.getRoles({ showPrivileges: true, showBuiltinRoles: false })
 db.runCommand({ connectionStatus: 1 }).authInfo
 
 // Audit user access patterns
-use lms_primary
+use mmp_security
 db.runCommand({
     profile: 2,
     filter: {

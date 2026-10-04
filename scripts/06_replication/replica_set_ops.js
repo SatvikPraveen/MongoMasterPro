@@ -9,7 +9,7 @@
  */
 
 // Database connections
-const primaryDB = db.getSiblingDB("lms_primary");
+const primaryDB = db.getSiblingDB("mmp_replication");
 const adminDB = db.getSiblingDB("admin");
 
 print("\n" + "=".repeat(80));
@@ -333,7 +333,7 @@ function healthCheck() {
     const config = rs.conf();
 
     print("\n🏥 Replica Set Health Check:");
-    print("=" * 40);
+    print("=".repeat(40));
 
     // Basic counts
     const totalMembers = status.members.length;

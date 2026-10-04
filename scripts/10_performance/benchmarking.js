@@ -9,7 +9,7 @@
  * Tests database performance under various conditions and loads.
  */
 
-const db = db.getSiblingDB("mongomasterpro");
+const db = db.getSiblingDB("mmp_performance");
 const adminDB = db.getSiblingDB("admin");
 
 print("\n" + "=".repeat(80));

@@ -69,7 +69,7 @@ function checkAuthenticationStatus() {
 
     if (authEnabled) {
       print(
-        `Authentication mechanisms: ${serverStatus.security.authentication.mechanisms.join(
+        `Authentication mechanisms: ${Object.keys(serverStatus.security.authentication.mechanisms || {}).join(
           ", "
         )}`
       );
@@ -133,13 +133,13 @@ db.createUser({
   const appUsers = [
     {
       user: "lmsAppUser",
-      database: "lms_primary",
+      database: "mmp_security",
       roles: ["readWrite"],
       description: "Main application user",
     },
     {
       user: "lmsReadOnlyUser",
-      database: "lms_primary",
+      database: "mmp_security",
       roles: ["read"],
       description: "Read-only access for reports",
     },
@@ -165,10 +165,10 @@ db.createUser({
   print("\n3️⃣ AUTHENTICATION CONNECTION:");
   print(`
 // Connect with authentication
-mongo "mongodb://lmsAppUser:password@localhost:27017/lms_primary?authSource=lms_primary&authMechanism=SCRAM-SHA-256"
+mongo "mongodb://lmsAppUser:password@localhost:27017/mmp_security?authSource=mmp_security&authMechanism=SCRAM-SHA-256"
 
 // Or authenticate after connection
-use lms_primary
+use mmp_security
 db.auth("lmsAppUser", "password")
     `);
 }
@@ -309,7 +309,7 @@ use admin
 db.createUser({
     user: "C=US,ST=CA,L=San Francisco,O=MongoDB,OU=IT,CN=lmsAppClient",
     roles: [
-        { role: "readWrite", db: "lms_primary" }
+        { role: "readWrite", db: "mmp_security" }
     ]
 })
     `);
@@ -320,7 +320,7 @@ db.createUser({
 mongo --ssl --sslPEMKeyFile client-combined.pem --sslCAFile ca.pem \\
       --authenticationMechanism MONGODB-X509 \\
       --authenticationDatabase '$external' \\
-      mongodb://mongodb.example.com:27017/lms_primary
+      mongodb://mongodb.example.com:27017/mmp_security
     `);
 }
 
@@ -372,7 +372,7 @@ use admin
 db.createUser({
     user: "john.doe@example.com",
     roles: [
-        { role: "readWrite", db: "lms_primary" }
+        { role: "readWrite", db: "mmp_security" }
     ]
 })
 
@@ -380,7 +380,7 @@ db.createUser({
 db.createRole({
     role: "lmsUsers",
     privileges: [
-        { resource: { db: "lms_primary", collection: "" }, actions: ["find", "insert", "update"] }
+        { resource: { db: "mmp_security", collection: "" }, actions: ["find", "insert", "update"] }
     ],
     roles: []
 })
@@ -393,7 +393,7 @@ mongo --authenticationMechanism PLAIN \\
       --authenticationDatabase '$external' \\
       --username "john.doe@example.com" \\
       --password "ldap_user_password" \\
-      mongodb://mongodb.example.com:27017/lms_primary
+      mongodb://mongodb.example.com:27017/mmp_security
     `);
 
   print("\n4️⃣ LDAP TROUBLESHOOTING:");

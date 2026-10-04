@@ -9,7 +9,7 @@
  * Covers server parameters, connection pooling, and performance optimization.
  */
 
-const db = db.getSiblingDB("mongomasterpro");
+const db = db.getSiblingDB("mmp_performance");
 const adminDB = db.getSiblingDB("admin");
 
 print("\n" + "=".repeat(80));

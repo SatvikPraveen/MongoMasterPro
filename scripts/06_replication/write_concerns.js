@@ -9,7 +9,16 @@
  */
 
 // Database connections
-const db = db.getSiblingDB("lms_primary");
+const db = db.getSiblingDB("mmp_replication");
+
+// Number of data-bearing members; write concerns above this cannot be satisfied.
+const DATA_BEARING_MEMBERS = (() => {
+  try {
+    return rs.status().members.filter((m) => !m.arbiterOnly).length;
+  } catch (e) {
+    return 1;
+  }
+})();
 
 print("\n" + "=".repeat(80));
 print("MONGODB WRITE CONCERNS");
@@ -310,7 +319,7 @@ function demonstrateTagBasedWriteConcerns() {
       },
       {
         writeConcern: {
-          w: 2, // At least 2 members
+          w: Math.min(2, DATA_BEARING_MEMBERS), // 2 when the set has them
           wtimeout: 5000,
         },
       }
