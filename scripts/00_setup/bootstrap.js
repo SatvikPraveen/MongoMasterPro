@@ -54,8 +54,8 @@ function createDatabasesAndCollections() {
           title: { bsonType: "string", minLength: 1, maxLength: 200 },
           description: { bsonType: "string" },
           instructorId: { bsonType: "objectId" },
-          status: { enum: ["draft", "active", "archived"] },
-          maxStudents: { bsonType: "int", minimum: 1 },
+          status: { enum: ["draft", "review", "active", "archived"] },
+          maxStudents: { bsonType: "number", minimum: 1 },
           createdAt: { bsonType: "date" },
           updatedAt: { bsonType: "date" },
         },
@@ -74,7 +74,7 @@ function createDatabasesAndCollections() {
           enrolledAt: { bsonType: "date" },
           completedAt: { bsonType: "date" },
           status: { enum: ["enrolled", "completed", "dropped", "suspended"] },
-          progress: { bsonType: "double", minimum: 0, maximum: 100 },
+          progress: { bsonType: "number", minimum: 0, maximum: 100 },
         },
       },
     },
@@ -161,9 +161,8 @@ function createUsersAndRoles() {
 
   use("admin");
 
-  // Create custom roles
-  try {
-    db.createRole({
+  const roles = [
+    {
       role: "mmpAppUser",
       privileges: [
         {
@@ -180,9 +179,8 @@ function createUsersAndRoles() {
         },
       ],
       roles: [],
-    });
-
-    db.createRole({
+    },
+    {
       role: "mmpReadOnly",
       privileges: [
         {
@@ -199,25 +197,53 @@ function createUsersAndRoles() {
         },
       ],
       roles: [],
-    });
+    },
+  ];
 
-    // Create application users
-    db.createUser({
-      user: "mmpApp",
-      pwd: "mmpApp2024!",
-      roles: ["mmpAppUser"],
-    });
+  const users = [
+    { user: "mmpApp", pwd: "mmpApp2024!", roles: ["mmpAppUser"] },
+    { user: "mmpReadOnly", pwd: "mmpRead2024!", roles: ["mmpReadOnly"] },
+  ];
 
-    db.createUser({
-      user: "mmpReadOnly",
-      pwd: "mmpRead2024!",
-      roles: ["mmpReadOnly"],
-    });
+  // Each object is created independently so that a pre-existing role does not
+  // prevent the remaining roles and users from being created (idempotent re-runs).
+  roles.forEach((spec) => {
+    try {
+      db.createRole(spec);
+      print(`✓ Role created: ${spec.role}`);
+    } catch (e) {
+      if (e.codeName === "DuplicateKey" || /already exists/.test(e.message)) {
+        print(`• Role already exists: ${spec.role}`);
+      } else {
+        throw e;
+      }
+    }
+  });
 
-    print("✓ Users and roles created successfully");
-  } catch (e) {
-    print("⚠ Users and roles may already exist: " + e.message);
-  }
+  users.forEach((spec) => {
+    try {
+      db.createUser(spec);
+      print(`✓ User created: ${spec.user}`);
+    } catch (e) {
+      if (/already exists/.test(e.message)) {
+        print(`• User already exists: ${spec.user}`);
+      } else {
+        throw e;
+      }
+    }
+  });
+}
+
+// Step 0: Reset lab databases
+// The lab databases (mongomasterpro, mmp_logs, mmp_analytics) are disposable
+// sandboxes for modules 01-05. Dropping them first makes the bootstrap
+// idempotent; the curated reference dataset in learning_platform is untouched.
+function resetLabDatabases() {
+  print("=== Resetting Lab Databases ===");
+  Object.values(CONFIG.databases).forEach((name) => {
+    db.getSiblingDB(name).dropDatabase();
+    print(`✓ Dropped ${name}`);
+  });
 }
 
 // Step 4: Seed Base Data
@@ -304,7 +330,7 @@ function seedBaseData() {
   ];
 
   const coursesResult = db.courses.insertMany(courses);
-  print(`✓ ${coursesResult.insertedIds.length} sample courses created`);
+  print(`✓ ${Object.keys(coursesResult.insertedIds).length} sample courses created`);
 
   // Seed sample students
   const students = [
@@ -339,7 +365,7 @@ function seedBaseData() {
   ];
 
   const studentsResult = db.users.insertMany(students);
-  print(`✓ ${studentsResult.insertedIds.length} sample students created`);
+  print(`✓ ${Object.keys(studentsResult.insertedIds).length} sample students created`);
 
   // Create sample enrollments
   const enrollments = [
@@ -367,7 +393,7 @@ function seedBaseData() {
   ];
 
   const enrollmentsResult = db.enrollments.insertMany(enrollments);
-  print(`✓ ${enrollmentsResult.insertedIds.length} sample enrollments created`);
+  print(`✓ ${Object.keys(enrollmentsResult.insertedIds).length} sample enrollments created`);
 
   // Create initial system metrics
   use(CONFIG.databases.analytics);
@@ -415,14 +441,19 @@ function validateSetup() {
     .runCommand("listCollections")
     .cursor.firstBatch.map((col) => col.name);
 
+  const homeDatabase = {
+    audit_logs: CONFIG.databases.logs,
+    system_metrics: CONFIG.databases.analytics,
+  };
   Object.values(CONFIG.collections).forEach((collName) => {
-    if (collections.includes(collName)) {
-      validation.collections.push(`✓ ${collName}`);
+    const target = db.getSiblingDB(homeDatabase[collName] || CONFIG.databases.main);
+    if (target.getCollectionNames().includes(collName)) {
+      validation.collections.push(`✓ ${target.getName()}.${collName}`);
       // Check data count
-      const count = db.getCollection(collName).countDocuments();
+      const count = target.getCollection(collName).countDocuments();
       validation.data.push(`✓ ${collName}: ${count} documents`);
     } else {
-      validation.collections.push(`✗ ${collName} missing`);
+      validation.collections.push(`✗ ${target.getName()}.${collName} missing`);
     }
   });
 
@@ -457,6 +488,7 @@ function main() {
   print("==========================================");
 
   try {
+    resetLabDatabases();
     createDatabasesAndCollections();
     createIndexes();
     createUsersAndRoles();

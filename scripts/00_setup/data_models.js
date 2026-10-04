@@ -42,7 +42,12 @@ class DataGenerator {
       grades: [],
     };
 
-    print(`🎯 Data Generator initialized for ${mode} mode`);
+  }
+
+  // Kept out of the constructor: mongosh's async rewriter rejects calls that may
+  // be asynchronous inside class constructors (error ASYNC-10012).
+  announce() {
+    print(`🎯 Data Generator initialized for ${this.mode} mode`);
     this.printTargets();
   }
 
@@ -147,6 +152,8 @@ class DataGenerator {
       const role = i < 50 ? "instructor" : i < 55 ? "admin" : "student";
 
       const user = {
+
+        _id: new ObjectId(),
         email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}${i}@${domain}`,
         firstName: firstName,
         lastName: lastName,
@@ -225,6 +232,8 @@ class DataGenerator {
         instructorIds[Math.floor(Math.random() * instructorIds.length)];
 
       const course = {
+
+        _id: new ObjectId(),
         title: `${topic} - ${level.charAt(0).toUpperCase() + level.slice(1)}`,
         description: this.generateCourseDescription(topic, level),
         instructorId: instructorId,
@@ -254,6 +263,8 @@ class DataGenerator {
   generateEnrollmentData(students, courses) {
     print("Generating enrollment data...");
     const enrollments = [];
+    // (studentId, courseId) is unique in the lab schema; skip repeated pairs.
+    const seenPairs = new Set();
     const studentIds = students
       .filter((u) => u.role === "student")
       .map((u) => u._id);
@@ -265,6 +276,9 @@ class DataGenerator {
         studentIds[Math.floor(Math.random() * studentIds.length)];
       const course =
         activeCourses[Math.floor(Math.random() * activeCourses.length)];
+      const pairKey = `${studentId}:${course._id}`;
+      if (seenPairs.has(pairKey)) continue;
+      seenPairs.add(pairKey);
       const status = statuses[Math.floor(Math.random() * statuses.length)];
       const enrolledDate = this.generateRandomDate(120);
 
@@ -275,15 +289,15 @@ class DataGenerator {
         status: status,
         progress:
           status === "completed" ? 100 : Math.floor(Math.random() * 100),
-        completedAt:
-          status === "completed"
-            ? new Date(
-                enrolledDate.getTime() +
-                  Math.random() * 90 * 24 * 60 * 60 * 1000
-              )
-            : null,
+        // completedAt is set below only for completed enrollments; the lab
+        // validator types it as a date and would reject null.
         lastAccessedAt: this.generateRandomDate(7),
       };
+      if (status === "completed") {
+        enrollment.completedAt = new Date(
+          enrolledDate.getTime() + Math.random() * 90 * 24 * 60 * 60 * 1000
+        );
+      }
 
       enrollments.push(enrollment);
 
@@ -317,6 +331,8 @@ class DataGenerator {
       );
 
       const assignment = {
+
+        _id: new ObjectId(),
         courseId: course._id,
         title: `${type.charAt(0).toUpperCase() + type.slice(1)} ${
           Math.floor(i / 10) + 1
@@ -346,6 +362,8 @@ class DataGenerator {
   generateSubmissionData(assignments, enrollments) {
     print("Generating submission data...");
     const submissions = [];
+    // (assignmentId, studentId) is unique in the lab schema; skip repeated pairs.
+    const seenPairs = new Set();
     const statuses = ["submitted", "late", "draft", "graded"];
 
     for (let i = 0; i < this.config.submissions; i++) {
@@ -361,11 +379,16 @@ class DataGenerator {
         relevantEnrollments[
           Math.floor(Math.random() * relevantEnrollments.length)
         ];
+      const pairKey = `${assignment._id}:${enrollment.studentId}`;
+      if (seenPairs.has(pairKey)) continue;
+      seenPairs.add(pairKey);
       const status = statuses[Math.floor(Math.random() * statuses.length)];
       const submittedDate =
         status === "draft" ? null : this.generateRandomDate(30);
 
       const submission = {
+
+        _id: new ObjectId(),
         assignmentId: assignment._id,
         studentId: enrollment.studentId,
         courseId: assignment.courseId,
@@ -430,7 +453,7 @@ class DataGenerator {
         feedback: this.generateFeedback(),
         gradedBy: this.getRandomInstructor(),
         gradedAt: new Date(
-          submission.submittedAt.getTime() +
+          (submission.submittedAt || submission.createdAt).getTime() +
             Math.random() * 7 * 24 * 60 * 60 * 1000
         ),
         createdAt: new Date(),
@@ -640,16 +663,18 @@ class DataGenerator {
   }
 
   // Main generation and insertion methods
-  async insertData() {
+  // Synchronous on purpose: in mongosh script mode driver calls block, and an
+  // async method that is not awaited would be cut off when the script ends.
+  insertData() {
     print("Starting data insertion process...");
 
-    use("learning_platform");
+    use("mongomasterpro");
 
     try {
       // Insert users first (needed for foreign keys)
       if (this.generated.users.length > 0) {
         print("Inserting users...");
-        const userResult = await db.users.insertMany(this.generated.users, {
+        const userResult = db.users.insertMany(this.generated.users, {
           ordered: false,
         });
 
@@ -659,13 +684,13 @@ class DataGenerator {
           _id: userResult.insertedIds[index],
         }));
 
-        print(`✓ Inserted ${userResult.insertedIds.length} users`);
+        print(`✓ Inserted ${Object.keys(userResult.insertedIds).length} users`);
       }
 
       // Insert courses
       if (this.generated.courses.length > 0) {
         print("Inserting courses...");
-        const courseResult = await db.courses.insertMany(
+        const courseResult = db.courses.insertMany(
           this.generated.courses,
           { ordered: false }
         );
@@ -677,23 +702,23 @@ class DataGenerator {
           })
         );
 
-        print(`✓ Inserted ${courseResult.insertedIds.length} courses`);
+        print(`✓ Inserted ${Object.keys(courseResult.insertedIds).length} courses`);
       }
 
       // Insert enrollments
       if (this.generated.enrollments.length > 0) {
         print("Inserting enrollments...");
-        const enrollmentResult = await db.enrollments.insertMany(
+        const enrollmentResult = db.enrollments.insertMany(
           this.generated.enrollments,
           { ordered: false }
         );
-        print(`✓ Inserted ${enrollmentResult.insertedIds.length} enrollments`);
+        print(`✓ Inserted ${Object.keys(enrollmentResult.insertedIds).length} enrollments`);
       }
 
       // Insert assignments
       if (this.generated.assignments.length > 0) {
         print("Inserting assignments...");
-        const assignmentResult = await db.assignments.insertMany(
+        const assignmentResult = db.assignments.insertMany(
           this.generated.assignments,
           { ordered: false }
         );
@@ -705,13 +730,13 @@ class DataGenerator {
           })
         );
 
-        print(`✓ Inserted ${assignmentResult.insertedIds.length} assignments`);
+        print(`✓ Inserted ${Object.keys(assignmentResult.insertedIds).length} assignments`);
       }
 
       // Insert submissions
       if (this.generated.submissions.length > 0) {
         print("Inserting submissions...");
-        const submissionResult = await db.submissions.insertMany(
+        const submissionResult = db.submissions.insertMany(
           this.generated.submissions,
           { ordered: false }
         );
@@ -723,16 +748,16 @@ class DataGenerator {
           })
         );
 
-        print(`✓ Inserted ${submissionResult.insertedIds.length} submissions`);
+        print(`✓ Inserted ${Object.keys(submissionResult.insertedIds).length} submissions`);
       }
 
       // Insert grades
       if (this.generated.grades.length > 0) {
         print("Inserting grades...");
-        const gradeResult = await db.grades.insertMany(this.generated.grades, {
+        const gradeResult = db.grades.insertMany(this.generated.grades, {
           ordered: false,
         });
-        print(`✓ Inserted ${gradeResult.insertedIds.length} grades`);
+        print(`✓ Inserted ${Object.keys(gradeResult.insertedIds).length} grades`);
       }
 
       print("\n🎉 All data inserted successfully!");
@@ -774,12 +799,13 @@ class DataGenerator {
 // Main execution function
 function runDataGeneration(mode = "LITE") {
   print("MongoMasterPro Data Generation");
-  print("=" * 40);
+  print("=".repeat(40));
   print(`Mode: ${mode}`);
   print(`Started at: ${new Date().toISOString()}\n`);
 
   try {
     const generator = new DataGenerator(mode);
+    generator.announce();
     const data = generator.generateAll();
 
     print("\nInserting data into MongoDB...");

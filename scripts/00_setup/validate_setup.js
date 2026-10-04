@@ -159,7 +159,7 @@ function validateCollections(reporter) {
 function validateIndexes(reporter) {
   reporter.info("Validating essential indexes...");
 
-  use("learning_platform");
+  use("mongomasterpro");
 
   Object.entries(VALIDATION_CONFIG.requiredIndexes).forEach(
     ([collName, expectedIndexes]) => {
@@ -196,7 +196,7 @@ function validateIndexes(reporter) {
 function validateSchemas(reporter) {
   reporter.info("Validating schema validation rules...");
 
-  use("learning_platform");
+  use("mongomasterpro");
 
   const collectionsToCheck = ["users", "courses", "enrollments"];
 
@@ -283,7 +283,7 @@ function validateAuthentication(reporter) {
 function validateDataIntegrity(reporter) {
   reporter.info("Validating data integrity...");
 
-  use("learning_platform");
+  use("mongomasterpro");
 
   try {
     // Check referential integrity
@@ -297,7 +297,7 @@ function validateDataIntegrity(reporter) {
     let invalidRefs = 0;
 
     courses.forEach((course) => {
-      if (instructorIds.has(course.instructorId.toString())) {
+      if (course.instructorId && instructorIds.has(course.instructorId.toString())) {
         validRefs++;
       } else {
         invalidRefs++;
@@ -356,7 +356,7 @@ function validateDataIntegrity(reporter) {
 function validatePerformance(reporter) {
   reporter.info("Running basic performance checks...");
 
-  use("learning_platform");
+  use("mongomasterpro");
 
   try {
     // Test index usage
@@ -445,7 +445,7 @@ function runValidation() {
   const reporter = new ValidationReporter();
 
   print("MongoMasterPro Setup Validation");
-  print("=" * 50);
+  print("=".repeat(50));
   print(`Started at: ${new Date().toISOString()}`);
   print();
 
