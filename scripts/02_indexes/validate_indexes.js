@@ -600,7 +600,7 @@ function testCoveredQuery(collection, query, projection, testName) {
   const isCovered =
     /^PROJECTION/.test(stage.stage) &&
     stage.inputStage &&
-    stage.inputStage.stage === "IXSCAN";
+    /IXSCAN$/.test(stage.inputStage.stage); // IXSCAN, or EXPRESS_IXSCAN on 8.0+
 
   validator.assert(isCovered, testName, `Stage: ${stage.stage}`);
 }

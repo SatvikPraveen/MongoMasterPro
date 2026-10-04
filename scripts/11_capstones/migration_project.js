@@ -56,7 +56,11 @@ function initializeMigrationInfrastructure() {
     print(`\n📋 Setting up ${collection.name}:`);
 
     try {
-      migrationDB.createCollection(collection.name);
+      // createCollection on an existing name throws on MongoDB 6.0 (7.0+ tolerates
+      // identical options); make the setup idempotent explicitly.
+      if (!migrationDB.getCollectionNames().includes(collection.name)) {
+        migrationDB.createCollection(collection.name);
+      }
 
       collection.indexes.forEach((indexSpec) => {
         migrationDB[collection.name].createIndex(indexSpec);

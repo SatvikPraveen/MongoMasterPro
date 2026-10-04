@@ -72,7 +72,11 @@ function initializeDashboardInfrastructure() {
     print(`   Description: ${collection.description}`);
 
     try {
-      analyticsDB.createCollection(collection.name);
+      // createCollection on an existing name throws on MongoDB 6.0 (7.0+ tolerates
+      // identical options); make the setup idempotent explicitly.
+      if (!analyticsDB.getCollectionNames().includes(collection.name)) {
+        analyticsDB.createCollection(collection.name);
+      }
 
       collection.indexes.forEach((indexSpec) => {
         analyticsDB[collection.name].createIndex(indexSpec);

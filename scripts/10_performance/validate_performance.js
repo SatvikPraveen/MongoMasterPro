@@ -198,7 +198,7 @@ function validateQueryPerformance() {
     const explainResult = db.users
       .find({ email: "test@example.com" })
       .explain("executionStats");
-    const usedIndex = /"stage":\s*"IXSCAN"/.test(JSON.stringify(explainResult));
+    const usedIndex = /"stage":\s*"(?:EXPRESS_)?IXSCAN"/.test(JSON.stringify(explainResult));
 
     recordPerformanceTest(
       "Index Usage",

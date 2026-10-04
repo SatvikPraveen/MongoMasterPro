@@ -255,7 +255,7 @@ function validateIndexesModule(moduleResult) {
     const explainResult = db.integration_test
       .find({ testField: "test" })
       .explain("executionStats");
-    const usedIndex = /"stage":\s*"IXSCAN"/.test(JSON.stringify(explainResult));
+    const usedIndex = /"stage":\s*"(?:EXPRESS_)?IXSCAN"/.test(JSON.stringify(explainResult));
 
     test(
       moduleResult,

@@ -86,7 +86,11 @@ function initializeEventProcessing() {
     print(`   Description: ${collection.description}`);
 
     try {
-      eventsDB.createCollection(collection.name);
+      // createCollection on an existing name throws on MongoDB 6.0 (7.0+ tolerates
+      // identical options); make the setup idempotent explicitly.
+      if (!eventsDB.getCollectionNames().includes(collection.name)) {
+        eventsDB.createCollection(collection.name);
+      }
 
       // Create appropriate indexes
       switch (collection.name) {

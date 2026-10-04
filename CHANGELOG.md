@@ -54,6 +54,11 @@ checkable.
   non-idempotent fixtures, and explain-plan assumptions that did not hold
   across versions.
 - Duplicate `docker/init/bootstrap.js` removed; filename typos corrected.
+- Cross-version compatibility: plan checks accept the `EXPRESS_IXSCAN` stage
+  that MongoDB 8.0 reports for point lookups; collection setup loops are
+  idempotent on MongoDB 6.0, where `createCollection` on an existing name
+  throws. The module matrix passes 50/50 on 6.0 (twice in a row) and 7.0
+  locally and on 6.0, 7.0 and 8.0 in CI.
 
 ## [1.0.0] — 2025-01
 

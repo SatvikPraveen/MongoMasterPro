@@ -74,7 +74,11 @@ function initializeAuditInfrastructure() {
 
     try {
       // Create collection if it doesn't exist
-      auditDB.createCollection(collection.name);
+      // createCollection on an existing name throws on MongoDB 6.0 (7.0+ tolerates
+      // identical options); make the setup idempotent explicitly.
+      if (!auditDB.getCollectionNames().includes(collection.name)) {
+        auditDB.createCollection(collection.name);
+      }
 
       // Create indexes
       collection.indexes.forEach((indexSpec) => {

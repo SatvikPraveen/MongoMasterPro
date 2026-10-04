@@ -633,7 +633,7 @@ indexTestPipelines.forEach((test) => {
     const explain = db.users.aggregate(test.pipeline).explain("executionStats");
     // Since 5.x/6.x a leading $match may be pushed down into the find layer, so
     // the plan can appear under explain.stages[0].$cursor or at the top level.
-    const usesIndex = /"stage":\s*"IXSCAN"/.test(JSON.stringify(explain));
+    const usesIndex = /"stage":\s*"(?:EXPRESS_)?IXSCAN"/.test(JSON.stringify(explain));
 
     if (test.shouldUseIndex) {
       validator.assert(
