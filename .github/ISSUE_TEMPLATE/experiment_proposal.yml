@@ -1,0 +1,19 @@
+name: Experiment proposal
+description: Propose a new experiment for experiments/specs
+labels: [experiment]
+body:
+  - type: input
+    id: question
+    attributes: { label: Research question, placeholder: "Does a hashed shard key remove insert hotspots for monotonically increasing keys?" }
+    validations: { required: true }
+  - type: textarea
+    id: hypothesis
+    attributes: { label: Falsifiable hypothesis }
+    validations: { required: true }
+  - type: textarea
+    id: design
+    attributes: { label: Independent variable and levels, dependent variable, controls }
+    validations: { required: true }
+  - type: textarea
+    id: environment
+    attributes: { label: Required topology (single node, replica set, sharded cluster) and dataset scale }

@@ -1,0 +1,11 @@
+name: Security
+description: Report a security concern that can be discussed publicly (see SECURITY.md otherwise)
+labels: [security]
+body:
+  - type: textarea
+    id: description
+    attributes: { label: Description and impact }
+    validations: { required: true }
+  - type: textarea
+    id: reproduction
+    attributes: { label: Steps to reproduce }

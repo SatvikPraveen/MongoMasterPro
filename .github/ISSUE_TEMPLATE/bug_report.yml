@@ -1,0 +1,23 @@
+name: Bug report
+description: A script, test, or experiment does not behave as documented
+labels: [bug]
+body:
+  - type: input
+    id: mongodb
+    attributes: { label: MongoDB version and topology, placeholder: "7.0.14, single-node replica set via make start" }
+    validations: { required: true }
+  - type: input
+    id: commit
+    attributes: { label: Repository commit, placeholder: "git rev-parse --short HEAD" }
+    validations: { required: true }
+  - type: textarea
+    id: command
+    attributes: { label: Exact command run, render: shell }
+    validations: { required: true }
+  - type: textarea
+    id: output
+    attributes: { label: Output (trimmed to the relevant part), render: text }
+    validations: { required: true }
+  - type: textarea
+    id: expected
+    attributes: { label: What you expected instead }

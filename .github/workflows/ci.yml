@@ -1,0 +1,181 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.12"
+  NODE_VERSION: "20"
+
+jobs:
+  lint:
+    name: Lint (JavaScript, Python, shell, YAML)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+      - run: npm ci
+      - run: pip install -r requirements-dev.txt
+      - name: JavaScript parses and lints
+        run: |
+          node scripts/utilities/check_syntax.mjs
+          npx eslint .
+      - name: Python formatting and style
+        run: |
+          black --check data/generators tests/python experiments/analysis
+          isort --check-only data/generators tests/python experiments/analysis
+          flake8 data/generators tests/python experiments/analysis
+      - name: Shell scripts
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck
+          shellcheck -S warning scripts/utilities/*.sh experiments/run.sh
+      - name: Compose files are valid
+        run: |
+          docker compose -f docker/docker-compose.yml config -q
+          docker compose -f docker/docker-compose.rs.yml config -q
+          docker compose -f docker/docker-compose.sharded.yml config -q
+
+  python-tests:
+    name: Dataset generator tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+      - run: pip install -r requirements-dev.txt
+      - run: python -m pytest -q
+      - name: Determinism across processes
+        run: |
+          python data/generators/generate_data.py --mode lite --scale 0.1 --out /tmp/a --quiet
+          python data/generators/generate_data.py --mode lite --scale 0.1 --out /tmp/b --quiet
+          cd /tmp/a && sha256sum -c checksums.sha256 && diff <(cat checksums.sha256) <(cat /tmp/b/checksums.sha256)
+
+  modules:
+    name: Module matrix (MongoDB ${{ matrix.mongo }})
+    runs-on: ubuntu-latest
+    needs: [lint, python-tests]
+    strategy:
+      fail-fast: false
+      matrix:
+        mongo: ["6.0", "7.0", "8.0"]
+    env:
+      MONGO_URI: mongodb://localhost:27017/?directConnection=true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+      - run: npm ci
+      - run: pip install -r requirements-dev.txt
+
+      - name: Start MongoDB ${{ matrix.mongo }} as a single-node replica set
+        run: |
+          docker run -d --name mongo -p 27017:27017 -v "$PWD":/app:ro mongo:${{ matrix.mongo }} --replSet rs0 --bind_ip_all
+          for i in $(seq 1 30); do
+            docker exec mongo mongosh --quiet --eval 'db.adminCommand("ping").ok' >/dev/null 2>&1 && break; sleep 2
+          done
+          docker exec mongo mongosh --quiet --eval 'rs.initiate({_id:"rs0",members:[{_id:0,host:"localhost:27017"}]})'
+          for i in $(seq 1 30); do
+            docker exec mongo mongosh --quiet --eval 'db.hello().isWritablePrimary' | grep -q true && break; sleep 2
+          done
+          docker exec mongo mongosh --quiet --eval 'print("MongoDB", db.version(), "primary:", db.hello().isWritablePrimary)'
+
+      - name: Reference dataset schema (bootstrap)
+        run: docker exec mongo mongosh --quiet --file /app/docker/init/00_bootstrap.js
+
+      - name: Generate and import the lite reference dataset
+        run: python data/generators/generate_data.py --mode lite --out data/generated --import "$MONGO_URI"
+
+      - name: Validate the reference dataset against schema and manifest
+        run: docker exec mongo mongosh --quiet --file /app/scripts/00_setup/validate_reference.js
+
+      - name: Run every module script (fails on any error or failure marker)
+        run: scripts/utilities/run_module_matrix.sh -c mongo -o results/module-matrix
+
+      - name: Node driver test suites
+        run: MONGODB_URI="$MONGO_URI" node tests/run_node_tests.mjs
+
+      - name: Experiment harness smoke run (3 trials per level)
+        run: |
+          npm install -g mongosh@2
+          experiments/run.sh -u "$MONGO_URI" -t 3 -w 1 -o results/experiments-smoke all
+          python experiments/analysis/analyze.py --no-figures >/dev/null || true
+
+      - name: Upload matrix logs and smoke results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: module-matrix-mongo-${{ matrix.mongo }}
+          path: |
+            results/module-matrix
+            results/experiments-smoke
+          if-no-files-found: ignore
+          retention-days: 14
+
+  sharded:
+    name: Sharding module on a real sharded cluster
+    runs-on: ubuntu-latest
+    needs: [lint]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Start config server, two shards and mongos
+        run: |
+          docker compose -f docker/docker-compose.sharded.yml up -d
+          for i in $(seq 1 60); do
+            n=$(docker exec mongos mongosh --quiet --eval 'db.adminCommand({listShards:1}).shards.length' 2>/dev/null || true)
+            [ "$n" = "2" ] && { echo "cluster ready"; break; }; sleep 2
+          done
+          docker exec mongos mongosh --quiet --eval 'printjson(db.adminCommand({listShards:1}).shards.map(s => s._id))'
+      - name: Run the sharding module through mongos
+        run: scripts/utilities/run_module_matrix.sh -c mongos -s -m 07_sharding -o results/sharded
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sharded-module-logs
+          path: results/sharded
+          if-no-files-found: ignore
+          retention-days: 14
+      - if: always()
+        run: docker compose -f docker/docker-compose.sharded.yml down -v
+
+  docker-image:
+    name: Docker image builds
+    runs-on: ubuntu-latest
+    needs: [lint]
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -f docker/Dockerfile -t mongomasterpro:ci .
+
+  security:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
