@@ -1,17 +1,17 @@
 // File: scripts/01_crud/bulk_operations.js
 // Advanced bulk write patterns and optimization strategies
 
-use("learning_platform");
+use("mongomasterpro");
 
 print("MongoDB CRUD: Bulk Operations");
-print("=" * 50);
+print("=".repeat(50));
 
 // =================================================================
 // BULK WRITE FUNDAMENTALS
 // =================================================================
 
 print("\n🚀 BULK WRITE FUNDAMENTALS");
-print("-" * 30);
+print("-".repeat(30));
 
 // 1. Basic bulk write operations
 print("1. Basic bulk write with mixed operations");
@@ -113,7 +113,7 @@ try {
 // =================================================================
 
 print("\n🚀 ORDERED vs UNORDERED OPERATIONS");
-print("-" * 30);
+print("-".repeat(30));
 
 // 2. Ordered bulk operations (stops on first error)
 print("2. Ordered bulk operations (sequential execution)");
@@ -219,7 +219,7 @@ try {
 // =================================================================
 
 print("\n🚀 BATCH PROCESSING PATTERNS");
-print("-" * 30);
+print("-".repeat(30));
 
 // 4. Large dataset batch processing
 print("4. Processing large datasets in batches");
@@ -284,7 +284,7 @@ processBatchData(50);
 // =================================================================
 
 print("\n🚀 UPSERT PATTERNS IN BULK OPERATIONS");
-print("-" * 30);
+print("-".repeat(30));
 
 // 5. Bulk upsert operations
 print("5. Bulk upsert for data synchronization");
@@ -355,7 +355,7 @@ try {
 // =================================================================
 
 print("\n🚀 CROSS-COLLECTION BULK OPERATIONS");
-print("-" * 30);
+print("-".repeat(30));
 
 // 6. Course enrollment bulk operations
 print("6. Bulk enrollment processing");
@@ -420,7 +420,7 @@ if (sampleUsers.length > 0 && sampleCourses.length > 0) {
 // =================================================================
 
 print("\n🚀 BULK OPERATION PERFORMANCE OPTIMIZATION");
-print("-" * 30);
+print("-".repeat(30));
 
 // 7. Optimized bulk write with write concerns
 print("7. Performance optimization with write concerns");
@@ -483,7 +483,7 @@ for (let concern of writeConcerns) {
 // =================================================================
 
 print("\n🚀 ERROR HANDLING & RECOVERY");
-print("-" * 30);
+print("-".repeat(30));
 
 // 8. Comprehensive error handling
 print("8. Advanced error handling for bulk operations");
@@ -577,7 +577,7 @@ const errorResult = handleBulkErrors(errorProneOps);
 // =================================================================
 
 print("\n🚀 MONITORING & METRICS");
-print("-" * 30);
+print("-".repeat(30));
 
 // 9. Bulk operation metrics collection
 print("9. Collecting bulk operation metrics");
@@ -611,7 +611,7 @@ function collectBulkMetrics(operationName, operations) {
     use("mmp_analytics");
     db.bulk_operation_metrics.insertOne(metrics);
 
-    use("learning_platform"); // Switch back
+    use("mongomasterpro"); // Switch back
 
     print(`✓ ${operationName} metrics:`);
     print(`  Duration: ${duration}ms`);
@@ -647,7 +647,7 @@ collectBulkMetrics("MetricsTest", metricsTestOps);
 // =================================================================
 
 print("\n🔍 VALIDATION & SUMMARY");
-print("-" * 30);
+print("-".repeat(30));
 
 // Cleanup test data
 print("Cleaning up test data...");
@@ -675,7 +675,7 @@ use("mmp_analytics");
 const metricsCount = db.bulk_operation_metrics.countDocuments();
 print(`  Bulk operation metrics recorded: ${metricsCount}`);
 
-use("learning_platform"); // Switch back
+use("mongomasterpro"); // Switch back
 
 print("\n🎯 Key Learnings:");
 print("• bulkWrite() for efficient batch operations");

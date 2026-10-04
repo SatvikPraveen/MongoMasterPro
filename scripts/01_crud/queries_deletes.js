@@ -1,17 +1,17 @@
 // File: scripts/01_crud/queries_deletes.js
 // Combined query/delete operations with MongoDB best practices
 
-use("learning_platform");
+use("mongomasterpro");
 
 print("MongoDB CRUD: Query & Delete Operations");
-print("=" * 50);
+print("=".repeat(50));
 
 // =================================================================
 // BASIC QUERIES
 // =================================================================
 
 print("\n🔍 BASIC QUERY OPERATIONS");
-print("-" * 30);
+print("-".repeat(30));
 
 // 1. find() - Basic queries
 print("1. Basic find operations");
@@ -50,7 +50,7 @@ if (instructor) {
 // =================================================================
 
 print("\n🔍 QUERY OPERATORS");
-print("-" * 30);
+print("-".repeat(30));
 
 // 3. Comparison operators
 print("3. Comparison operators ($gt, $lt, $in, $ne)");
@@ -117,7 +117,7 @@ print(`✓ Active intermediate courses (≥25 students): ${specificCourses}`);
 // =================================================================
 
 print("\n🔍 ELEMENT & ARRAY QUERIES");
-print("-" * 30);
+print("-".repeat(30));
 
 // 5. Element queries
 print("5. Element existence and type queries");
@@ -179,7 +179,7 @@ print(`✓ Users with exactly 3 goals: ${activeGoalUsers}`);
 // =================================================================
 
 print("\n🔍 TEXT & REGEX QUERIES");
-print("-" * 30);
+print("-".repeat(30));
 
 // 7. Text search
 print("7. Text search operations");
@@ -224,7 +224,7 @@ fundamentalCourses.forEach((course) => {
 // =================================================================
 
 print("\n🔍 ADVANCED QUERY OPERATIONS");
-print("-" * 30);
+print("-".repeat(30));
 
 // 9. Nested document queries
 print("9. Nested document and dot notation");
@@ -267,7 +267,7 @@ print(`✓ Estimated total courses: ${estimatedCount}`);
 // =================================================================
 
 print("\n🗑️  DELETE OPERATIONS");
-print("-" * 30);
+print("-".repeat(30));
 
 // 11. deleteOne() - Remove single document
 print("11. Deleting single documents with deleteOne()");
@@ -300,6 +300,7 @@ const testUsers = [
     lastName: "User1",
     role: "student",
     isActive: false,
+    createdAt: new Date(),
   },
   {
     email: "temp2@test.com",
@@ -307,6 +308,7 @@ const testUsers = [
     lastName: "User2",
     role: "student",
     isActive: false,
+    createdAt: new Date(),
   },
   {
     email: "temp3@test.com",
@@ -314,6 +316,7 @@ const testUsers = [
     lastName: "User3",
     role: "student",
     isActive: false,
+    createdAt: new Date(),
   },
 ];
 
@@ -332,7 +335,7 @@ print(`✓ DeleteMany - Deleted count: ${deleteManyResult.deletedCount}`);
 // =================================================================
 
 print("\n🗑️  SAFE DELETE OPERATIONS");
-print("-" * 30);
+print("-".repeat(30));
 
 // 13. Conditional deletes with verification
 print("13. Safe delete operations with verification");
@@ -394,7 +397,7 @@ print(`✓ Active courses (excluding soft-deleted): ${activeCourses}`);
 // =================================================================
 
 print("\n🗑️  BULK DELETE OPERATIONS");
-print("-" * 30);
+print("-".repeat(30));
 
 // 15. Bulk write with deletes
 print("15. Bulk operations including deletes");
@@ -407,6 +410,7 @@ const bulkTestData = [
     lastName: "Test1",
     role: "student",
     isActive: true,
+    createdAt: new Date(),
   },
   {
     email: "bulk2@test.com",
@@ -414,6 +418,7 @@ const bulkTestData = [
     lastName: "Test2",
     role: "student",
     isActive: true,
+    createdAt: new Date(),
   },
   {
     email: "bulk3@test.com",
@@ -421,6 +426,7 @@ const bulkTestData = [
     lastName: "Test3",
     role: "student",
     isActive: false,
+    createdAt: new Date(),
   },
 ];
 
@@ -459,7 +465,7 @@ print(`  Modified: ${bulkDeleteResult.modifiedCount}`);
 // =================================================================
 
 print("\n🚀 QUERY PERFORMANCE & OPTIMIZATION");
-print("-" * 30);
+print("-".repeat(30));
 
 // 16. Query performance analysis
 print("16. Query performance with explain()");
@@ -500,7 +506,7 @@ print(`✓ Query with index hint completed`);
 // =================================================================
 
 print("\n📊 AGGREGATION PREVIEW");
-print("-" * 30);
+print("-".repeat(30));
 
 // 17. Simple aggregation pipeline
 print("17. Simple aggregation for counting and grouping");
@@ -527,7 +533,7 @@ roleStats.forEach((stat) => {
 // =================================================================
 
 print("\n🔍 VALIDATION & SUMMARY");
-print("-" * 30);
+print("-".repeat(30));
 
 // Final statistics
 const finalStats = {

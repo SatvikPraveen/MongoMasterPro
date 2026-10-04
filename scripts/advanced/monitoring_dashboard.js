@@ -1,7 +1,7 @@
 // File: scripts/advanced/monitoring_dashboard.js
 // MongoDB Monitoring Dashboard - Real-time system metrics and KPIs
 
-use("learning_platform");
+use("mongomasterpro");
 
 print("\n" + "=".repeat(80));
 print("MONGODB MONITORING DASHBOARD");

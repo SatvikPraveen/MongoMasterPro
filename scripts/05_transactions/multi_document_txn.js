@@ -1,17 +1,17 @@
 // File: scripts/05_transactions/multi_document_txn.js
 // ACID multi-document transactions for data consistency
 
-use("learning_platform");
+use("mongomasterpro");
 
 print("MongoDB Transactions: Multi-Document ACID Operations");
-print("=" * 50);
+print("=".repeat(50));
 
 // =================================================================
 // TRANSACTION PREREQUISITES
 // =================================================================
 
 print("\n⚙️ TRANSACTION PREREQUISITES");
-print("-" * 30);
+print("-".repeat(30));
 
 print("Transaction Requirements:");
 print("• MongoDB 4.0+ for replica sets");
@@ -36,7 +36,7 @@ if (!isMaster.setName) {
 // =================================================================
 
 print("\n📝 BASIC TRANSACTION STRUCTURE");
-print("-" * 30);
+print("-".repeat(30));
 
 print("1. Basic transaction pattern");
 
@@ -109,7 +109,7 @@ if (isMaster.setName) {
 // =================================================================
 
 print("\n🎓 ENROLLMENT TRANSACTION PATTERN");
-print("-" * 30);
+print("-".repeat(30));
 
 print("2. Complete enrollment transaction with validation");
 
@@ -244,7 +244,7 @@ if (isMaster.setName) {
 // =================================================================
 
 print("\n💰 FINANCIAL TRANSACTION PATTERN");
-print("-" * 30);
+print("-".repeat(30));
 
 print("3. Payment processing transaction");
 
@@ -411,7 +411,7 @@ if (isMaster.setName) {
 // =================================================================
 
 print("\n📦 INVENTORY MANAGEMENT TRANSACTION");
-print("-" * 30);
+print("-".repeat(30));
 
 print("4. Inventory update transaction with conflict resolution");
 
@@ -573,7 +573,7 @@ if (isMaster.setName) {
 // =================================================================
 
 print("\n⚡ TRANSACTION PERFORMANCE TESTING");
-print("-" * 30);
+print("-".repeat(30));
 
 print("5. Transaction performance analysis");
 
@@ -645,7 +645,7 @@ measureTransactionPerformance();
 // =================================================================
 
 print("\n🧹 CLEANUP");
-print("-" * 30);
+print("-".repeat(30));
 
 // Clean up test data
 if (isMaster.setName) {
@@ -662,7 +662,7 @@ if (isMaster.setName) {
 }
 
 print("\n📊 MULTI-DOCUMENT TRANSACTIONS SUMMARY");
-print("-" * 30);
+print("-".repeat(30));
 
 const transactionSummary = {
   patternsDemo: [

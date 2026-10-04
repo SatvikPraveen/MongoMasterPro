@@ -1,10 +1,10 @@
 // File: scripts/01_crud/validate_crud.js
 // Comprehensive validation and assertions for CRUD operations
 
-use("learning_platform");
+use("mongomasterpro");
 
 print("MongoDB CRUD: Validation & Testing");
-print("=" * 50);
+print("=".repeat(50));
 
 // =================================================================
 // VALIDATION FRAMEWORK
@@ -178,6 +178,7 @@ try {
     firstName: "Duplicate",
     lastName: "Test",
     role: "student",
+    createdAt: new Date(),
   });
   validator.assert(
     false,
@@ -248,7 +249,8 @@ const upsertResult = db.users.updateOne(
 );
 
 validator.assert(upsertResult.acknowledged, "Upsert acknowledged");
-validator.assertExists(upsertResult.upsertedId, "Upsert created new document");
+// mongosh reports an upsert through upsertedCount/insertedId (there is no upsertedId field).
+validator.assertEqual(upsertResult.upsertedCount, 1, "Upsert created new document");
 
 // =================================================================
 // QUERY OPERATIONS VALIDATION
@@ -320,12 +322,14 @@ const deleteTestDocs = [
     firstName: "DeleteMany",
     lastName: "Test1",
     role: "student",
+    createdAt: new Date(),
   },
   {
     email: "deletemany2@test.com",
     firstName: "DeleteMany",
     lastName: "Test2",
     role: "student",
+    createdAt: new Date(),
   },
 ];
 

@@ -1,17 +1,17 @@
 // File: scripts/04_aggregation/advanced_stages.js
 // Advanced aggregation stages: $lookup, $unwind, $facet, $bucket
 
-use("learning_platform");
+use("mongomasterpro");
 
 print("MongoDB Aggregation: Advanced Stages");
-print("=" * 50);
+print("=".repeat(50));
 
 // =================================================================
 // $LOOKUP STAGE - JOINS AND RELATIONSHIPS
 // =================================================================
 
 print("\n🔗 $LOOKUP STAGE - JOINS AND RELATIONSHIPS");
-print("-" * 30);
+print("-".repeat(30));
 
 // 1. Basic $lookup - Left outer join
 print("1. Basic $lookup operations");
@@ -183,7 +183,7 @@ instructorCourseDetails.forEach((instructor, i) => {
 // =================================================================
 
 print("\n📦 $UNWIND STAGE - ARRAY DECONSTRUCTION");
-print("-" * 30);
+print("-".repeat(30));
 
 // 4. Basic $unwind
 print("4. Basic $unwind operations");
@@ -298,7 +298,7 @@ courseTagsAnalysis.forEach((tag, i) => {
 // =================================================================
 
 print("\n🎭 $FACET STAGE - MULTIPLE PIPELINES");
-print("-" * 30);
+print("-".repeat(30));
 
 // 7. $facet for multiple analyses
 print("7. $facet for parallel aggregations");
@@ -395,7 +395,7 @@ print(`  Status types: ${courseAnalytics.statusDistribution.length} statuses`);
 // =================================================================
 
 print("\n📊 $BUCKET AND $BUCKETAUTO STAGES");
-print("-" * 30);
+print("-".repeat(30));
 
 // 9. $bucket for custom grouping
 print("9. $bucket operations");
@@ -487,7 +487,7 @@ userAgeBuckets.forEach((bucket, i) => {
 // =================================================================
 
 print("\n🌳 $GRAPHLOOKUP STAGE - HIERARCHICAL DATA");
-print("-" * 30);
+print("-".repeat(30));
 
 // 11. Create hierarchical test data
 db.categories.deleteMany({});
@@ -558,7 +558,7 @@ print(`  Max depth: ${hierarchy.maxDepth}`);
 // =================================================================
 
 print("\n⚡ $ADDFIELDS AND $REPLACEROOT STAGES");
-print("-" * 30);
+print("-".repeat(30));
 
 // 12. $addFields for computed fields
 const enrichedUsers = db.users
@@ -653,7 +653,7 @@ userProfiles.forEach((profile, i) => {
 // =================================================================
 
 print("\n⚡ PERFORMANCE OPTIMIZATION");
-print("-" * 30);
+print("-".repeat(30));
 
 print("Advanced stage performance tips:");
 print("• Place $match before $lookup when possible");
@@ -714,13 +714,13 @@ print(`  Without early $match: ${performanceTest.withoutEarlyMatch}ms`);
 // =================================================================
 
 print("\n🧹 CLEANUP");
-print("-" * 30);
+print("-".repeat(30));
 
 db.categories.drop();
 print("✓ Cleaned up test hierarchy data");
 
 print("\n📊 ADVANCED STAGES SUMMARY");
-print("-" * 30);
+print("-".repeat(30));
 
 const stagesSummary = {
   stagesDemo: [

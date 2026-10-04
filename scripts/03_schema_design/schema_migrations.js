@@ -1,17 +1,17 @@
 // File: scripts/03_schema_design/schema_migrations.js
 // Schema versioning and migration patterns for evolving data structures
 
-use("learning_platform");
+use("mongomasterpro");
 
 print("MongoDB Schema Design: Migrations & Versioning");
-print("=" * 50);
+print("=".repeat(50));
 
 // =================================================================
 // SCHEMA VERSIONING FUNDAMENTALS
 // =================================================================
 
 print("\n🔄 SCHEMA VERSIONING FUNDAMENTALS");
-print("-" * 30);
+print("-".repeat(30));
 
 db.versioned_users.deleteMany({});
 db.migration_log.deleteMany({});
@@ -97,7 +97,7 @@ print(`✓ Created users with schema versions 1.0, 2.0, and 3.0`);
 // =================================================================
 
 print("\n🔄 LAZY MIGRATION STRATEGY");
-print("-" * 30);
+print("-".repeat(30));
 
 function lazyMigrateUser(user) {
   let migrated = { ...user };
@@ -155,7 +155,7 @@ print(`✓ Lazy migration completed: ${migratedCount} users migrated`);
 // =================================================================
 
 print("\n⚡ BULK MIGRATION STRATEGY");
-print("-" * 30);
+print("-".repeat(30));
 
 // Create more test data
 const bulkUsers = [];
@@ -211,7 +211,7 @@ print(
 // =================================================================
 
 print("\n📝 MIGRATION LOGGING");
-print("-" * 30);
+print("-".repeat(30));
 
 function logMigration(fromVersion, toVersion, documentsAffected, strategy) {
   const logEntry = {
@@ -239,7 +239,7 @@ print("✓ Migration activities logged");
 // =================================================================
 
 print("\n✍️  DUAL-WRITE MIGRATION PATTERN");
-print("-" * 30);
+print("-".repeat(30));
 
 // Simulate application writing in both old and new formats during transition
 function dualWriteUser(userData) {
@@ -292,7 +292,7 @@ print(`✓ Dual-write pattern: Created user ${dualWriteUser1}`);
 // =================================================================
 
 print("\n🔀 FIELD TRANSFORMATION PATTERNS");
-print("-" * 30);
+print("-".repeat(30));
 
 // 1. Field renaming
 db.versioned_users.updateMany(
@@ -344,7 +344,7 @@ print(
 // =================================================================
 
 print("\n⏪ ROLLBACK MECHANISMS");
-print("-" * 30);
+print("-".repeat(30));
 
 // Create backup before major migration
 function createBackup(collectionName, backupSuffix) {
@@ -391,7 +391,7 @@ print("✓ Rollback mechanism available if needed");
 // =================================================================
 
 print("\n✅ MIGRATION VALIDATION");
-print("-" * 30);
+print("-".repeat(30));
 
 function validateMigration() {
   const versionCounts = db.versioned_users
@@ -451,7 +451,7 @@ validateMigration();
 // =================================================================
 
 print("\n📈 PROGRESSIVE MIGRATION PATTERN");
-print("-" * 30);
+print("-".repeat(30));
 
 function progressiveMigration(batchSize = 10) {
   const totalDocs = db.versioned_users.countDocuments({
@@ -505,7 +505,7 @@ print("✓ Progressive migration pattern available for large datasets");
 // =================================================================
 
 print("\n📊 MIGRATION METRICS");
-print("-" * 30);
+print("-".repeat(30));
 
 function generateMigrationReport() {
   const report = {
@@ -564,14 +564,14 @@ print(`  Migration logs: ${migrationReport.migrationLog.length} entries`);
 // =================================================================
 
 print("\n🧹 CLEANUP");
-print("-" * 30);
+print("-".repeat(30));
 
 // Clean up backup collection
 db.getCollection(backupName).drop();
 print("✓ Cleaned up backup collection");
 
 print("\n📊 MIGRATION SUMMARY");
-print("-" * 30);
+print("-".repeat(30));
 
 const finalStats = {
   totalUsers: db.versioned_users.countDocuments(),

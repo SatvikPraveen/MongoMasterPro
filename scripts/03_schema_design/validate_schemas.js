@@ -1,10 +1,10 @@
 // File: scripts/03_schema_design/validate_schemas.js
 // Schema validation rules, constraints, and data integrity checks
 
-use("learning_platform");
+use("mongomasterpro");
 
 print("MongoDB Schema Design: Schema Validation");
-print("=" * 50);
+print("=".repeat(50));
 
 // =================================================================
 // SCHEMA VALIDATION FRAMEWORK
@@ -81,7 +81,7 @@ print("-".repeat(50));
 // =================================================================
 
 print("\n📋 JSON SCHEMA VALIDATION SETUP");
-print("-" * 30);
+print("-".repeat(30));
 
 // Clean up test collections
 db.validated_products.drop();
@@ -96,6 +96,8 @@ const productSchema = {
     bsonType: "object",
     required: ["name", "category", "price", "status", "createdAt"],
     properties: {
+      // additionalProperties: false also applies to _id, so it must be declared.
+      _id: { bsonType: "objectId" },
       name: {
         bsonType: "string",
         minLength: 1,
@@ -107,7 +109,7 @@ const productSchema = {
         description: "Category must be one of the predefined values",
       },
       price: {
-        bsonType: "double",
+        bsonType: "number",
         minimum: 0,
         maximum: 10000,
         description: "Price must be a positive number up to 10000",
@@ -150,7 +152,7 @@ const productSchema = {
         bsonType: "object",
         properties: {
           average: {
-            bsonType: "double",
+            bsonType: "number",
             minimum: 0,
             maximum: 5,
           },
@@ -195,6 +197,8 @@ const orderSchema = {
       "createdAt",
     ],
     properties: {
+      // additionalProperties: false also applies to _id, so it must be declared.
+      _id: { bsonType: "objectId" },
       orderNumber: {
         bsonType: "string",
         pattern: "^ORD-[0-9]{4}-[0-9]{6}$",
@@ -262,7 +266,7 @@ try {
 // =================================================================
 
 print("\n🧪 TESTING VALIDATION RULES");
-print("-" * 30);
+print("-".repeat(30));
 
 // 3. Test valid document insertion
 print("3. Testing valid document insertion");
@@ -419,7 +423,7 @@ try {
 // =================================================================
 
 print("\n🎯 PATTERN VALIDATION");
-print("-" * 30);
+print("-".repeat(30));
 
 // 5. Test regex pattern validation
 print("5. Testing regex pattern validation");
@@ -483,7 +487,7 @@ try {
 // =================================================================
 
 print("\n⚙️ CUSTOM VALIDATION RULES");
-print("-" * 30);
+print("-".repeat(30));
 
 // 6. Create collection with custom validation using $expr
 print("6. Creating collection with custom business logic validation");
@@ -585,7 +589,7 @@ try {
 // =================================================================
 
 print("\n⚡ VALIDATION PERFORMANCE IMPACT");
-print("-" * 30);
+print("-".repeat(30));
 
 // 7. Test validation performance impact
 print("7. Testing validation performance impact");
@@ -602,8 +606,8 @@ function testInsertPerformance(collectionName, documents, description) {
     validator.assert(
       true,
       `${description} performance test`,
-      `${result.insertedIds.length} docs in ${duration}ms (${(
-        (result.insertedIds.length * 1000) /
+      `${Object.keys(result.insertedIds).length} docs in ${duration}ms (${(
+        (Object.keys(result.insertedIds).length * 1000) /
         duration
       ).toFixed(0)} docs/sec)`
     );
@@ -624,6 +628,9 @@ for (let i = 0; i < 100; i++) {
     price: Math.random() * 1000,
     status: ["active", "draft"][i % 2],
     tags: [`tag${i}`, `category${i % 3}`],
+    description: `Load-test product ${i} used for the validation overhead comparison`,
+    inventory: { quantity: i, warehouse: `WH-${(i % 3) + 1}` },
+    rating: { average: 3.5 + (i % 3) * 0.5, count: (i % 5) + 1 },
     createdAt: new Date(),
     updatedAt: new Date(),
   });
@@ -662,7 +669,7 @@ if (validatedTime > 0 && unvalidatedTime > 0) {
 // =================================================================
 
 print("\n🔄 SCHEMA EVOLUTION WITH VALIDATION");
-print("-" * 30);
+print("-".repeat(30));
 
 // 8. Modify validation schema (schema evolution)
 print("8. Testing schema evolution with validation updates");
@@ -672,6 +679,8 @@ const updatedProductSchema = {
     bsonType: "object",
     required: ["name", "category", "price", "status", "createdAt"],
     properties: {
+      // additionalProperties: false also applies to _id, so it must be declared.
+      _id: { bsonType: "objectId" },
       name: { bsonType: "string", minLength: 1, maxLength: 200 },
       category: {
         enum: [
@@ -684,7 +693,7 @@ const updatedProductSchema = {
           "health",
         ],
       }, // Added 'health'
-      price: { bsonType: "double", minimum: 0, maximum: 15000 }, // Increased max price
+      price: { bsonType: "number", minimum: 0, maximum: 15000 }, // Increased max price
       description: { bsonType: "string", maxLength: 2000 }, // Increased max length
       tags: {
         bsonType: "array",
@@ -723,7 +732,7 @@ const updatedProductSchema = {
       rating: {
         bsonType: "object",
         properties: {
-          average: { bsonType: "double", minimum: 0, maximum: 5 },
+          average: { bsonType: "number", minimum: 0, maximum: 5 },
           count: { bsonType: "int", minimum: 0 },
         },
       },
@@ -780,7 +789,7 @@ try {
 // =================================================================
 
 print("\n🔍 DATA QUALITY VALIDATION");
-print("-" * 30);
+print("-".repeat(30));
 
 // 9. Check existing data quality
 print("9. Analyzing data quality across collections");
@@ -865,7 +874,7 @@ validator.assert(
 // =================================================================
 
 print("\n🧹 CLEANUP");
-print("-" * 30);
+print("-".repeat(30));
 
 // Clean up test collections
 db.unvalidated_products.drop();
@@ -875,7 +884,7 @@ print("✓ Cleaned up test collections");
 
 // Final validation check
 print("\n🏁 FINAL VALIDATION CHECK");
-print("-" * 30);
+print("-".repeat(30));
 
 const finalValidation = {
   collectionsWithValidation: 0,

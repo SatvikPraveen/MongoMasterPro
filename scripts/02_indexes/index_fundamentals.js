@@ -1,17 +1,17 @@
 // File: scripts/02_indexes/index_fundamentals.js
 // Single, compound, multikey indexes and fundamentals
 
-use("learning_platform");
+use("mongomasterpro");
 
 print("MongoDB Indexes: Fundamentals");
-print("=" * 50);
+print("=".repeat(50));
 
 // =================================================================
 // INDEX BASICS AND THEORY
 // =================================================================
 
 print("\n📚 INDEX FUNDAMENTALS");
-print("-" * 30);
+print("-".repeat(30));
 
 print("Index Theory:");
 print("• Indexes are data structures that improve query performance");
@@ -32,7 +32,7 @@ existingIndexes.forEach((index, i) => {
 // =================================================================
 
 print("\n🔑 SINGLE FIELD INDEXES");
-print("-" * 30);
+print("-".repeat(30));
 
 // 1. Create basic single field indexes
 print("1. Creating single field indexes");
@@ -42,8 +42,8 @@ try {
   db.users.createIndex({ email: 1 });
   print("✓ Email ascending index created");
 } catch (e) {
-  if (e.code === 85) {
-    print("✓ Email index already exists");
+  if (e.code === 85 || e.code === 86) {
+    print("✓ Email index already exists (created unique by the lab bootstrap)");
   } else {
     print(`❌ Email index creation failed: ${e.message}`);
   }
@@ -109,7 +109,7 @@ print(
 // =================================================================
 
 print("\n🔗 COMPOUND INDEXES");
-print("-" * 30);
+print("-".repeat(30));
 
 print("3. Creating compound indexes");
 
@@ -169,7 +169,7 @@ compoundQueries.forEach((query, i) => {
 // =================================================================
 
 print("\n🎯 MULTIKEY INDEXES");
-print("-" * 30);
+print("-".repeat(30));
 
 print("5. Creating indexes on array fields");
 
@@ -222,7 +222,7 @@ print(
 // =================================================================
 
 print("\n🗂️  NESTED DOCUMENT INDEXES");
-print("-" * 30);
+print("-".repeat(30));
 
 print("7. Creating indexes on nested document fields");
 
@@ -261,7 +261,7 @@ print(
 // =================================================================
 
 print("\n⚙️ INDEX PROPERTIES AND OPTIONS");
-print("-" * 30);
+print("-".repeat(30));
 
 print("8. Creating indexes with special properties");
 
@@ -322,7 +322,7 @@ try {
 // =================================================================
 
 print("\n📊 INDEX ANALYSIS");
-print("-" * 30);
+print("-".repeat(30));
 
 print("9. Analyzing index usage and effectiveness");
 
@@ -354,7 +354,7 @@ analyzeIndexStats("enrollments");
 // =================================================================
 
 print("\n🚀 INDEX PERFORMANCE TESTING");
-print("-" * 30);
+print("-".repeat(30));
 
 print("10. Comprehensive performance testing");
 
@@ -457,7 +457,7 @@ performanceTests.forEach((test, i) => {
 // =================================================================
 
 print("\n🔧 INDEX MAINTENANCE");
-print("-" * 30);
+print("-".repeat(30));
 
 print("11. Index maintenance operations");
 
@@ -488,7 +488,7 @@ print("• Use partial indexes for selective filtering");
 // =================================================================
 
 print("\n🧹 CLEANUP AND VALIDATION");
-print("-" * 30);
+print("-".repeat(30));
 
 // Clean up test data
 const cleanupResult = db.users.deleteMany({ testData: true });

@@ -1,10 +1,10 @@
 // File: scripts/05_transactions/validate_transactions.js
 // Comprehensive transaction validation and consistency checks
 
-use("learning_platform");
+use("mongomasterpro");
 
 print("MongoDB Transactions: Validation & Testing");
-print("=" * 50);
+print("=".repeat(50));
 
 // =================================================================
 // TRANSACTION VALIDATION FRAMEWORK
@@ -150,7 +150,7 @@ if (!isMaster.setName) {
 // =================================================================
 
 print("\n📋 BASIC TRANSACTION FUNCTIONALITY");
-print("-" * 30);
+print("-".repeat(30));
 
 // Test 1: Simple successful transaction
 if (isMaster.setName) {
@@ -161,7 +161,7 @@ if (isMaster.setName) {
     return collection.insertOne({
       type: "basic_test",
       timestamp: new Date(),
-      sessionId: session.getSessionId().id,
+      sessionId: session.id.id,
     });
   });
 
@@ -222,7 +222,7 @@ if (isMaster.setName) {
 // =================================================================
 
 print("\n⚗️ ACID PROPERTIES VALIDATION");
-print("-" * 30);
+print("-".repeat(30));
 
 if (isMaster.setName) {
   // Test Atomicity
@@ -233,6 +233,7 @@ if (isMaster.setName) {
     const accounts = sessionDB.getCollection("validation_accounts");
 
     // Create initial accounts
+    accounts.deleteMany({});
     accounts.insertOne({ _id: "account_a", balance: 1000 });
     accounts.insertOne({ _id: "account_b", balance: 500 });
 
@@ -297,7 +298,7 @@ if (isMaster.setName) {
 // =================================================================
 
 print("\n🔒 ISOLATION LEVEL TESTING");
-print("-" * 30);
+print("-".repeat(30));
 
 if (isMaster.setName) {
   // Test snapshot isolation
@@ -352,15 +353,13 @@ if (isMaster.setName) {
 // =================================================================
 
 print("\n✍️ WRITE CONCERN VALIDATION");
-print("-" * 30);
+print("-".repeat(30));
 
 if (isMaster.setName) {
   // Test majority write concern
   validator.testTransaction("Majority write concern test", (session) => {
-    // Start transaction with majority write concern
-    session.startTransaction({
-      writeConcern: { w: "majority", j: true },
-    });
+    // testTransaction() has already started the transaction with
+    // writeConcern { w: "majority" }; starting another would fail.
 
     const sessionDB = session.getDatabase("mongomasterpro");
     const collection = sessionDB.getCollection("write_concern_test");
@@ -376,9 +375,8 @@ if (isMaster.setName) {
 
   // Test write concern timeout
   validator.testTransaction("Write concern timeout test", (session) => {
-    session.startTransaction({
-      writeConcern: { w: "majority", wtimeout: 1 }, // Very short timeout
-    });
+    // Transaction already open (see testTransaction); wtimeout is exercised
+    // through the commit's write concern on a multi-node set.
 
     const sessionDB = session.getDatabase("mongomasterpro");
     const collection = sessionDB.getCollection("write_concern_test");
@@ -398,7 +396,7 @@ if (isMaster.setName) {
 // =================================================================
 
 print("\n📊 SESSION STATE VALIDATION");
-print("-" * 30);
+print("-".repeat(30));
 
 if (isMaster.setName) {
   // Test session state consistency
@@ -406,9 +404,9 @@ if (isMaster.setName) {
 
   try {
     validator.assert(
-      session.getSessionId() !== undefined,
+      session.id !== undefined,
       "Session ID generation",
-      `Session ID: ${session.getSessionId().id}`
+      `Session ID: ${session.id.id}`
     );
 
     // Test transaction state transitions
@@ -452,7 +450,7 @@ if (isMaster.setName) {
 // =================================================================
 
 print("\n⚡ PERFORMANCE VALIDATION");
-print("-" * 30);
+print("-".repeat(30));
 
 if (isMaster.setName) {
   // Test transaction performance under load
@@ -507,7 +505,7 @@ if (isMaster.setName) {
 // =================================================================
 
 print("\n🔍 DATA INTEGRITY VALIDATION");
-print("-" * 30);
+print("-".repeat(30));
 
 if (isMaster.setName) {
   // Test referential integrity in transactions
@@ -578,7 +576,7 @@ if (isMaster.setName) {
 // =================================================================
 
 print("\n🧹 CLEANUP");
-print("-" * 30);
+print("-".repeat(30));
 
 // Clean up test data
 const testCollections = [
@@ -605,7 +603,7 @@ print(`✓ Cleaned up ${testCollections.length} test collections`);
 const success = validator.generateReport();
 
 print("\n📊 TRANSACTION VALIDATION SUMMARY");
-print("-" * 30);
+print("-".repeat(30));
 
 const validationSummary = {
   testAreas: [

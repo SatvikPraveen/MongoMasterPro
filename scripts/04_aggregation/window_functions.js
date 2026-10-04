@@ -1,17 +1,17 @@
 // File: scripts/04_aggregation/window_functions.js
 // Window operators for analytics: $setWindowFields, ranking, moving averages
 
-use("learning_platform");
+use("mongomasterpro");
 
 print("MongoDB Aggregation: Window Functions");
-print("=" * 50);
+print("=".repeat(50));
 
 // =================================================================
 // WINDOW FUNCTIONS INTRODUCTION
 // =================================================================
 
 print("\n🪟 WINDOW FUNCTIONS INTRODUCTION");
-print("-" * 30);
+print("-".repeat(30));
 
 print("Window Functions Concept:");
 print("• Process documents in relation to other documents in the same dataset");
@@ -34,7 +34,7 @@ if (parseFloat(version) < 5.0) {
 // =================================================================
 
 print("\n📊 SETUP ANALYTICS DATA");
-print("-" * 30);
+print("-".repeat(30));
 
 // Create time-series enrollment data
 db.enrollment_metrics.deleteMany({});
@@ -69,7 +69,7 @@ print(`✓ Created ${metricsData.length} daily enrollment metrics for analytics`
 // =================================================================
 
 print("\n🔢 $SETWINDOWFIELDS BASICS");
-print("-" * 30);
+print("-".repeat(30));
 
 // 1. Basic window function - running total
 print("1. Running totals with $setWindowFields");
@@ -177,7 +177,7 @@ movingAverages.forEach((day, i) => {
 // =================================================================
 
 print("\n📂 PARTITIONED WINDOW FUNCTIONS");
-print("-" * 30);
+print("-".repeat(30));
 
 // 3. Window functions with partitioning
 print("3. Partitioned window functions by course");
@@ -239,7 +239,7 @@ partitionedAnalytics.forEach((record, i) => {
 // =================================================================
 
 print("\n🏆 RANKING FUNCTIONS");
-print("-" * 30);
+print("-".repeat(30));
 
 // 4. Ranking and row number functions
 print("4. Ranking functions for performance analysis");
@@ -248,12 +248,18 @@ const dailyRankings = db.enrollment_metrics
   .aggregate([
     {
       $setWindowFields: {
-        sortBy: { newEnrollments: -1, revenue: -1 },
+        // $rank/$denseRank/$rank require a sortBy with exactly one field.
+        sortBy: { newEnrollments: -1 },
         output: {
           enrollmentRank: { $rank: {} },
           enrollmentDenseRank: { $denseRank: {} },
-          enrollmentRowNumber: { $rowNumber: {} },
-          percentileRank: { $percentRank: {} },
+          enrollmentRowNumber: { $documentNumber: {} },
+          // There is no $rank window operator; derive the percentile
+          // from the rank and the partition size ($count over an unbounded window).
+          partitionSize: {
+            $count: {},
+            window: { documents: ["unbounded", "unbounded"] },
+          },
         },
       },
     },
@@ -264,7 +270,22 @@ const dailyRankings = db.enrollment_metrics
         newEnrollments: 1,
         revenue: 1,
         enrollmentRank: 1,
-        percentile: { $round: [{ $multiply: ["$percentileRank", 100] }, 1] },
+        percentile: {
+          $round: [
+            {
+              $multiply: [
+                {
+                  $divide: [
+                    { $subtract: ["$partitionSize", "$enrollmentRank"] },
+                    "$partitionSize",
+                  ],
+                },
+                100,
+              ],
+            },
+            1,
+          ],
+        },
       },
     },
     { $sort: { enrollmentRank: 1 } },
@@ -323,7 +344,7 @@ topPerformingDays.forEach((day) => {
 // =================================================================
 
 print("\n↔️ LEAD AND LAG FUNCTIONS");
-print("-" * 30);
+print("-".repeat(30));
 
 // 6. Lead and lag for period-over-period analysis
 print("6. Period-over-period comparison with lead/lag");
@@ -413,7 +434,7 @@ periodComparison.forEach((day, i) => {
 // =================================================================
 
 print("\n📈 ADVANCED ANALYTICS PATTERNS");
-print("-" * 30);
+print("-".repeat(30));
 
 // 7. Cohort analysis using window functions
 print("7. Cohort analysis with window functions");
@@ -444,41 +465,28 @@ const cohortAnalysis = db.enrollment_metrics
         partitionBy: "$_id.courseName",
         sortBy: { "_id.week": 1 },
         output: {
-          weekNumber: { $rowNumber: {} },
+          weekNumber: { $documentNumber: {} },
           cumulativeEnrollments: {
             $sum: "$weeklyEnrollments",
             window: {
               documents: ["unbounded", "current"],
             },
           },
-          enrollmentGrowthRate: {
-            $divide: [
-              {
-                $subtract: [
-                  "$weeklyEnrollments",
-                  {
-                    $shift: {
-                      output: "$weeklyEnrollments",
-                      by: -1,
-                      default: 0,
-                    },
-                  },
-                ],
-              },
-              {
-                $max: [
-                  {
-                    $shift: {
-                      output: "$weeklyEnrollments",
-                      by: -1,
-                      default: 1,
-                    },
-                  },
-                  1,
-                ],
-              },
-            ],
+          // Window operators ($shift) cannot be nested inside arithmetic in the
+          // output spec, so capture the previous week here and divide below.
+          previousWeekEnrollments: {
+            $shift: { output: "$weeklyEnrollments", by: -1, default: 0 },
           },
+        },
+      },
+    },
+    {
+      $addFields: {
+        enrollmentGrowthRate: {
+          $divide: [
+            { $subtract: ["$weeklyEnrollments", "$previousWeekEnrollments"] },
+            { $max: ["$previousWeekEnrollments", 1] },
+          ],
         },
       },
     },
@@ -514,16 +522,36 @@ const performanceDistribution = db.enrollment_metrics
       $setWindowFields: {
         sortBy: { newEnrollments: 1 },
         output: {
-          enrollmentPercentile: { $percentRank: {} },
-          quartile: {
-            $switch: {
-              branches: [
-                { case: { $lte: [{ $percentRank: {} }, 0.25] }, then: "Q1" },
-                { case: { $lte: [{ $percentRank: {} }, 0.5] }, then: "Q2" },
-                { case: { $lte: [{ $percentRank: {} }, 0.75] }, then: "Q3" },
-              ],
-              default: "Q4",
-            },
+          enrollmentRank: { $rank: {} },
+          populationSize: {
+            $count: {},
+            window: { documents: ["unbounded", "unbounded"] },
+          },
+        },
+      },
+    },
+    {
+      // percent rank = (rank - 1) / (N - 1); MongoDB has no $rank window
+      // operator, so it is derived from $rank and the population size.
+      $addFields: {
+        enrollmentPercentile: {
+          $divide: [
+            { $subtract: ["$enrollmentRank", 1] },
+            { $max: [{ $subtract: ["$populationSize", 1] }, 1] },
+          ],
+        },
+      },
+    },
+    {
+      $addFields: {
+        quartile: {
+          $switch: {
+            branches: [
+              { case: { $lte: ["$enrollmentPercentile", 0.25] }, then: "Q1" },
+              { case: { $lte: ["$enrollmentPercentile", 0.5] }, then: "Q2" },
+              { case: { $lte: ["$enrollmentPercentile", 0.75] }, then: "Q3" },
+            ],
+            default: "Q4",
           },
         },
       },
@@ -555,7 +583,7 @@ performanceDistribution.forEach((quartile, i) => {
 // =================================================================
 
 print("\n⏰ TIME SERIES ANALYSIS");
-print("-" * 30);
+print("-".repeat(30));
 
 // 9. Seasonal trend analysis
 print("9. Seasonal trend analysis with window functions");
@@ -579,11 +607,16 @@ const seasonalTrends = db.enrollment_metrics
       $setWindowFields: {
         sortBy: { _id: 1 },
         output: {
+          // With no window specified the accumulator spans the whole partition,
+          // giving the overall average on every document.
           overallAvg: { $avg: "$avgDailyEnrollments" },
-          seasonalIndex: {
-            $divide: ["$avgDailyEnrollments", { $avg: "$avgDailyEnrollments" }],
-          },
         },
+      },
+    },
+    {
+      // Arithmetic on window results belongs in a following stage.
+      $addFields: {
+        seasonalIndex: { $divide: ["$avgDailyEnrollments", "$overallAvg"] },
       },
     },
     {
@@ -639,13 +672,13 @@ seasonalTrends.forEach((day) => {
 // =================================================================
 
 print("\n🧹 CLEANUP");
-print("-" * 30);
+print("-".repeat(30));
 
 db.enrollment_metrics.drop();
 print("✓ Cleaned up analytics test data");
 
 print("\n📊 WINDOW FUNCTIONS SUMMARY");
-print("-" * 30);
+print("-".repeat(30));
 
 const windowFunctionsSummary = {
   functionsDemo: [
@@ -653,8 +686,8 @@ const windowFunctionsSummary = {
     "$avg",
     "$rank",
     "$denseRank",
-    "$rowNumber",
-    "$percentRank",
+    "$documentNumber",
+    "$rank (percent rank derived)",
     "$shift",
   ],
   analyticsPatterns: [

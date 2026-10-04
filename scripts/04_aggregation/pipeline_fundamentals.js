@@ -1,17 +1,17 @@
 // File: scripts/04_aggregation/pipeline_fundamentals.js
 // Basic aggregation pipeline stages: match, group, sort, limit
 
-use("learning_platform");
+use("mongomasterpro");
 
 print("MongoDB Aggregation: Pipeline Fundamentals");
-print("=" * 50);
+print("=".repeat(50));
 
 // =================================================================
 // AGGREGATION PIPELINE BASICS
 // =================================================================
 
 print("\n🔧 AGGREGATION PIPELINE BASICS");
-print("-" * 30);
+print("-".repeat(30));
 
 print("Pipeline Concept:");
 print("• Pipelines process documents through stages sequentially");
@@ -32,7 +32,7 @@ print(
 // =================================================================
 
 print("\n🔍 $MATCH STAGE - FILTERING DOCUMENTS");
-print("-" * 30);
+print("-".repeat(30));
 
 // Basic match - equivalent to find()
 const activeUsers = db.users
@@ -79,7 +79,7 @@ print(`✓ Recent users (90 days): ${recentUsers[0]?.recentUsers || 0}`);
 // =================================================================
 
 print("\n📋 $PROJECT STAGE - FIELD SELECTION");
-print("-" * 30);
+print("-".repeat(30));
 
 // Basic projection
 const userProfiles = db.users
@@ -146,7 +146,7 @@ userStatus.slice(0, 3).forEach((user, i) => {
 // =================================================================
 
 print("\n📊 $GROUP STAGE - AGGREGATION AND GROUPING");
-print("-" * 30);
+print("-".repeat(30));
 
 // Basic grouping by field
 const usersByRole = db.users
@@ -239,7 +239,7 @@ courseStats.forEach((stat, i) => {
 // =================================================================
 
 print("\n📈 $SORT STAGE - ORDERING RESULTS");
-print("-" * 30);
+print("-".repeat(30));
 
 // Single field sort
 const newestUsers = db.users
@@ -299,7 +299,7 @@ sortedCourses.slice(0, 4).forEach((course, i) => {
 // =================================================================
 
 print("\n📄 $LIMIT AND $SKIP STAGES - PAGINATION");
-print("-" * 30);
+print("-".repeat(30));
 
 // Basic pagination function
 function getUsersPage(page, pageSize) {
@@ -340,7 +340,7 @@ page2.forEach((user, i) => {
 // =================================================================
 
 print("\n🔢 $COUNT STAGE - COUNTING DOCUMENTS");
-print("-" * 30);
+print("-".repeat(30));
 
 // Count after filtering
 const activeCourseCount = db.courses
@@ -363,7 +363,7 @@ print(`✓ Unique roles: ${roleDistribution[0]?.uniqueRoles || 0}`);
 // =================================================================
 
 print("\n🔗 COMBINING MULTIPLE STAGES");
-print("-" * 30);
+print("-".repeat(30));
 
 // Complex pipeline: Student course preferences analysis
 const studentPreferences = db.users
@@ -435,7 +435,7 @@ studentPreferences.forEach((level, i) => {
 // =================================================================
 
 print("\n🎯 PRACTICAL EXAMPLES");
-print("-" * 30);
+print("-".repeat(30));
 
 // Example 1: Course enrollment summary
 const enrollmentSummary = db.enrollments
@@ -529,7 +529,7 @@ monthlyRegistrations.forEach((month, i) => {
 // =================================================================
 
 print("\n⚡ PERFORMANCE CONSIDERATIONS");
-print("-" * 30);
+print("-".repeat(30));
 
 print("Pipeline Performance Tips:");
 print("• Place $match stages early to reduce document flow");
@@ -564,7 +564,7 @@ print(
 // =================================================================
 
 print("\n📊 PIPELINE FUNDAMENTALS SUMMARY");
-print("-" * 30);
+print("-".repeat(30));
 
 const pipelineStats = {
   totalUsers: userCount,

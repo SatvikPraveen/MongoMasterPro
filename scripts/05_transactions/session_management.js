@@ -1,17 +1,17 @@
 // File: scripts/05_transactions/session_management.js
 // Session lifecycle, configuration, and advanced session handling
 
-use("learning_platform");
+use("mongomasterpro");
 
 print("MongoDB Transactions: Session Management");
-print("=" * 50);
+print("=".repeat(50));
 
 // =================================================================
 // SESSION LIFECYCLE BASICS
 // =================================================================
 
 print("\n🔄 SESSION LIFECYCLE BASICS");
-print("-" * 30);
+print("-".repeat(30));
 
 print("Session Lifecycle:");
 print("• startSession() - Create new session");
@@ -38,7 +38,7 @@ function demonstrateSessionLifecycle() {
     writeConcern: { w: "majority" },
   });
 
-  print(`✓ Session created: ${session.getSessionId().id}`);
+  print(`✓ Session created: ${session.id.id}`);
 
   try {
     // Get session database reference
@@ -56,14 +56,14 @@ function demonstrateSessionLifecycle() {
       type: "session_demo",
       data: "First document",
       timestamp: new Date(),
-      sessionId: session.getSessionId().id.toString(),
+      sessionId: session.id.id.toString(),
     });
 
     const doc2 = collection.insertOne({
       type: "session_demo",
       data: "Second document",
       timestamp: new Date(),
-      sessionId: session.getSessionId().id.toString(),
+      sessionId: session.id.id.toString(),
     });
 
     print(`  Inserted documents: ${doc1.insertedId}, ${doc2.insertedId}`);
@@ -76,7 +76,7 @@ function demonstrateSessionLifecycle() {
     session.commitTransaction();
     print("✓ Transaction committed successfully");
 
-    return { success: true, sessionId: session.getSessionId().id };
+    return { success: true, sessionId: session.id.id };
   } catch (error) {
     print(`❌ Error in transaction: ${error.message}`);
     session.abortTransaction();
@@ -98,7 +98,7 @@ if (lifecycleResult.success) {
 // =================================================================
 
 print("\n⚙️ SESSION CONFIGURATION OPTIONS");
-print("-" * 30);
+print("-".repeat(30));
 
 print("2. Session configuration options");
 
@@ -135,7 +135,7 @@ function createConfiguredSessions() {
     try {
       const session = db.getMongo().startSession(config.options);
       print(`✓ ${config.name} created`);
-      print(`  Session ID: ${session.getSessionId().id}`);
+      print(`  Session ID: ${session.id.id}`);
       print(`  Causal consistency: ${config.options.causalConsistency}`);
       print(`  Read concern: ${config.options.readConcern.level}`);
 
@@ -165,7 +165,7 @@ createConfiguredSessions();
 // =================================================================
 
 print("\n🔀 CONCURRENT SESSION MANAGEMENT");
-print("-" * 30);
+print("-".repeat(30));
 
 print("3. Managing multiple concurrent sessions");
 
@@ -182,9 +182,9 @@ function simulateConcurrentSessions() {
       sessions.push({
         id: i,
         session: session,
-        sessionId: session.getSessionId().id,
+        sessionId: session.id.id,
       });
-      print(`✓ Session ${i} created: ${session.getSessionId().id}`);
+      print(`✓ Session ${i} created: ${session.id.id}`);
     }
 
     // Perform operations concurrently
@@ -273,7 +273,7 @@ simulateConcurrentSessions();
 // =================================================================
 
 print("\n⏰ SESSION TIMEOUT AND EXPIRATION");
-print("-" * 30);
+print("-".repeat(30));
 
 print("4. Session timeout handling");
 
@@ -281,7 +281,7 @@ function demonstrateSessionTimeout() {
   const session = db.getMongo().startSession();
 
   try {
-    print(`Created session: ${session.getSessionId().id}`);
+    print(`Created session: ${session.id.id}`);
 
     // Check initial session info
     const initialServerStatus = db.runCommand({ serverStatus: 1 });
@@ -338,7 +338,7 @@ demonstrateSessionTimeout();
 // =================================================================
 
 print("\n🏊‍♂️ SESSION POOLING SIMULATION");
-print("-" * 30);
+print("-".repeat(30));
 
 print("5. Session pooling patterns");
 
@@ -348,8 +348,6 @@ class SessionPool {
     this.availableSessions = [];
     this.inUseSessions = new Map();
     this.sessionCount = 0;
-
-    print(`✓ Session pool initialized (max: ${maxSessions})`);
   }
 
   getSession() {
@@ -365,7 +363,7 @@ class SessionPool {
     if (this.sessionCount < this.maxSessions) {
       const mongoSession = db.getMongo().startSession();
       const sessionWrapper = {
-        id: mongoSession.getSessionId().id.toString(),
+        id: mongoSession.id.id.toString(),
         session: mongoSession,
         createdAt: new Date(),
         useCount: 0,
@@ -431,6 +429,7 @@ class SessionPool {
 // Test session pooling
 function testSessionPool() {
   const pool = new SessionPool(3);
+print(`✓ Session pool initialized (max: ${pool.maxSessions})`);
 
   try {
     const operations = [];
@@ -495,7 +494,7 @@ testSessionPool();
 // =================================================================
 
 print("\n🚨 SESSION ERROR HANDLING PATTERNS");
-print("-" * 30);
+print("-".repeat(30));
 
 print("6. Advanced session error handling");
 
@@ -563,7 +562,7 @@ function demonstrateSessionErrorHandling() {
       throw new Error(`${errorCount} operations failed`);
     }
   } catch (error) {
-    print(`❌ Transaction failed: ${error.message}`);
+    print(`↩ Transaction failed as intended (duplicate key demo): ${error.message}`);
 
     try {
       session.abortTransaction();
@@ -593,7 +592,7 @@ demonstrateSessionErrorHandling();
 // =================================================================
 
 print("\n📊 SESSION MONITORING AND DIAGNOSTICS");
-print("-" * 30);
+print("-".repeat(30));
 
 print("7. Session monitoring and diagnostics");
 
@@ -644,14 +643,14 @@ monitorSessions();
 // =================================================================
 
 print("\n🧹 CLEANUP");
-print("-" * 30);
+print("-".repeat(30));
 
 // Clean up any remaining test data
 db.session_test.drop();
 print("✓ Cleaned up session test data");
 
 print("\n📊 SESSION MANAGEMENT SUMMARY");
-print("-" * 30);
+print("-".repeat(30));
 
 const sessionSummary = {
   conceptsDemo: [

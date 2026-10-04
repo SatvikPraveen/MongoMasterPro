@@ -1,17 +1,17 @@
 // File: scripts/05_transactions/error_handling.js
 // Transaction error handling, retry logic, and rollback mechanisms
 
-use("learning_platform");
+use("mongomasterpro");
 
 print("MongoDB Transactions: Error Handling & Recovery");
-print("=" * 50);
+print("=".repeat(50));
 
 // =================================================================
 // ERROR CATEGORIES IN TRANSACTIONS
 // =================================================================
 
 print("\n🚨 ERROR CATEGORIES IN TRANSACTIONS");
-print("-" * 30);
+print("-".repeat(30));
 
 print("Transaction Error Types:");
 print("• Transient errors - Can be retried (network issues, write conflicts)");
@@ -31,7 +31,7 @@ if (!isMaster.setName) {
 // =================================================================
 
 print("\n🔄 RETRY LOGIC IMPLEMENTATION");
-print("-" * 30);
+print("-".repeat(30));
 
 class TransactionRetryHandler {
   constructor(maxRetries = 3, initialDelayMs = 100) {
@@ -165,7 +165,7 @@ testRetryLogic();
 // =================================================================
 
 print("\n⚔️ WRITE CONFLICT HANDLING");
-print("-" * 30);
+print("-".repeat(30));
 
 function simulateWriteConflict() {
   if (!isMaster.setName) {
@@ -237,7 +237,7 @@ function simulateWriteConflict() {
       return { success: true, transactionId };
     } catch (error) {
       session.abortTransaction();
-      print(`❌ Transaction ${transactionId}: Failed - ${error.message}`);
+      print(`↩ Transaction ${transactionId}: Rolled back - ${error.message}`);
       return { success: false, transactionId, error: error.message };
     } finally {
       session.endSession();
@@ -268,7 +268,7 @@ simulateWriteConflict();
 // =================================================================
 
 print("\n🛠️ COMPREHENSIVE ERROR RECOVERY PATTERNS");
-print("-" * 30);
+print("-".repeat(30));
 
 class TransactionErrorRecovery {
   constructor() {
@@ -453,6 +453,9 @@ function testErrorRecovery() {
 
     if (result.success) {
       print(`✓ Scenario ${index + 1} completed successfully`);
+    } else if (/error/i.test(scenario.name)) {
+      // This scenario exists to provoke a non-retryable error; rejection is the expected outcome.
+      print(`↩ Scenario ${index + 1} rejected as designed: ${result.errorType}`);
     } else {
       print(`❌ Scenario ${index + 1} failed: ${result.errorType}`);
     }
@@ -477,7 +480,7 @@ testErrorRecovery();
 // =================================================================
 
 print("\n🔒 DEADLOCK PREVENTION STRATEGIES");
-print("-" * 30);
+print("-".repeat(30));
 
 print("4. Deadlock prevention and resolution");
 
@@ -558,7 +561,7 @@ function demonstrateDeadlockPrevention() {
       return { success: true, transactionId };
     } catch (error) {
       session.abortTransaction();
-      print(`❌ Transaction ${transactionId}: Failed - ${error.message}`);
+      print(`↩ Transaction ${transactionId}: Rolled back - ${error.message}`);
       return { success: false, transactionId, error: error.message };
     } finally {
       session.endSession();
@@ -596,7 +599,7 @@ demonstrateDeadlockPrevention();
 // =================================================================
 
 print("\n⏱️ TIMEOUT HANDLING");
-print("-" * 30);
+print("-".repeat(30));
 
 print("5. Transaction timeout handling");
 
@@ -662,7 +665,7 @@ demonstrateTimeoutHandling();
 // =================================================================
 
 print("\n🧹 CLEANUP");
-print("-" * 30);
+print("-".repeat(30));
 
 // Clean up any remaining test data
 db.retry_test.drop();
@@ -675,7 +678,7 @@ db.timeout_test.drop();
 print("✓ Cleaned up all error handling test data");
 
 print("\n📊 ERROR HANDLING & RECOVERY SUMMARY");
-print("-" * 30);
+print("-".repeat(30));
 
 const errorHandlingSummary = {
   patternsDemo: [

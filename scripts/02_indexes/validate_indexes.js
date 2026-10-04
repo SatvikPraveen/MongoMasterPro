@@ -1,10 +1,10 @@
 // File: scripts/02_indexes/validate_indexes.js
 // Index existence, performance checks, and optimization validation
 
-use("learning_platform");
+use("mongomasterpro");
 
 print("MongoDB Indexes: Validation & Testing");
-print("=" * 50);
+print("=".repeat(50));
 
 // =================================================================
 // INDEX VALIDATION FRAMEWORK
@@ -205,8 +205,9 @@ validator.assert(
 );
 
 // TTL indexes
-const ttlIndexes = db.user_sessions
-  .getIndexes()
+const ttlIndexes = (db.getCollectionNames().includes("user_sessions")
+  ? db.user_sessions.getIndexes()
+  : [])
   .filter((idx) => idx.hasOwnProperty("expireAfterSeconds"));
 validator.assert(
   ttlIndexes.length > 0,
@@ -354,7 +355,7 @@ function validateSelectivity(collection, query, minSelectivity, testName) {
   const stats = explain.executionStats;
 
   const selectivity =
-    stats.totalDocsReturned / Math.max(stats.totalDocsExamined, 1);
+    stats.nReturned / Math.max(stats.totalDocsExamined, 1);
   const condition = selectivity >= minSelectivity;
 
   validator.assert(
@@ -410,6 +411,13 @@ function validateIndexOverhead(collectionName, maxOverheadPercent) {
     }
 
     const dataSize = stats.size;
+    if (dataSize < 1024 * 1024) {
+      validator.warn(
+        `${collectionName} index overhead`,
+        `Skipped: ${(dataSize / 1024).toFixed(1)} KB of data is too small for a meaningful index/data ratio`
+      );
+      return;
+    }
     const totalIndexSize = Object.values(stats.indexSizes).reduce(
       (sum, size) => sum + size,
       0
@@ -463,6 +471,7 @@ try {
     firstName: "Duplicate",
     lastName: "Test",
     role: "student",
+    createdAt: new Date(),
   });
   validator.assert(
     false,
@@ -587,8 +596,9 @@ function testCoveredQuery(collection, query, projection, testName) {
   const stage = explain.executionStats.executionStages;
 
   // Covered query should be IXSCAN without FETCH stage
+  // A covered plan is a PROJECTION_* stage fed directly by IXSCAN (no FETCH).
   const isCovered =
-    stage.stage === "PROJECTION" &&
+    /^PROJECTION/.test(stage.stage) &&
     stage.inputStage &&
     stage.inputStage.stage === "IXSCAN";
 

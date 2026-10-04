@@ -1,17 +1,17 @@
 // File: scripts/02_indexes/specialized_indexes.js
 // Text, geo, partial, TTL and specialized index types
 
-use("learning_platform");
+use("mongomasterpro");
 
 print("MongoDB Indexes: Specialized Types");
-print("=" * 50);
+print("=".repeat(50));
 
 // =================================================================
 // TEXT INDEXES
 // =================================================================
 
 print("\n📝 TEXT INDEXES");
-print("-" * 30);
+print("-".repeat(30));
 
 // 1. Create text indexes for search functionality
 print("1. Creating text indexes for full-text search");
@@ -88,7 +88,7 @@ const scoredSearch = db.courses
 
 print("✓ Top 5 scored text search results:");
 scoredSearch.forEach((course, i) => {
-  print(`  ${i + 1}. ${course.title} (Score: ${course.score?.toFixed(2)})`);
+  print(`  ${i + 1}. ${course.title} (Score: ${Number(course.score).toFixed(2)})`);
 });
 
 // Text search with phrase matching
@@ -110,7 +110,7 @@ print(
 // =================================================================
 
 print("\n🌍 GEOSPATIAL INDEXES");
-print("-" * 30);
+print("-".repeat(30));
 
 print("3. Creating geospatial indexes and data");
 
@@ -203,7 +203,7 @@ print(`✓ Users on East Coast: ${withinQuery.count()}`);
 // =================================================================
 
 print("\n⏰ TTL (TIME-TO-LIVE) INDEXES");
-print("-" * 30);
+print("-".repeat(30));
 
 print("5. Creating TTL indexes for automatic document expiration");
 
@@ -258,7 +258,7 @@ try {
   );
   print("✓ TTL index on audit logs (30 day expiry) created");
 
-  use("learning_platform"); // Switch back
+  use("mongomasterpro"); // Switch back
 } catch (e) {
   print(`⚠ Audit log TTL index: ${e.message}`);
 }
@@ -268,7 +268,7 @@ try {
 // =================================================================
 
 print("\n🎯 PARTIAL INDEXES");
-print("-" * 30);
+print("-".repeat(30));
 
 print("6. Creating partial indexes for selective indexing");
 
@@ -327,7 +327,7 @@ print(`✓ Partial index query uses: ${indexUsed}`);
 // =================================================================
 
 print("\n🕳️  SPARSE INDEXES");
-print("-" * 30);
+print("-".repeat(30));
 
 print("7. Creating sparse indexes for optional fields");
 
@@ -377,7 +377,7 @@ print(
 // =================================================================
 
 print("\n🔤 CASE-INSENSITIVE INDEXES");
-print("-" * 30);
+print("-".repeat(30));
 
 print("8. Creating case-insensitive indexes with collation");
 
@@ -415,7 +415,7 @@ print(
 // =================================================================
 
 print("\n#️⃣  HASHED INDEXES");
-print("-" * 30);
+print("-".repeat(30));
 
 print("9. Creating hashed indexes for sharding support");
 
@@ -440,7 +440,7 @@ try {
 // =================================================================
 
 print("\n🃏 WILDCARD INDEXES");
-print("-" * 30);
+print("-".repeat(30));
 
 print("10. Creating wildcard indexes for flexible schemas");
 
@@ -471,9 +471,17 @@ wildcardQueries.forEach((query, i) => {
 // =================================================================
 
 print("\n🏃‍♂️ SPECIALIZED INDEX PERFORMANCE");
-print("-" * 30);
+print("-".repeat(30));
 
 print("11. Comparing specialized index performance");
+
+// Earlier sections may have rebuilt or dropped these; ensure they exist.
+if (!db.courses.getIndexes().some((i) => i.textIndexVersion)) {
+  db.courses.createIndex({ title: "text", description: "text" }, { name: "course_text_search" });
+}
+if (!db.users.getIndexes().some((i) => Object.values(i.key).includes("2dsphere"))) {
+  db.users.createIndex({ location: "2dsphere" });
+}
 
 // Text search performance
 let start = Date.now();
@@ -516,14 +524,15 @@ print(`✓ Partial index query: ${duration}ms, ${partialResults.length} results`
 // =================================================================
 
 print("\n🔧 SPECIALIZED INDEX MAINTENANCE");
-print("-" * 30);
+print("-".repeat(30));
 
 print("12. Specialized index maintenance");
 
 // Check TTL index status
-const ttlIndexes = db.user_sessions
-  .getIndexes()
-  .filter((idx) => idx.hasOwnProperty("expireAfterSeconds"));
+const ttlIndexes = (db.getCollectionNames().includes("user_sessions")
+  ? db.user_sessions.getIndexes()
+  : []
+).filter((idx) => idx.hasOwnProperty("expireAfterSeconds"));
 print(`✓ Found ${ttlIndexes.length} TTL indexes`);
 
 ttlIndexes.forEach((idx) => {
@@ -548,7 +557,10 @@ textIndexes.forEach((idx) => {
 // =================================================================
 
 print("\n🧹 CLEANUP AND VALIDATION");
-print("-" * 30);
+print("-".repeat(30));
+
+// Return to the lab database after the capped-collection detour into mmp_logs.
+use("mongomasterpro");
 
 // Clean up test session data
 const sessionCleanup = db.user_sessions.deleteMany({});

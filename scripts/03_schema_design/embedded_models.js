@@ -1,17 +1,17 @@
 // File: scripts/03_schema_design/embedded_models.js
 // One-to-few, denormalization patterns and embedded document examples
 
-use("learning_platform");
+use("mongomasterpro");
 
 print("MongoDB Schema Design: Embedded Models");
-print("=" * 50);
+print("=".repeat(50));
 
 // =================================================================
 // ONE-TO-FEW EMBEDDING PATTERNS
 // =================================================================
 
 print("\n📦 ONE-TO-FEW EMBEDDING PATTERNS");
-print("-" * 30);
+print("-".repeat(30));
 
 // Clean up test data
 db.users.deleteMany({ email: /embedded\.test/ });
@@ -225,7 +225,7 @@ print(`✓ Created course with embedded modules: ${courseResult.insertedId}`);
 // =================================================================
 
 print("\n📊 DENORMALIZATION PATTERNS");
-print("-" * 30);
+print("-".repeat(30));
 
 // 3. Order with denormalized customer data
 const orderWithDenormalization = {
@@ -286,7 +286,7 @@ print(`✓ Created order with denormalized data: ${orderResult.insertedId}`);
 // =================================================================
 
 print("\n🎯 SUBSET PATTERN IMPLEMENTATION");
-print("-" * 30);
+print("-".repeat(30));
 
 // 4. Create detailed reviews collection
 const detailedReviews = [
@@ -385,7 +385,7 @@ print(
 // =================================================================
 
 print("\n🗂️  NESTED EMBEDDING PATTERNS");
-print("-" * 30);
+print("-".repeat(30));
 
 // 5. Blog post with embedded comments and replies
 const blogPostWithComments = {
@@ -468,7 +468,7 @@ print(`✓ Created blog post with nested comments: ${blogResult.insertedId}`);
 // =================================================================
 
 print("\n🎭 POLYMORPHIC EMBEDDING PATTERNS");
-print("-" * 30);
+print("-".repeat(30));
 
 // 6. Mixed content types in single collection
 const mixedContent = [
@@ -570,7 +570,7 @@ print(
 // =================================================================
 
 print("\n🔍 QUERY PATTERNS FOR EMBEDDED DATA");
-print("-" * 30);
+print("-".repeat(30));
 
 print("Testing embedded data queries:");
 
@@ -609,7 +609,7 @@ print(`✓ Users with unverified phone numbers: ${phoneUsers.count()}`);
 // =================================================================
 
 print("\n✏️  EMBEDDED DATA UPDATE PATTERNS");
-print("-" * 30);
+print("-".repeat(30));
 
 print("Testing embedded data updates:");
 
@@ -667,7 +667,7 @@ print(`✓ Added social profile: ${socialUpdate.modifiedCount} document(s)`);
 // =================================================================
 
 print("\n✅ VALIDATION AND BEST PRACTICES");
-print("-" * 30);
+print("-".repeat(30));
 
 print("Validating embedded model patterns:");
 
@@ -727,7 +727,7 @@ embeddedIndexes.forEach((indexInfo) => {
 // =================================================================
 
 print("\n🧹 CLEANUP");
-print("-" * 30);
+print("-".repeat(30));
 
 // Optional: Clean up test data (commented out to preserve examples)
 // db.users.deleteMany({ email: /embedded\.test/ });
@@ -740,7 +740,7 @@ print("-" * 30);
 print("✓ Test data preserved for exploration");
 
 print("\n📊 EMBEDDED MODELS SUMMARY");
-print("-" * 30);
+print("-".repeat(30));
 
 const summary = {
   usersCreated: db.users.countDocuments({ email: /embedded\.test/ }),

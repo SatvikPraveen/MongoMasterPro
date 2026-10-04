@@ -1,17 +1,17 @@
 // File: scripts/02_indexes/performance_analysis.js
 // Query performance analysis, explain plans, and optimization
 
-use("learning_platform");
+use("mongomasterpro");
 
 print("MongoDB Indexes: Performance Analysis");
-print("=" * 50);
+print("=".repeat(50));
 
 // =================================================================
 // QUERY EXPLAIN FUNDAMENTALS
 // =================================================================
 
 print("\n🔍 QUERY EXPLAIN FUNDAMENTALS");
-print("-" * 30);
+print("-".repeat(30));
 
 // Function to analyze query performance
 function analyzeQuery(collection, query, sort = null, description = "") {
@@ -106,7 +106,7 @@ queryTests.forEach((test) => {
 // =================================================================
 
 print("\n🔄 INDEX INTERSECTION ANALYSIS");
-print("-" * 30);
+print("-".repeat(30));
 
 print("Comparing compound vs intersection strategies:");
 
@@ -135,7 +135,7 @@ print(
 // =================================================================
 
 print("\n📈 SORT PERFORMANCE ANALYSIS");
-print("-" * 30);
+print("-".repeat(30));
 
 function analyzeSortPerformance(query, sort, description) {
   print(`\n${description}:`);
@@ -180,7 +180,7 @@ analyzeSortPerformance(
 // =================================================================
 
 print("\n📊 RANGE QUERY OPTIMIZATION");
-print("-" * 30);
+print("-".repeat(30));
 
 print("Analyzing range query performance:");
 
@@ -203,7 +203,7 @@ analyzeQuery("users", numericRangeQuery, null, "Numeric range query");
 // =================================================================
 
 print("\n🎯 AGGREGATION PERFORMANCE");
-print("-" * 30);
+print("-".repeat(30));
 
 print("Testing aggregation pipeline performance:");
 
@@ -240,7 +240,7 @@ print(`✓ Match + Sort + Group: ${duration2}ms, ${aggResult2.length} groups`);
 // =================================================================
 
 print("\n🎯 INDEX COVERAGE ANALYSIS");
-print("-" * 30);
+print("-".repeat(30));
 
 print("Analyzing query coverage by indexes:");
 
@@ -270,7 +270,7 @@ analyzeCoverage({ email: "test@example.com" }, { email: 1, _id: 0 });
 // =================================================================
 
 print("\n💡 QUERY OPTIMIZATION RECOMMENDATIONS");
-print("-" * 30);
+print("-".repeat(30));
 
 function generateOptimizationRecommendations() {
   print("Analyzing current query patterns and indexes...");
@@ -319,7 +319,7 @@ generateOptimizationRecommendations();
 // =================================================================
 
 print("\n⚡ BULK OPERATION PERFORMANCE");
-print("-" * 30);
+print("-".repeat(30));
 
 print("Testing bulk operation performance with indexes:");
 
@@ -336,6 +336,7 @@ for (let i = 0; i < 100; i++) {
           role: "student",
           updatedAt: new Date(),
         },
+        $setOnInsert: { createdAt: new Date() },
       },
       upsert: true,
     },
@@ -359,7 +360,7 @@ db.users.deleteMany({ email: /^bulktest\d+@example\.com$/ });
 // =================================================================
 
 print("\n📈 INDEX STATISTICS ANALYSIS");
-print("-" * 30);
+print("-".repeat(30));
 
 function analyzeIndexStats(collectionName) {
   print(`\n${collectionName} Collection Index Analysis:`);
@@ -399,7 +400,7 @@ analyzeIndexStats("enrollments");
 // =================================================================
 
 print("\n🗂️  QUERY PLAN CACHE");
-print("-" * 30);
+print("-".repeat(30));
 
 print("Query plan cache information:");
 
@@ -419,7 +420,7 @@ try {
 // =================================================================
 
 print("\n🏁 PERFORMANCE BENCHMARKING");
-print("-" * 30);
+print("-".repeat(30));
 
 print("Running performance benchmark suite:");
 
@@ -493,7 +494,7 @@ benchmarkTests.forEach((test) => {
 // =================================================================
 
 print("\n📋 PERFORMANCE OPTIMIZATION SUMMARY");
-print("-" * 30);
+print("-".repeat(30));
 
 // Generate performance report
 function generatePerformanceReport() {

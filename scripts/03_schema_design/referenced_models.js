@@ -1,17 +1,17 @@
 // File: scripts/03_schema_design/referenced_models.js
 // One-to-many, many-to-many reference patterns and normalization
 
-use("learning_platform");
+use("mongomasterpro");
 
 print("MongoDB Schema Design: Referenced Models");
-print("=" * 50);
+print("=".repeat(50));
 
 // =================================================================
 // ONE-TO-MANY REFERENCE PATTERNS
 // =================================================================
 
 print("\n🔗 ONE-TO-MANY REFERENCE PATTERNS");
-print("-" * 30);
+print("-".repeat(30));
 
 // Clean up test data
 db.ref_users.deleteMany({});
@@ -139,7 +139,7 @@ print("✓ Updated user post counts (denormalized)");
 // =================================================================
 
 print("\n🔍 MANY-TO-ONE QUERIES AND LOOKUPS");
-print("-" * 30);
+print("-".repeat(30));
 
 // 2. Query posts with author information using $lookup
 print("2. Querying posts with author information");
@@ -235,7 +235,7 @@ authorsWithStats.forEach((author) => {
 // =================================================================
 
 print("\n💬 ONE-TO-MANY WITH COMMENTS");
-print("-" * 30);
+print("-".repeat(30));
 
 // 4. Create comments referencing posts (Child Reference pattern)
 const refComments = [
@@ -362,7 +362,7 @@ print(`✓ Retrieved post with ${postWithComments[0].comments.length} comments`)
 // =================================================================
 
 print("\n🔀 MANY-TO-MANY REFERENCE PATTERNS");
-print("-" * 30);
+print("-".repeat(30));
 
 // 5. Create many-to-many relationship: Students <-> Courses
 db.ref_students.deleteMany({});
@@ -588,7 +588,7 @@ print("✓ Updated enrollment counts");
 // =================================================================
 
 print("\n🔍 MANY-TO-MANY QUERIES");
-print("-" * 30);
+print("-".repeat(30));
 
 // 6. Student transcript (student with all courses)
 print("6. Generating student transcripts");
@@ -718,7 +718,7 @@ print(`✓ Generated rosters for ${courseRosters.length} courses`);
 // =================================================================
 
 print("\n↔️  TWO-WAY REFERENCING PATTERN");
-print("-" * 30);
+print("-".repeat(30));
 
 // 8. Create bidirectional references for faster queries
 print("8. Implementing two-way references for optimization");
@@ -767,7 +767,7 @@ print(
 // =================================================================
 
 print("\n🌳 HIERARCHICAL REFERENCES");
-print("-" * 30);
+print("-".repeat(30));
 
 // 9. Create category hierarchy using references
 db.ref_categories.deleteMany({});
@@ -885,7 +885,7 @@ print(
 // =================================================================
 
 print("\n✅ REFERENCE VALIDATION");
-print("-" * 30);
+print("-".repeat(30));
 
 // 10. Check referential integrity
 function checkReferentialIntegrity() {
@@ -967,7 +967,7 @@ checkReferentialIntegrity();
 // =================================================================
 
 print("\n⚡ PERFORMANCE COMPARISON");
-print("-" * 30);
+print("-".repeat(30));
 
 // Compare embedded vs referenced queries
 function performanceTest() {
@@ -1008,7 +1008,7 @@ performanceTest();
 // =================================================================
 
 print("\n📊 REFERENCED MODELS SUMMARY");
-print("-" * 30);
+print("-".repeat(30));
 
 const refSummary = {
   users: db.ref_users.countDocuments(),

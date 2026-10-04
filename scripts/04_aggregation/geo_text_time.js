@@ -2,17 +2,17 @@
 // Location: scripts/04_aggregation/geo_text_time.js
 // Specialized aggregations: geospatial, text search, and time-series operations
 
-use("learning_platform");
+use("mongomasterpro");
 
 print("MongoDB Aggregation: Geospatial, Text & Time-Series");
-print("=" * 50);
+print("=".repeat(50));
 
 // =================================================================
 // GEOSPATIAL AGGREGATION SETUP
 // =================================================================
 
 print("\n🌍 GEOSPATIAL AGGREGATION SETUP");
-print("-" * 30);
+print("-".repeat(30));
 
 // Create location-based test data
 db.student_locations.deleteMany({});
@@ -154,7 +154,7 @@ print("✓ Created 2dsphere indexes for geospatial operations");
 // =================================================================
 
 print("\n📍 GEOSPATIAL AGGREGATIONS");
-print("-" * 30);
+print("-".repeat(30));
 
 // 1. $geoNear aggregation stage
 print("1. $geoNear - Find students near course centers");
@@ -190,41 +190,30 @@ nearbyStudents.forEach((student, i) => {
   );
 });
 
-// 2. $geoWithin aggregation
-print("\n2. $geoWithin - Students within course service areas");
+// 2. Point-in-polygon: students within course service areas
+// Geospatial query operators ($geoWithin, $geoIntersects) are not expression
+// operators, so they cannot reference pipeline variables inside $expr/$lookup.
+// The idiomatic pattern is a per-document $geoIntersects query against the
+// 2dsphere-indexed polygon field.
+print("\n2. $geoIntersects - Students within course service areas");
 
 const studentsInServiceArea = db.student_locations
-  .aggregate([
-    {
-      $lookup: {
-        from: "course_locations",
-        let: { studentLocation: "$location" },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $geoWithin: {
-                  geometry: "$$studentLocation",
-                  polygon: "$serviceArea",
-                },
-              },
-            },
-          },
-          { $project: { title: 1, instructor: 1, region: 1 } },
-        ],
-        as: "availableCourses",
-      },
-    },
-    {
-      $project: {
-        name: 1,
-        city: 1,
-        courseCount: { $size: "$availableCourses" },
-        courses: "$availableCourses.title",
-      },
-    },
-  ])
-  .toArray();
+  .find({}, { name: 1, city: 1, location: 1 })
+  .toArray()
+  .map((student) => {
+    const courses = db.course_locations
+      .find(
+        { serviceArea: { $geoIntersects: { $geometry: student.location } } },
+        { title: 1, instructor: 1, region: 1 }
+      )
+      .toArray();
+    return {
+      name: student.name,
+      city: student.city,
+      courseCount: courses.length,
+      courses: courses.map((c) => c.title),
+    };
+  });
 
 print(`✓ Students and their available courses:`);
 studentsInServiceArea.forEach((student, i) => {
@@ -306,7 +295,7 @@ regionAnalysis.forEach((region, i) => {
 // =================================================================
 
 print("\n🔍 TEXT SEARCH AGGREGATIONS");
-print("-" * 30);
+print("-".repeat(30));
 
 // Create searchable course content
 db.course_content.deleteMany({});
@@ -545,7 +534,7 @@ filteredSearch.forEach((course, i) => {
 // =================================================================
 
 print("\n⏰ TIME-SERIES AGGREGATIONS");
-print("-" * 30);
+print("-".repeat(30));
 
 // Create time-series enrollment data
 db.enrollment_timeseries.deleteMany({});
@@ -789,12 +778,18 @@ const trendAnalysis = db.enrollment_timeseries
             $avg: "$dailyEnrollments",
             window: { documents: [-6, "current"] },
           },
-          dayOverDayChange: {
-            $subtract: [
-              "$dailyEnrollments",
-              { $shift: { output: "$dailyEnrollments", by: -1, default: 0 } },
-            ],
+          // $shift is a window operator; arithmetic on its result belongs in
+          // a subsequent stage because $subtract is not a window operator.
+          previousDayEnrollments: {
+            $shift: { output: "$dailyEnrollments", by: -1, default: 0 },
           },
+        },
+      },
+    },
+    {
+      $addFields: {
+        dayOverDayChange: {
+          $subtract: ["$dailyEnrollments", "$previousDayEnrollments"],
         },
       },
     },
@@ -929,7 +924,7 @@ patterns.peakHours.forEach((hour, i) => {
 // =================================================================
 
 print("\n🧹 CLEANUP");
-print("-" * 30);
+print("-".repeat(30));
 
 db.student_locations.drop();
 db.course_locations.drop();
@@ -941,7 +936,7 @@ print("✓ Cleaned up text search test data");
 print("✓ Cleaned up time-series test data");
 
 print("\n📊 SPECIALIZED AGGREGATIONS SUMMARY");
-print("-" * 30);
+print("-".repeat(30));
 
 const specializedSummary = {
   geospatialFeatures: [

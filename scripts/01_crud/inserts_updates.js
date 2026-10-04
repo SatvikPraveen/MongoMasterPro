@@ -1,17 +1,17 @@
 // File: scripts/01_crud/inserts_updates.js
 // Combined insert/update operations with MongoDB best practices
 
-use("learning_platform");
+use("mongomasterpro");
 
 print("MongoDB CRUD: Insert & Update Operations");
-print("=" * 50);
+print("=".repeat(50));
 
 // =================================================================
 // SINGLE DOCUMENT OPERATIONS
 // =================================================================
 
 print("\n🔥 SINGLE DOCUMENT OPERATIONS");
-print("-" * 30);
+print("-".repeat(30));
 
 // 1. insertOne() - Create single document
 print("1. Creating a new user with insertOne()");
@@ -95,6 +95,9 @@ const replacementUser = {
     bio: "Former resistance leader, now teaching database security",
     yearsExperience: 15,
   },
+  // replaceOne() swaps the whole document, so every field the collection's
+  // $jsonSchema validator requires (here createdAt) must be supplied again.
+  createdAt: new Date(),
   updatedAt: new Date(),
 };
 
@@ -112,7 +115,7 @@ print(
 // =================================================================
 
 print("\n🔥 MULTIPLE DOCUMENT OPERATIONS");
-print("-" * 30);
+print("-".repeat(30));
 
 // 4. insertMany() - Insert multiple documents
 print("4. Inserting multiple courses with insertMany()");
@@ -195,7 +198,7 @@ print(
 // =================================================================
 
 print("\n🔥 UPSERT OPERATIONS (Insert or Update)");
-print("-" * 30);
+print("-".repeat(30));
 
 // 6. Upsert with updateOne
 print("6. Upsert operation - insert if not exists, update if exists");
@@ -232,7 +235,7 @@ if (upsertResult.upsertedId) {
 // =================================================================
 
 print("\n🔥 ADVANCED UPDATE OPERATORS");
-print("-" * 30);
+print("-".repeat(30));
 
 // 7. Array operations
 print("7. Advanced array operations");
@@ -294,7 +297,7 @@ print("✓ Conditional updates applied");
 // =================================================================
 
 print("\n🔥 BULK OPERATIONS");
-print("-" * 30);
+print("-".repeat(30));
 
 // 9. Bulk write operations
 print("9. Performing bulk write operations");
@@ -333,6 +336,7 @@ const bulkOps = [
         firstName: "Updated",
         lastName: "User",
         role: "student",
+        createdAt: new Date(),
         updatedAt: new Date(),
       },
       upsert: true,
@@ -357,7 +361,7 @@ try {
 // =================================================================
 
 print("\n🔥 WRITE CONCERNS & ERROR HANDLING");
-print("-" * 30);
+print("-".repeat(30));
 
 // 10. Write concerns for data durability
 print("10. Using write concerns for data durability");
@@ -394,7 +398,7 @@ try {
 // =================================================================
 
 print("\n🔥 VALIDATION & SUMMARY");
-print("-" * 30);
+print("-".repeat(30));
 
 // Count documents to verify operations
 const userCount = db.users.countDocuments();
