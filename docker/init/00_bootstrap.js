@@ -486,10 +486,15 @@ try {
     { course_id: 1, event_type: 1 },
     { name: "idx_analytics_course_event" }
   );
+  // TTL on an explicit, optional expiry field: documents that carry expire_at
+  // are removed once it passes; documents without it (the reference dataset,
+  // whose timestamps are fixed relative to a historical reference date) are
+  // never expired. A TTL on `timestamp` itself would delete the whole
+  // reference dataset within a minute of import.
   db.analytics_events.createIndex(
-    { timestamp: 1 },
-    { expireAfterSeconds: 7776000, name: "idx_analytics_ttl" }
-  ); // 90 days TTL
+    { expire_at: 1 },
+    { expireAfterSeconds: 0, name: "idx_analytics_ttl" }
+  );
   print("✅ Created analytics indexes");
 } catch (e) {
   print("⚠️ Analytics indexes error: " + e.message);
