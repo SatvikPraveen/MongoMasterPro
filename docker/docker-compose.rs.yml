@@ -1,6 +1,5 @@
 # Location: `/docker/docker-compose.rs.yml`
 
-version: "3.8"
 
 services:
   mongo-rs-primary:
