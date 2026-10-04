@@ -1,191 +1,152 @@
-# Location: `/Makefile`
+# MongoMasterPro — task runner
+#
+# Two databases, two purposes (see docs/research/adr/0001-two-database-layout.md):
+#   learning_platform  strict snake_case reference dataset (bootstrap + generator)
+#   mongomasterpro     disposable camelCase lab for modules 01-05 (scripts/00_setup)
+#   mmp_*              per-module sandboxes for modules 06-11
+#
+# Run `make help` for the target list.
 
-.PHONY: help start stop restart setup clean data-lite data-full validate test benchmark logs shell
+SHELL := /bin/bash
+.DEFAULT_GOAL := help
 
-# Default target
-help: ## Show this help message
-	@echo "MongoMasterPro - MongoDB Learning Platform"
-	@echo ""
-	@echo "Available commands:"
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
+# ---- configuration (override on the command line or in the environment) ----
+COMPOSE          ?= docker compose
+COMPOSE_SINGLE   ?= docker/docker-compose.yml
+COMPOSE_RS       ?= docker/docker-compose.rs.yml
+COMPOSE_SHARDED  ?= docker/docker-compose.sharded.yml
+CONTAINER        ?= mongo-primary
+MONGOS_CONTAINER ?= mongos
+MONGO_URI        ?= mongodb://localhost:27017/?directConnection=true
+PYTHON           ?= python3
+DATA_MODE        ?= lite
+DATA_SCALE       ?= 1.0
+DATA_SEED        ?= 20251003
+MONGO_IMAGES     ?= mongo:6.0 mongo:7.0 mongo:8.0
+EXP              ?= all
+MODULE           ?= 01_crud
 
-# Docker operations
-start: ## Start MongoDB containers
-	@echo "🚀 Starting MongoDB containers..."
-	docker-compose -f docker/docker-compose.yml up -d
-	@echo "⏳ Waiting for MongoDB to be ready..."
-	sleep 10
-	@echo "✅ MongoDB is ready!"
+MONGOSH_IN := docker exec $(CONTAINER) mongosh --quiet
 
-start-rs: ## Start MongoDB with replica set
-	@echo "🚀 Starting MongoDB replica set..."
-	docker-compose -f docker/docker-compose.rs.yml up -d
-	@echo "⏳ Waiting for replica set to be ready..."
-	sleep 15
-	@echo "✅ MongoDB replica set is ready!"
+.PHONY: help start start-rs start-sharded stop clean status logs shell \
+        bootstrap lab-setup setup data validate-reference validate matrix \
+        test test-node test-python lint lint-js lint-python format \
+        experiment experiments analyze module run-module install-deps ci-local
 
-stop: ## Stop MongoDB containers
-	@echo "🛑 Stopping MongoDB containers..."
-	docker-compose -f docker/docker-compose.yml down
-	docker-compose -f docker/docker-compose.rs.yml down
+help: ## Show this help
+	@echo "MongoMasterPro"; echo
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | \
+	  awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
-restart: ## Restart MongoDB containers
-	@echo "🔄 Restarting MongoDB..."
-	$(MAKE) stop
-	$(MAKE) start
+# ---- environment -------------------------------------------------------------
+start: ## Start a single-node replica set (mongo-primary) and mongo-express
+	$(COMPOSE) -f $(COMPOSE_SINGLE) up -d
+	@$(MAKE) --no-print-directory wait
 
-# Setup and initialization
-setup: ## Initialize database with base configuration
-	@echo "⚙️ Setting up MongoMasterPro..."
-	$(MAKE) start
-	@sleep 15
-	docker exec mongo-primary mongosh < /docker-entrypoint-initdb.d/00_bootstrap.js
-	@sleep 5
-	$(MAKE) validate
-	@echo "✅ Setup complete!"
+start-rs: ## Start the 3-member replica set with authentication
+	$(COMPOSE) -f $(COMPOSE_RS) up -d
+	@sleep 8
+	docker exec mongo-rs-primary mongosh --quiet --eval \
+	  "try { rs.status() } catch (e) { rs.initiate({_id:'rs0',members:[{_id:0,host:'mongo-rs-primary:27017'},{_id:1,host:'mongo-rs-secondary1:27017'},{_id:2,host:'mongo-rs-secondary2:27017'}]}) }"
 
-setup-rs: ## Setup with replica set
-	@echo "⚙️ Setting up MongoMasterPro with replica set..."
-	$(MAKE) start-rs
-	sleep 5
-	docker exec mongo-rs-primary mongosh --eval "rs.initiate({_id: 'rs0', members: [{_id: 0, host: 'mongo-rs-primary:27017'}, {_id: 1, host: 'mongo-rs-secondary1:27017'}, {_id: 2, host: 'mongo-rs-secondary2:27017'}]})"
-	sleep 10
-	docker exec mongo-rs-primary mongosh --file /docker-entrypoint-initdb.d/00_bootstrap.js
-	$(MAKE) data-lite
-	@echo "✅ Replica set setup complete!"
+start-sharded: ## Start a sharded cluster (config RS, two shard RSs, mongos)
+	$(COMPOSE) -f $(COMPOSE_SHARDED) up -d
+	@echo "waiting for cluster initialisation (mongos healthcheck)..."
+	@for i in $$(seq 1 60); do \
+	  if docker exec $(MONGOS_CONTAINER) mongosh --quiet --eval 'db.adminCommand({listShards:1}).shards.length' 2>/dev/null | grep -q '^2$$'; then echo "sharded cluster ready"; exit 0; fi; sleep 2; done; \
+	  echo "sharded cluster did not come up"; exit 1
 
-# Data generation
-data-lite: ## Generate lite dataset (5K records)
-	@echo "📊 Generating lite dataset..."
-	cd data/generators && python3 generate_data.py --mode lite
-	@echo "✅ Lite dataset generated!"
+wait: ## Wait until mongo-primary answers and is a writable primary
+	@for i in $$(seq 1 60); do \
+	  if $(MONGOSH_IN) --eval 'db.hello().isWritablePrimary' 2>/dev/null | grep -q true; then echo "mongo-primary is ready"; exit 0; fi; sleep 2; done; \
+	  echo "mongo-primary did not become primary"; exit 1
 
-data-full: ## Generate full dataset (50K+ records)
-	@echo "📊 Generating full dataset (this may take a while)..."
-	cd data/generators && python3 generate_data.py --mode full
-	@echo "✅ Full dataset generated!"
+stop: ## Stop every compose stack
+	-$(COMPOSE) -f $(COMPOSE_SINGLE) down
+	-$(COMPOSE) -f $(COMPOSE_RS) down
+	-$(COMPOSE) -f $(COMPOSE_SHARDED) down
 
-import-data: ## Import generated data to MongoDB
-	@echo "📥 Generated data will be imported..."
-	@echo "✅ Data import is handled by the data generator script"
+clean: ## Stop stacks and delete their volumes
+	-$(COMPOSE) -f $(COMPOSE_SINGLE) down -v
+	-$(COMPOSE) -f $(COMPOSE_RS) down -v
+	-$(COMPOSE) -f $(COMPOSE_SHARDED) down -v
 
-# Validation and testing
-validate: ## Validate MongoDB setup and data
-	@echo "🔍 Validating setup..."
-	docker exec mongo-primary mongosh learning_platform < /app/scripts/00_setup/validate_setup.js
-
-test: ## Run all tests
-	@echo "🧪 Running all tests..."
-	docker exec mongo-primary mongosh --file /app/tests/integration/end_to_end_workflow.js
-	@echo "✅ All tests passed!"
-
-test-module: ## Test specific module (usage: make test-module MODULE=01_crud)
-	@echo "🧪 Testing module: $(MODULE)..."
-	docker exec mongo-primary mongosh --file /app/scripts/$(MODULE)/validate_*.js
-
-benchmark: ## Run performance benchmarks
-	@echo "📊 Running performance benchmarks..."
-	docker exec mongo-primary mongosh --file /app/scripts/10_performance/benchmarking.js
-	@echo "📋 Results saved to docs/results/benchmark_results/"
-
-# Development utilities
-shell: ## Open MongoDB shell
-	@echo "🖥️ Opening MongoDB shell..."
-	docker exec -it mongo-primary mongosh learning_platform
-
-shell-rs: ## Open MongoDB shell (replica set primary)
-	@echo "🖥️ Opening MongoDB shell (replica set)..."
-	docker exec -it mongo-rs-primary mongosh
-
-logs: ## Show MongoDB logs
-	docker-compose -f docker/docker-compose.yml logs -f
-
-logs-rs: ## Show replica set logs
-	docker-compose -f docker/docker-compose.rs.yml logs -f
-
-# Cleanup
-clean: ## Clean up containers and volumes
-	@echo "🧹 Cleaning up..."
-	docker-compose -f docker/docker-compose.yml down -v
-	docker-compose -f docker/docker-compose.rs.yml down -v
-	docker volume prune -f
-	@echo "✅ Cleanup complete!"
-
-clean-data: ## Clean generated data files
-	@echo "🧹 Cleaning generated data..."
-	rm -rf data/generated/*
-	rm -f data/generators/*.json
-	@echo "✅ Data cleaned!"
-
-# Learning modules shortcuts
-module-crud: ## Run CRUD operations module
-	docker exec mongo-primary mongosh --file /app/scripts/01_crud/inserts_updates.js
-	docker exec mongo-primary mongosh --file /app/scripts/01_crud/queries_deletes.js
-
-module-indexes: ## Run indexes module
-	docker exec mongo-primary mongosh --file /app/scripts/02_indexes/index_fundamentals.js
-	docker exec mongo-primary mongosh --file /app/scripts/02_indexes/specialized_indexes.js
-
-module-aggregation: ## Run aggregation module
-	docker exec mongo-primary mongosh --file /app/scripts/04_aggregation/pipeline_fundamentals.js
-	docker exec mongo-primary mongosh --file /app/scripts/04_aggregation/advanced_stages.js
-
-module-transactions: ## Run transactions module (requires replica set)
-	$(MAKE) setup-rs
-	docker exec mongo-rs-primary mongosh --file /app/scripts/05_transactions/multi_document_txn.js
-
-# Portfolio generation
-portfolio: ## Generate portfolio artifacts
-	@echo "🎨 Generating portfolio artifacts..."
-	docker exec mongo-primary mongosh --file /app/scripts/11_capstones/analytics_dashboard.js
-	docker exec mongo-primary mongosh --file /app/scripts/11_capstones/integration_validation.js
-	@echo "✅ Portfolio artifacts generated!"
-
-# Status check
-status: ## Check MongoDB status
-	@echo "📊 MongoDB Status:"
+status: ## Show container status
 	@docker ps --filter "name=mongo" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
-	@echo ""
-	@echo "🗄️ Database Status:"
-	@docker exec mongo-primary mongosh --quiet --eval "db.adminCommand('ismaster')" 2>/dev/null || echo "❌ MongoDB not accessible"
 
-# Installation helpers
-install-deps: ## Install Python dependencies for data generators
-	@echo "📦 Installing Python dependencies..."
-	cd data/generators && pip install -r requirements.txt
-	@echo "✅ Dependencies installed!"
+logs: ## Tail mongo-primary logs
+	$(COMPOSE) -f $(COMPOSE_SINGLE) logs -f
 
-# Quick start for new users
-quickstart: ## Complete setup for new users
-	@echo "🎯 MongoMasterPro Quick Start"
-	@echo "=============================="
-	$(MAKE) start
-	$(MAKE) setup
-	@echo ""
-	@echo "✅ Quick start complete!"
-	@echo ""
-	@echo "Next steps:"
-	@echo "  1. Run 'make module-crud' to start with CRUD operations"
-	@echo "  2. Check 'make help' for all available commands"
-	@echo "  3. Open 'make shell' to explore MongoDB interactively"
+shell: ## Open mongosh on the lab database
+	docker exec -it $(CONTAINER) mongosh mongomasterpro
 
-# Utility scripts
-test-all: ## Run comprehensive tests with test-runner.sh
-	@echo "🧪 Running comprehensive test suite..."
-	./scripts/utilities/test-runner.sh
+# ---- data ---------------------------------------------------------------------
+bootstrap: ## Create learning_platform schema, validators, indexes, users and roles
+	$(MONGOSH_IN) --file /app/docker/init/00_bootstrap.js
 
-backup: ## Create database backup
-	@echo "💾 Creating backup..."
-	./scripts/utilities/backup-restore.sh backup
+lab-setup: ## (Re)create the disposable lab database used by modules 01-05
+	$(MONGOSH_IN) --file /app/scripts/00_setup/bootstrap.js
+	$(MONGOSH_IN) --file /app/scripts/00_setup/data_models.js
 
-restore: ## Restore database from backup
-	@echo "♻️ Restoring from backup..."
-	./scripts/utilities/backup-restore.sh restore
+data: ## Generate the reference dataset (DATA_MODE, DATA_SCALE, DATA_SEED) and import it
+	$(PYTHON) data/generators/generate_data.py --mode $(DATA_MODE) --scale $(DATA_SCALE) \
+	  --seed $(DATA_SEED) --out data/generated --import "$(MONGO_URI)"
 
-backup-list: ## List available backups
-	@echo "📋 Available backups:"
-	./scripts/utilities/backup-restore.sh list
+validate-reference: ## Verify learning_platform against schema and manifest
+	$(MONGOSH_IN) --file /app/scripts/00_setup/validate_reference.js
 
-backup-cleanup: ## Clean old backups
-	@echo "🧹 Cleaning old backups..."
-	./scripts/utilities/backup-restore.sh cleanup 7
+validate: ## Verify the lab database
+	$(MONGOSH_IN) --file /app/scripts/00_setup/validate_setup.js
+
+setup: start bootstrap data validate-reference lab-setup validate ## Full local setup from zero
+	@echo "setup complete: reference dataset in learning_platform, lab in mongomasterpro"
+
+# ---- verification ------------------------------------------------------------
+matrix: ## Run every module script against mongo-primary; fail on any error
+	scripts/utilities/run_module_matrix.sh -c $(CONTAINER) -o results/module-matrix
+
+test-node: ## Run the Node driver test suites
+	MONGODB_URI="$(MONGO_URI)" node tests/run_node_tests.mjs
+
+test-python: ## Run the dataset generator tests
+	$(PYTHON) -m pytest -q
+
+test: test-python test-node ## Run all test suites (needs a running mongo-primary)
+
+lint-js: ## Parse and lint every JavaScript file
+	node scripts/utilities/check_syntax.mjs
+	npx eslint .
+
+lint-python: ## Check Python formatting and style
+	$(PYTHON) -m black --check data/generators tests/python experiments/analysis
+	$(PYTHON) -m isort --check-only data/generators tests/python experiments/analysis
+	$(PYTHON) -m flake8 data/generators tests/python experiments/analysis
+
+lint: lint-js lint-python ## Run all linters
+
+format: ## Auto-format Python sources
+	$(PYTHON) -m black data/generators tests/python experiments/analysis
+	$(PYTHON) -m isort data/generators tests/python experiments/analysis
+
+ci-local: lint test-python matrix test-node validate-reference ## What CI runs, locally
+
+# ---- experiments ---------------------------------------------------------------
+experiment: ## Run one experiment: make experiment EXP=E01
+	experiments/run.sh -u "$(MONGO_URI)" $(EXP)
+
+experiments: ## Run every experiment
+	experiments/run.sh -u "$(MONGO_URI)" all
+
+analyze: ## Aggregate raw results into tables, figures and REPORT.md
+	$(PYTHON) experiments/analysis/analyze.py
+
+# ---- modules --------------------------------------------------------------------
+run-module: ## Run every script of one module: make run-module MODULE=04_aggregation
+	@for f in scripts/$(MODULE)/*.js; do echo "== $$f"; $(MONGOSH_IN) --file /app/$$f || exit 1; done
+
+module: run-module ## Alias for run-module
+
+# ---- tooling ----------------------------------------------------------------------
+install-deps: ## Install Python and Node dependencies
+	$(PYTHON) -m pip install -r requirements-dev.txt
+	npm install
