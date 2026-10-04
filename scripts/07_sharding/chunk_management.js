@@ -13,6 +13,23 @@ const db = db.getSiblingDB("mmp_sharding");
 const adminDB = db.getSiblingDB("admin");
 const configDB = db.getSiblingDB("config");
 
+// Since MongoDB 5.0 config.chunks is keyed by the collection UUID rather than
+// by namespace; resolve through config.collections so both layouts work.
+function chunkFilter(namespace) {
+  const coll = configDB.collections.findOne({ _id: namespace }, { uuid: 1 });
+  return coll && coll.uuid ? { uuid: coll.uuid } : { ns: namespace };
+}
+const UUID_TO_NS = {};
+function chunkNs(chunk) {
+  if (chunk.ns) return chunk.ns;
+  if (Object.keys(UUID_TO_NS).length === 0) {
+    configDB.collections.find({}, { uuid: 1 }).forEach((c) => {
+      if (c.uuid) UUID_TO_NS[String(c.uuid)] = c._id;
+    });
+  }
+  return UUID_TO_NS[String(chunk.uuid)] || String(chunk.uuid);
+}
+
 // Preflight: this module targets a sharded cluster and must run against a mongos router.
 // On a replica set or standalone it is skipped rather than reported as failing.
 if (db.hello().msg !== "isdbgrid") {
@@ -26,6 +43,23 @@ if (db.hello().msg !== "isdbgrid") {
 print("\n" + "=".repeat(80));
 print("MONGODB CHUNK MANAGEMENT");
 print("=".repeat(80));
+
+// Chunk operations need a sharded, populated collection. Prepare one in the
+// module sandbox if it does not exist yet (idempotent).
+const CHUNK_NS = "mmp_sharding.users";
+if (!configDB.collections.findOne({ _id: CHUNK_NS, key: { $exists: true } })) {
+  sh.enableSharding("mmp_sharding");
+  sh.shardCollection(CHUNK_NS, { _id: "hashed" });
+  print(`✓ Sharded ${CHUNK_NS} on { _id: "hashed" }`);
+}
+if (db.users.estimatedDocumentCount() < 20000) {
+  const batch = [];
+  for (let i = 0; i < 20000; i++) {
+    batch.push({ userId: i, email: `user${i}@example.com`, region: ["us", "eu", "apac"][i % 3], createdAt: new Date() });
+  }
+  db.users.insertMany(batch, { ordered: false });
+  print(`✓ Inserted ${batch.length} sample users into ${CHUNK_NS}`);
+}
 
 // ============================================================================
 // 1. CHUNK BASICS AND INSPECTION
@@ -54,10 +88,10 @@ function exploreChunkStructure() {
       // Group chunks by collection
       const chunksByCollection = {};
       chunks.forEach((chunk) => {
-        if (!chunksByCollection[chunk.ns]) {
-          chunksByCollection[chunk.ns] = 0;
+        if (!chunksByCollection[chunkNs(chunk)]) {
+          chunksByCollection[chunkNs(chunk)] = 0;
         }
-        chunksByCollection[chunk.ns]++;
+        chunksByCollection[chunkNs(chunk)]++;
       });
 
       print(`   Collections with chunks:`);
@@ -83,7 +117,7 @@ function viewChunkDistribution(namespace = null) {
   try {
     let query = {};
     if (namespace) {
-      query.ns = namespace;
+      Object.assign(query, chunkFilter(namespace));
     }
 
     const chunks = configDB.chunks.find(query).toArray();
@@ -105,13 +139,13 @@ function viewChunkDistribution(namespace = null) {
       distributionByShard[chunk.shard]++;
 
       // By collection
-      if (!distributionByCollection[chunk.ns]) {
-        distributionByCollection[chunk.ns] = {};
+      if (!distributionByCollection[chunkNs(chunk)]) {
+        distributionByCollection[chunkNs(chunk)] = {};
       }
-      if (!distributionByCollection[chunk.ns][chunk.shard]) {
-        distributionByCollection[chunk.ns][chunk.shard] = 0;
+      if (!distributionByCollection[chunkNs(chunk)][chunk.shard]) {
+        distributionByCollection[chunkNs(chunk)][chunk.shard] = 0;
       }
-      distributionByCollection[chunk.ns][chunk.shard]++;
+      distributionByCollection[chunkNs(chunk)][chunk.shard]++;
     });
 
     // Display shard distribution
@@ -148,7 +182,7 @@ function getCollectionChunkDetails(namespace) {
 
   try {
     const chunks = configDB.chunks
-      .find({ ns: namespace })
+      .find(chunkFilter(namespace))
       .sort({ min: 1 })
       .toArray();
 
@@ -200,13 +234,13 @@ function demonstrateChunkSplitting() {
   const splittingExamples = [
     {
       operation: "Split at specific value",
-      command: 'sh.splitAt("lms_primary.users", { _id: ObjectId("...") })',
+      command: 'sh.splitAt("mmp_sharding.users", { _id: ObjectId("...") })',
       useCase: "Split large chunk at known boundary",
       when: "When you know optimal split point",
     },
     {
       operation: "Split find middle",
-      command: 'sh.splitFind("lms_primary.users", { _id: ObjectId("...") })',
+      command: 'sh.splitFind("mmp_sharding.users", { _id: ObjectId("...") })',
       useCase: "Find and split at median value",
       when: "When chunk is too large but split point unknown",
     },
@@ -235,14 +269,14 @@ function demonstratePreSplitting() {
   print("\n1️⃣ HASH-BASED PRE-SPLITTING:");
   print("   # For hashed shard keys - create even distribution");
   print("   for (var i = 0; i < 4; i++) {");
-  print("     sh.splitAt('lms_primary.users', { _id: ObjectId() });");
+  print("     sh.splitAt('mmp_sharding.users', { _id: ObjectId() });");
   print("   }");
 
   print("\n2️⃣ RANGE-BASED PRE-SPLITTING:");
   print("   # For range shard keys - split by logical boundaries");
-  print("   sh.splitAt('lms_primary.courses', { category: 'business' });");
-  print("   sh.splitAt('lms_primary.courses', { category: 'technology' });");
-  print("   sh.splitAt('lms_primary.courses', { category: 'science' });");
+  print("   sh.splitAt('mmp_sharding.courses', { category: 'business' });");
+  print("   sh.splitAt('mmp_sharding.courses', { category: 'technology' });");
+  print("   sh.splitAt('mmp_sharding.courses', { category: 'science' });");
 
   print("\n3️⃣ TIME-BASED PRE-SPLITTING:");
   print("   # For time-series data - split by time ranges");
@@ -250,7 +284,7 @@ function demonstratePreSplitting() {
   print("   for (var month = 0; month < 12; month++) {");
   print("     var splitDate = new Date(startDate.getTime());");
   print("     splitDate.setMonth(month);");
-  print("     sh.splitAt('lms_primary.events', { timestamp: splitDate });");
+  print("     sh.splitAt('mmp_sharding.events', { timestamp: splitDate });");
   print("   }");
 
   print("\n💡 PRE-SPLITTING BENEFITS:");
@@ -328,11 +362,11 @@ function manageBalancer() {
 
   const balancerCommands = [
     {
-      command: 'sh.enableBalancing("lms_primary.users")',
+      command: 'sh.enableBalancing("mmp_sharding.users")',
       description: "Enable balancing for specific collection",
     },
     {
-      command: 'sh.disableBalancing("lms_primary.users")',
+      command: 'sh.disableBalancing("mmp_sharding.users")',
       description: "Disable balancing for specific collection",
     },
     {
@@ -377,7 +411,7 @@ function configureBalancerWindow() {
   print("   # Plan according to your cluster's timezone");
   print("   # Consider multiple regions if globally distributed");
 
-  print("\n❌ REMOVE BALANCER WINDOW:");
+  print("\n• REMOVE BALANCER WINDOW:");
   print("   # Allow balancer to run 24/7");
   print("   db.settings.remove({ _id: 'balancer' })");
 
@@ -455,7 +489,7 @@ function demonstrateChunkMigration() {
 
   print("\n1️⃣ MANUAL CHUNK MOVE:");
   print("   # Move specific chunk to target shard");
-  print("   sh.moveChunk('lms_primary.users',");
+  print("   sh.moveChunk('mmp_sharding.users',");
   print("               { _id: ObjectId('...') },");
   print("               'shard02')");
 
@@ -466,7 +500,7 @@ function demonstrateChunkMigration() {
 
   print("\n3️⃣ REBALANCE SPECIFIC COLLECTION:");
   print("   # Force rebalancing of collection");
-  print("   sh.enableBalancing('lms_primary.users')");
+  print("   sh.enableBalancing('mmp_sharding.users')");
   print("   sh.startBalancer()");
 
   print("\n⚠️ MIGRATION CONSIDERATIONS:");
@@ -514,7 +548,7 @@ function handleMigrationFailures() {
 
   print("\n🔍 TROUBLESHOOTING COMMANDS:");
   print("   # Check migration locks");
-  print("   db.locks.find({ _id: /^lms_primary/ })");
+  print("   db.locks.find({ _id: /^mmp_sharding/ })");
   print("   ");
   print("   # View balancer log");
   print("   db.changelog.find({ what: /moveChunk/ })");
@@ -594,7 +628,7 @@ function manageDataLifecycle() {
   print("   var hotThreshold = new Date(now - 30*24*60*60*1000); // 30 days");
   print("   var warmThreshold = new Date(now - 365*24*60*60*1000); // 1 year");
   print("   ");
-  print("   sh.addTagRange('lms_primary.events',");
+  print("   sh.addTagRange('mmp_sharding.events',");
   print("                  { timestamp: hotThreshold },");
   print("                  { timestamp: MaxKey },");
   print("                  'hot')");
@@ -669,7 +703,7 @@ try {
   viewChunkDistribution();
 
   // Get details for a sample collection (if exists)
-  getCollectionChunkDetails("lms_primary.users");
+  getCollectionChunkDetails("mmp_sharding.users");
 
   // Demonstrate chunk operations
   demonstrateChunkSplitting();

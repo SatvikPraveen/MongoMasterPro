@@ -13,6 +13,23 @@ const db = db.getSiblingDB("mmp_sharding");
 const adminDB = db.getSiblingDB("admin");
 const configDB = db.getSiblingDB("config");
 
+// Since MongoDB 5.0 config.chunks is keyed by the collection UUID rather than
+// by namespace; resolve through config.collections so both layouts work.
+function chunkFilter(namespace) {
+  const coll = configDB.collections.findOne({ _id: namespace }, { uuid: 1 });
+  return coll && coll.uuid ? { uuid: coll.uuid } : { ns: namespace };
+}
+const UUID_TO_NS = {};
+function chunkNs(chunk) {
+  if (chunk.ns) return chunk.ns;
+  if (Object.keys(UUID_TO_NS).length === 0) {
+    configDB.collections.find({}, { uuid: 1 }).forEach((c) => {
+      if (c.uuid) UUID_TO_NS[String(c.uuid)] = c._id;
+    });
+  }
+  return UUID_TO_NS[String(chunk.uuid)] || String(chunk.uuid);
+}
+
 // Preflight: this module targets a sharded cluster and must run against a mongos router.
 // On a replica set or standalone it is skipped rather than reported as failing.
 if (db.hello().msg !== "isdbgrid") {
@@ -246,11 +263,11 @@ function listShardsWithDetails() {
         }
       });
 
-      // Get additional shard statistics
-      const shardStats = adminDB.runCommand({ shardingState: 1 });
-      if (shardStats.enabled) {
-        print(`\n📊 Sharding enabled: ${shardStats.enabled}`);
-        print(`Config server: ${shardStats.configServer}`);
+      // shardingState is a mongod-only command; on mongos the shard map
+      // (getShardMap) exposes the config server connection string instead.
+      const shardMap = adminDB.runCommand({ getShardMap: 1 });
+      if (shardMap.ok === 1 && shardMap.map) {
+        print(`\n📊 Config servers: ${shardMap.map.config || "n/a"}`);
       }
     }
   } catch (error) {
@@ -324,32 +341,32 @@ function setupLMSSharding() {
   print("\n🎓 SETTING UP LMS SHARDING:");
 
   // Enable sharding on database
-  enableDatabaseSharding("lms_primary");
+  enableDatabaseSharding("mmp_sharding");
 
   // Shard key strategies for different collections
   const shardingPlan = [
     {
-      collection: "lms_primary.users",
+      collection: "mmp_sharding.users",
       shardKey: { _id: "hashed" },
       reason: "Even distribution of users across shards",
     },
     {
-      collection: "lms_primary.courses",
+      collection: "mmp_sharding.courses",
       shardKey: { category: 1, _id: 1 },
       reason: "Range-based on category for query locality",
     },
     {
-      collection: "lms_primary.enrollments",
+      collection: "mmp_sharding.enrollments",
       shardKey: { userId: "hashed" },
       reason: "Distribute user enrollments evenly",
     },
     {
-      collection: "lms_primary.assignments",
+      collection: "mmp_sharding.assignments",
       shardKey: { courseId: 1, dueDate: 1 },
       reason: "Co-locate assignments with courses",
     },
     {
-      collection: "lms_primary.grades",
+      collection: "mmp_sharding.grades",
       shardKey: { userId: 1, assignmentId: 1 },
       reason: "Co-locate user grades for reporting",
     },
@@ -360,13 +377,15 @@ function setupLMSSharding() {
     print(`   Shard key: ${JSON.stringify(plan.shardKey)}`);
     print(`   Strategy: ${plan.reason}`);
 
-    // Uncomment to actually shard (requires proper cluster setup)
-    /*
-        const result = shardCollection(plan.collection, plan.shardKey);
-        if (result && result.ok === 1) {
-            print(`   ✅ Sharded successfully`);
-        }
-        */
+    const alreadySharded = configDB.collections.findOne({ _id: plan.collection, key: { $exists: true } });
+    if (alreadySharded) {
+      print(`   • Already sharded with key ${JSON.stringify(alreadySharded.key)}`);
+    } else {
+      const result = shardCollection(plan.collection, plan.shardKey);
+      if (result && result.ok === 1) {
+        print(`   ✅ Sharded successfully`);
+      }
+    }
   });
 }
 
@@ -386,7 +405,7 @@ function viewChunkDistribution(namespace) {
   try {
     let query = {};
     if (namespace) {
-      query.ns = namespace;
+      Object.assign(query, chunkFilter(namespace));
     }
 
     const chunks = configDB.chunks.find(query).toArray();
@@ -395,13 +414,13 @@ function viewChunkDistribution(namespace) {
       // Group chunks by collection
       const chunksByCollection = {};
       chunks.forEach((chunk) => {
-        if (!chunksByCollection[chunk.ns]) {
-          chunksByCollection[chunk.ns] = {};
+        if (!chunksByCollection[chunkNs(chunk)]) {
+          chunksByCollection[chunkNs(chunk)] = {};
         }
-        if (!chunksByCollection[chunk.ns][chunk.shard]) {
-          chunksByCollection[chunk.ns][chunk.shard] = 0;
+        if (!chunksByCollection[chunkNs(chunk)][chunk.shard]) {
+          chunksByCollection[chunkNs(chunk)][chunk.shard] = 0;
         }
-        chunksByCollection[chunk.ns][chunk.shard]++;
+        chunksByCollection[chunkNs(chunk)][chunk.shard]++;
       });
 
       // Display distribution
@@ -432,14 +451,14 @@ function demonstrateChunkOperations() {
 
   print("\n1️⃣ SPLIT CHUNK:");
   print("   # Split at specific value");
-  print("   sh.splitAt('lms_primary.users', { _id: ObjectId('...') })");
+  print("   sh.splitAt('mmp_sharding.users', { _id: ObjectId('...') })");
   print("   ");
   print("   # Find split point automatically");
-  print("   sh.splitFind('lms_primary.users', { _id: ObjectId('...') })");
+  print("   sh.splitFind('mmp_sharding.users', { _id: ObjectId('...') })");
 
   print("\n2️⃣ MOVE CHUNK:");
   print("   # Move chunk to specific shard");
-  print("   sh.moveChunk('lms_primary.users',");
+  print("   sh.moveChunk('mmp_sharding.users',");
   print("               { _id: ObjectId('...') },");
   print("               'shard02')");
 
@@ -448,8 +467,8 @@ function demonstrateChunkOperations() {
   print("   sh.getBalancerState()");
   print("   ");
   print("   # Enable/disable balancer");
-  print("   sh.enableBalancing('lms_primary.users')");
-  print("   sh.disableBalancing('lms_primary.users')");
+  print("   sh.enableBalancing('mmp_sharding.users')");
+  print("   sh.disableBalancing('mmp_sharding.users')");
 
   print("\n4️⃣ BALANCER WINDOW:");
   print("   # Set balancer window (off-peak hours)");
@@ -541,7 +560,15 @@ function getClusterStatistics() {
   print("\n📈 CLUSTER STATISTICS:");
 
   try {
-    const shardingStatus = adminDB.runCommand({ printShardingStatus: 1 });
+    // printShardingStatus() is a shell helper, not a server command; the same
+    // information lives in the config database.
+    const shardingStatus = {
+      ok: 1,
+      shards: Object.fromEntries(configDB.shards.find().toArray().map((s) => [s._id, s])),
+      databases: Object.fromEntries(configDB.databases.find().toArray().map((d) => [d._id, d])),
+      collections: configDB.collections.countDocuments(),
+      chunks: configDB.chunks.countDocuments(),
+    };
 
     if (shardingStatus.ok === 1) {
       print("✅ Sharding status retrieved successfully");
@@ -561,6 +588,8 @@ function getClusterStatistics() {
             : 0
         }`
       );
+      print(`   Sharded collections: ${shardingStatus.collections}`);
+      print(`   Chunks: ${shardingStatus.chunks}`);
     }
 
     // Get individual shard statistics

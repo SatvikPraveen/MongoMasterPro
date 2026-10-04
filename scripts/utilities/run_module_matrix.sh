@@ -8,25 +8,26 @@
 # authentication) are expected to self-skip or downgrade to warnings.
 #
 # Usage:
-#   scripts/utilities/run_module_matrix.sh [-c CONTAINER] [-u URI] [-o OUTDIR] [-s]
+#   scripts/utilities/run_module_matrix.sh [-c CONTAINER] [-u URI] [-o OUTDIR] [-m MODULE] [-s]
 #     -c  run mongosh inside this docker container (scripts mounted at /app)
 #     -u  connection URI for a local mongosh (default mongodb://localhost:27017)
 #     -o  output directory for logs and matrix.tsv (default results/module-matrix)
+#     -m  only run scripts of one module directory, e.g. -m 07_sharding
 #     -s  skip bootstraps (reference + lab) when the databases are already set up
 #
 # Exit status: 0 if every script passes, 1 otherwise.
 set -u
 
-CONTAINER=""; URI="mongodb://localhost:27017"; OUT="results/module-matrix"; SKIP_BOOTSTRAP=0
-while getopts "c:u:o:s" opt; do
+CONTAINER=""; URI="mongodb://localhost:27017"; OUT="results/module-matrix"; SKIP_BOOTSTRAP=0; MODULE=""
+while getopts "c:u:o:m:s" opt; do
   case $opt in
-    c) CONTAINER=$OPTARG ;; u) URI=$OPTARG ;; o) OUT=$OPTARG ;; s) SKIP_BOOTSTRAP=1 ;;
-    *) echo "usage: $0 [-c container] [-u uri] [-o outdir] [-s]" >&2; exit 2 ;;
+    c) CONTAINER=$OPTARG ;; u) URI=$OPTARG ;; o) OUT=$OPTARG ;; m) MODULE=$OPTARG ;; s) SKIP_BOOTSTRAP=1 ;;
+    *) echo "usage: $0 [-c container] [-u uri] [-o outdir] [-m module] [-s]" >&2; exit 2 ;;
   esac
 done
 
 ROOT=$(cd "$(dirname "$0")/../.." && pwd)
-cd "$ROOT"
+cd "$ROOT" || exit 1
 mkdir -p "$OUT/logs"
 
 run_file() { # $1 = repo-relative path
@@ -49,6 +50,7 @@ printf "exit\tfail_marks\texceptions\tscript\n" > "$MATRIX"
 total=0; passed=0
 for f in scripts/[0-9][0-9]_*/*.js scripts/advanced/*.js; do
   [ -e "$f" ] || continue
+  [ -z "$MODULE" ] || [[ "$f" == scripts/$MODULE/* ]] || continue
   total=$((total+1))
   log="$OUT/logs/$(echo "$f" | tr '/' '_').log"
   run_file "$f" > "$log" 2>&1; rc=$?

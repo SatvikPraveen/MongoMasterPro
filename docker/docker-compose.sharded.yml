@@ -1,0 +1,116 @@
+# MongoMasterPro — local sharded cluster
+#
+#   1 config server replica set (cfgrs, 1 member)
+#   2 shard replica sets        (shard1rs, shard2rs, 1 member each)
+#   1 mongos router             (host port 27017)
+#
+# This is the smallest topology that exercises real sharding semantics
+# (chunk distribution, balancer, targeted vs scatter-gather queries). It is a
+# learning/experimentation cluster: single-member replica sets provide no
+# fault tolerance. Initialise with `make start-sharded`; the init container
+# below performs rs.initiate / addShard once and exits.
+#
+# Connect: mongosh "mongodb://localhost:27017"   (routes through mongos)
+
+services:
+  cfg1:
+    image: ${MONGO_IMAGE:-mongo:7.0}
+    container_name: mmp-cfg1
+    command: ["mongod", "--configsvr", "--replSet", "cfgrs", "--port", "27017", "--bind_ip_all"]
+    volumes: [cfg1-data:/data/configdb]
+    networks: [mmp-shard-net]
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  shard1:
+    image: ${MONGO_IMAGE:-mongo:7.0}
+    container_name: mmp-shard1
+    command: ["mongod", "--shardsvr", "--replSet", "shard1rs", "--port", "27017", "--bind_ip_all"]
+    volumes: [shard1-data:/data/db]
+    networks: [mmp-shard-net]
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  shard2:
+    image: ${MONGO_IMAGE:-mongo:7.0}
+    container_name: mmp-shard2
+    command: ["mongod", "--shardsvr", "--replSet", "shard2rs", "--port", "27017", "--bind_ip_all"]
+    volumes: [shard2-data:/data/db]
+    networks: [mmp-shard-net]
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  mongos:
+    image: ${MONGO_IMAGE:-mongo:7.0}
+    container_name: ${MONGOS_CONTAINER:-mongos}
+    command: ["mongos", "--configdb", "cfgrs/cfg1:27017", "--port", "27017", "--bind_ip_all"]
+    ports:
+      - "${MONGOS_PORT:-27017}:27017"
+    volumes:
+      - ../scripts:/app/scripts:ro
+      - ../experiments:/app/experiments:ro
+      - ../data:/app/data:ro
+    networks: [mmp-shard-net]
+    depends_on:
+      cluster-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  # Runs once: initiates the three replica sets, then starts a temporary mongos
+  # to register the shards. Idempotent — re-running on an initialised cluster
+  # is a no-op.
+  cluster-init:
+    image: ${MONGO_IMAGE:-mongo:7.0}
+    container_name: mmp-cluster-init
+    depends_on:
+      cfg1: { condition: service_healthy }
+      shard1: { condition: service_healthy }
+      shard2: { condition: service_healthy }
+    networks: [mmp-shard-net]
+    entrypoint: ["bash", "-c"]
+    command:
+      - |
+        set -e
+        init() { # host replSet configsvr?
+          mongosh --quiet --host "$1" --eval "
+            try { rs.status(); print('$2 already initiated'); }
+            catch (e) { printjson(rs.initiate({ _id: '$2', configsvr: $3, members: [{ _id: 0, host: '$1:27017' }] })); }"
+        }
+        init cfg1 cfgrs true
+        init shard1 shard1rs false
+        init shard2 shard2rs false
+        for h in cfg1 shard1 shard2; do
+          until mongosh --quiet --host "$$h" --eval "db.hello().isWritablePrimary" | grep -q true; do sleep 1; done
+        done
+        mongos --configdb cfgrs/cfg1:27017 --port 27019 --bind_ip_all --fork --logpath /tmp/mongos-init.log
+        until mongosh --quiet --port 27019 --eval "db.adminCommand('ping').ok" >/dev/null 2>&1; do sleep 1; done
+        mongosh --quiet --port 27019 --eval "
+          const have = new Set(db.adminCommand({ listShards: 1 }).shards.map(s => s._id));
+          for (const s of ['shard1rs/shard1:27017', 'shard2rs/shard2:27017']) {
+            const id = s.split('/')[0];
+            if (!have.has(id)) printjson(sh.addShard(s)); else print(id + ' already added');
+          }
+          printjson(db.adminCommand({ listShards: 1 }).shards.map(s => s._id));"
+        echo "sharded cluster initialised"
+
+volumes:
+  cfg1-data:
+  shard1-data:
+  shard2-data:
+
+networks:
+  mmp-shard-net:
+    name: mmp-shard-net

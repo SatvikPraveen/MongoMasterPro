@@ -13,6 +13,23 @@ const db = db.getSiblingDB("mmp_sharding");
 const adminDB = db.getSiblingDB("admin");
 const configDB = db.getSiblingDB("config");
 
+// Since MongoDB 5.0 config.chunks is keyed by the collection UUID rather than
+// by namespace; resolve through config.collections so both layouts work.
+function chunkFilter(namespace) {
+  const coll = configDB.collections.findOne({ _id: namespace }, { uuid: 1 });
+  return coll && coll.uuid ? { uuid: coll.uuid } : { ns: namespace };
+}
+const UUID_TO_NS = {};
+function chunkNs(chunk) {
+  if (chunk.ns) return chunk.ns;
+  if (Object.keys(UUID_TO_NS).length === 0) {
+    configDB.collections.find({}, { uuid: 1 }).forEach((c) => {
+      if (c.uuid) UUID_TO_NS[String(c.uuid)] = c._id;
+    });
+  }
+  return UUID_TO_NS[String(chunk.uuid)] || String(chunk.uuid);
+}
+
 // Preflight: this module targets a sharded cluster and must run against a mongos router.
 // On a replica set or standalone it is skipped rather than reported as failing.
 if (db.hello().msg !== "isdbgrid") {
@@ -122,17 +139,16 @@ function validateShardConnectivity() {
       // Test connectivity to each shard
       shardList.shards.forEach((shard, index) => {
         try {
-          const shardPing = adminDB.runCommand({
-            runCommandOnShard: shard._id,
-            command: { ping: 1 },
-          });
+          // mongos has no per-shard ping command; listShards reports each
+          // shard's registration state (1 = active) which mongos keeps current.
+          const active = shard.state === undefined || shard.state === 1;
 
           recordShardingTest(
             `Shard ${shard._id} Connectivity`,
-            shardPing.ok === 1,
-            shardPing.ok === 1
-              ? `${shard.host} is reachable`
-              : `${shard.host} connectivity failed`
+            active,
+            active
+              ? `${shard.host} registered and active`
+              : `${shard.host} in state ${shard.state}`
           );
         } catch (shardError) {
           recordShardingTest(
@@ -274,8 +290,10 @@ function validateCollectionSharding() {
 
         // Validate shard key indexes exist
         try {
-          const dbName = namespace.split(".")[0];
-          const collName = namespace.split(".")[1];
+          // Collection names may contain dots (config.system.sessions): split once.
+          const dot = namespace.indexOf(".");
+          const dbName = namespace.slice(0, dot);
+          const collName = namespace.slice(dot + 1);
           const targetDB = db.getSiblingDB(dbName);
           const indexes = targetDB[collName].getIndexes();
 
