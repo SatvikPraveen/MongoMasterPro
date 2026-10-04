@@ -60,6 +60,7 @@ const EXPECTED_INDEXES = {
     "idx_analytics_event_time",
     "idx_analytics_course_event",
     "idx_analytics_ttl",
+    "idx_analytics_timestamp",
   ],
 };
 

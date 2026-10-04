@@ -495,6 +495,12 @@ try {
     { expire_at: 1 },
     { expireAfterSeconds: 0, name: "idx_analytics_ttl" }
   );
+  // Plain time-range queries ("events in the last 7 days") need a leading
+  // timestamp key; the compound indexes above all lead with another field.
+  db.analytics_events.createIndex(
+    { timestamp: 1 },
+    { name: "idx_analytics_timestamp" }
+  );
   print("✅ Created analytics indexes");
 } catch (e) {
   print("⚠️ Analytics indexes error: " + e.message);
