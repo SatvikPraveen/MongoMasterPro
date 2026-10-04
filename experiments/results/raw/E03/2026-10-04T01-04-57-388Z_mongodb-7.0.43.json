@@ -1,0 +1,305 @@
+{
+  "schema": "mmp-experiment-result/1",
+  "experiment": {
+    "id": "E03",
+    "title": "Insert throughput vs insertMany batch size",
+    "hypothesis": "Throughput rises steeply from single-document inserts to batches of a few hundred, then flattens as per-request overhead stops dominating and the server's per-document cost takes over.",
+    "design": {
+      "independent": "insertMany batch size",
+      "dependent": "insert throughput",
+      "unit": "docs/s",
+      "measure": "returned",
+      "controlled": [
+        "identical documents every trial",
+        "collection dropped before each trial",
+        "ordered: false",
+        "single client connection"
+      ],
+      "notes": "Each trial inserts 20000 documents; the returned value is TOTAL / elapsed."
+    }
+  },
+  "parameters": {
+    "trials": 8,
+    "warmup": 1,
+    "seed": 1,
+    "order": "blocked-randomised"
+  },
+  "environment": {
+    "captured_at": "2026-10-04T01:07:21.586Z",
+    "server": {
+      "version": "7.0.43",
+      "git_version": "ef5a7d3480b59feae13d564376129fc4ceee6177",
+      "modules": [],
+      "allocator": "tcmalloc",
+      "storage_engine": "wiredTiger",
+      "wiredtiger_cache_max_bytes": 3622830080,
+      "journal_enabled": true,
+      "uptime_s": 1925,
+      "connections_current": 5,
+      "parsed_options": {
+        "net": {
+          "bindIp": "*"
+        },
+        "replication": {
+          "replSet": "rs0"
+        }
+      }
+    },
+    "topology": {
+      "kind": "replica_set",
+      "set_name": "rs0",
+      "members": 1,
+      "is_writable_primary": true
+    },
+    "server_host": {
+      "hostname": "48d2acbf626e",
+      "os": "Ubuntu 22.04",
+      "cpu_arch": "aarch64",
+      "cpu_cores": 10,
+      "mem_mb": 7934,
+      "numa": false
+    },
+    "client_host": {
+      "hostname": "VPN-156-143.vpn.usf.edu",
+      "platform": "darwin 25.6.0",
+      "cpu_model": "Apple M5",
+      "cpu_count": 10,
+      "mem_mb": 24576,
+      "mongosh": "2.12.0",
+      "node": "v20.20.0"
+    },
+    "repository": {
+      "git_commit": "f9a195e7b4e6d546bbeb8a25eea810963721216a",
+      "root": "/Users/satvikpraveen/Documents/github_proj/MongoMasterPro"
+    },
+    "dataset": {
+      "path": "/Users/satvikpraveen/Documents/github_proj/MongoMasterPro/data/generated/manifest.json",
+      "generator_version": "2.0.0",
+      "parameters": {
+        "mode": "full",
+        "reference_date": "2025-01-01T00:00:00+00:00",
+        "scale": 1,
+        "seed": 20251003,
+        "targets": {
+          "analytics_events": 100000,
+          "categories": 50,
+          "courses": 1000,
+          "enrollments": 50000,
+          "instructors": 200,
+          "reviews": 15000,
+          "users": 10000
+        }
+      },
+      "total_records": 176250,
+      "digests": {
+        "analytics_events": "2b2ad2b1ef9d4ca69fbdbb2bac30720109f7715ab5106f13923ed74699ac478c",
+        "categories": "69ea5b8fa926a03b917181a1cf4fd5239a304e339b2507a09c0ea2886c477098",
+        "courses": "e09928036ea8f3ab6625255c5d3e68f543201ae87e1b547f7a2cb267e0116c0c",
+        "enrollments": "529fd0c8b8dfbcfb2b38b16db82d21929cc54b3da11ec4b7f0d220575fbe8528",
+        "instructors": "515d7d090dc17bc902f405fe114dc081495c5c3e3c8c99f60f684a681ba112f0",
+        "reviews": "a12c9c7d1528d82b1b6a4607d8a3dfe61b8be63c6c2783f9ac0f2e9aba9d6698",
+        "users": "8b6505f599a508f8dfdc1b45691be68f65486be3c4df790ff9b6813d9d91c551"
+      }
+    }
+  },
+  "levels": [
+    {
+      "name": "batch_1",
+      "params": {
+        "batch_size": 1,
+        "documents": 20000
+      },
+      "probe": {
+        "requests": 20000,
+        "avg_doc_bytes": 95
+      },
+      "stats": {
+        "n": 8,
+        "mean": 1525.9616964036745,
+        "sd": 183.30818022058847,
+        "cv": 0.12012633125235178,
+        "min": 1279.7606506045684,
+        "p25": 1407.1302443523932,
+        "median": 1497.2534586750382,
+        "p75": 1606.0867367996684,
+        "p90": 1718.351811954392,
+        "p95": 1798.7064700513463,
+        "p99": 1862.9901965289098,
+        "max": 1879.0611281483007,
+        "median_ci95": [
+          1405.6369596571217,
+          1649.4763907284312
+        ]
+      },
+      "samples": [
+        1591.6235188234143,
+        1649.4763907284312,
+        1507.8003505806787,
+        1879.0611281483007,
+        1486.7065667693978,
+        1279.7606506045684,
+        1405.6369596571217,
+        1407.6280059174837
+      ]
+    },
+    {
+      "name": "batch_10",
+      "params": {
+        "batch_size": 10,
+        "documents": 20000
+      },
+      "probe": {
+        "requests": 2000,
+        "avg_doc_bytes": 95
+      },
+      "stats": {
+        "n": 8,
+        "mean": 10501.554533298318,
+        "sd": 2529.803479723779,
+        "cv": 0.24089799959637223,
+        "min": 6601.865505283129,
+        "p25": 8989.772494556817,
+        "median": 10207.76378855209,
+        "p75": 12497.228584740782,
+        "p90": 13077.438352882133,
+        "p95": 13690.925064249202,
+        "p99": 14181.714433342859,
+        "max": 14304.411775616272,
+        "median_ci95": [
+          8510.352353697454,
+          12551.592600281789
+        ]
+      },
+      "samples": [
+        9149.579208176605,
+        10932.788474273197,
+        6601.865505283129,
+        12551.592600281789,
+        14304.411775616272,
+        12479.107246227113,
+        9482.739102830985,
+        8510.352353697454
+      ]
+    },
+    {
+      "name": "batch_100",
+      "params": {
+        "batch_size": 100,
+        "documents": 20000
+      },
+      "probe": {
+        "requests": 200,
+        "avg_doc_bytes": 95
+      },
+      "stats": {
+        "n": 8,
+        "mean": 35154.2364385244,
+        "sd": 8934.348518452538,
+        "cv": 0.2541471362655362,
+        "min": 18277.870469911413,
+        "p25": 32658.503190425035,
+        "median": 34893.390225185685,
+        "p75": 42013.630782080974,
+        "p90": 44404.042887020805,
+        "p95": 44981.31337471299,
+        "p99": 45443.129764866746,
+        "max": 45558.58386240518,
+        "median_ci95": [
+          28162.477531392822,
+          43470.17251728056
+        ]
+      },
+      "samples": [
+        35246.1414309181,
+        41381.76117215594,
+        18277.870469911413,
+        45558.58386240518,
+        34157.17841010244,
+        34540.63901945327,
+        28162.477531392822,
+        43909.23961185607
+      ]
+    },
+    {
+      "name": "batch_1000",
+      "params": {
+        "batch_size": 1000,
+        "documents": 20000
+      },
+      "probe": {
+        "requests": 20,
+        "avg_doc_bytes": 95
+      },
+      "stats": {
+        "n": 8,
+        "mean": 131916.17841064895,
+        "sd": 37220.568445947596,
+        "cv": 0.2821531740411831,
+        "min": 51716.05734596928,
+        "p25": 122972.26840971984,
+        "median": 148437.99661965587,
+        "p75": 154224.3025588452,
+        "p90": 157704.12352055576,
+        "p95": 160374.29979393826,
+        "p99": 162510.44081264426,
+        "max": 163044.47606732076,
+        "median_ci95": [
+          105730.80801124113,
+          155415.40100051364
+        ]
+      },
+      "samples": [
+        155415.40100051364,
+        151786.23939285736,
+        105730.80801124113,
+        163044.47606732076,
+        145089.75384645438,
+        153827.2697449557,
+        51716.05734596928,
+        128719.42187587942
+      ]
+    },
+    {
+      "name": "batch_5000",
+      "params": {
+        "batch_size": 5000,
+        "documents": 20000
+      },
+      "probe": {
+        "requests": 4,
+        "avg_doc_bytes": 95
+      },
+      "stats": {
+        "n": 8,
+        "mean": 181824.28235739894,
+        "sd": 28867.188687156995,
+        "cv": 0.15876421076924607,
+        "min": 148523.4911846206,
+        "p25": 162862.76978041136,
+        "median": 175683.3245268769,
+        "p75": 198307.0263249859,
+        "p90": 210633.1036862713,
+        "p95": 223893.0410763212,
+        "p99": 234500.99098836118,
+        "max": 237152.9784663712,
+        "median_ci95": [
+          154719.67495464618,
+          199267.4430662285
+        ]
+      },
+      "samples": [
+        237152.9784663712,
+        199267.4430662285,
+        172259.23044803334,
+        179107.4186057205,
+        197986.88741123836,
+        148523.4911846206,
+        154719.67495464618,
+        165577.13472233308
+      ]
+    }
+  ],
+  "started_at": "2026-10-04T01:04:57.388Z",
+  "finished_at": "2026-10-04T01:07:21.586Z",
+  "duration_s": 144.19748049998285
+}

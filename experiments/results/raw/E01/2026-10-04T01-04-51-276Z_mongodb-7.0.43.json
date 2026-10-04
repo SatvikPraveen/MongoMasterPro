@@ -1,0 +1,361 @@
+{
+  "schema": "mmp-experiment-result/1",
+  "experiment": {
+    "id": "E01",
+    "title": "Index scan vs collection scan on analytics_events",
+    "hypothesis": "For selective predicates an IXSCAN examines orders of magnitude fewer documents than a COLLSCAN and is correspondingly faster; the advantage shrinks as the predicate matches a larger share of the collection.",
+    "design": {
+      "independent": "access path × predicate (user_id equality; timestamp 7-day range)",
+      "dependent": "query latency",
+      "unit": "ms",
+      "controlled": [
+        "dataset (manifest)",
+        "same predicates for all levels",
+        "cursor fully drained",
+        "single client, no concurrency"
+      ],
+      "notes": "Access paths are forced with hint() in every level so the comparison is between plans, not between planner decisions; the probe records what each plan examined."
+    }
+  },
+  "parameters": {
+    "trials": 30,
+    "warmup": 5,
+    "seed": 1,
+    "order": "blocked-randomised"
+  },
+  "environment": {
+    "captured_at": "2026-10-04T01:04:55.471Z",
+    "server": {
+      "version": "7.0.43",
+      "git_version": "ef5a7d3480b59feae13d564376129fc4ceee6177",
+      "modules": [],
+      "allocator": "tcmalloc",
+      "storage_engine": "wiredTiger",
+      "wiredtiger_cache_max_bytes": 3622830080,
+      "journal_enabled": true,
+      "uptime_s": 1779,
+      "connections_current": 5,
+      "parsed_options": {
+        "net": {
+          "bindIp": "*"
+        },
+        "replication": {
+          "replSet": "rs0"
+        }
+      }
+    },
+    "topology": {
+      "kind": "replica_set",
+      "set_name": "rs0",
+      "members": 1,
+      "is_writable_primary": true
+    },
+    "server_host": {
+      "hostname": "48d2acbf626e",
+      "os": "Ubuntu 22.04",
+      "cpu_arch": "aarch64",
+      "cpu_cores": 10,
+      "mem_mb": 7934,
+      "numa": false
+    },
+    "client_host": {
+      "hostname": "VPN-156-143.vpn.usf.edu",
+      "platform": "darwin 25.6.0",
+      "cpu_model": "Apple M5",
+      "cpu_count": 10,
+      "mem_mb": 24576,
+      "mongosh": "2.12.0",
+      "node": "v20.20.0"
+    },
+    "repository": {
+      "git_commit": "f9a195e7b4e6d546bbeb8a25eea810963721216a",
+      "root": "/Users/satvikpraveen/Documents/github_proj/MongoMasterPro"
+    },
+    "dataset": {
+      "path": "/Users/satvikpraveen/Documents/github_proj/MongoMasterPro/data/generated/manifest.json",
+      "generator_version": "2.0.0",
+      "parameters": {
+        "mode": "full",
+        "reference_date": "2025-01-01T00:00:00+00:00",
+        "scale": 1,
+        "seed": 20251003,
+        "targets": {
+          "analytics_events": 100000,
+          "categories": 50,
+          "courses": 1000,
+          "enrollments": 50000,
+          "instructors": 200,
+          "reviews": 15000,
+          "users": 10000
+        }
+      },
+      "total_records": 176250,
+      "digests": {
+        "analytics_events": "2b2ad2b1ef9d4ca69fbdbb2bac30720109f7715ab5106f13923ed74699ac478c",
+        "categories": "69ea5b8fa926a03b917181a1cf4fd5239a304e339b2507a09c0ea2886c477098",
+        "courses": "e09928036ea8f3ab6625255c5d3e68f543201ae87e1b547f7a2cb267e0116c0c",
+        "enrollments": "529fd0c8b8dfbcfb2b38b16db82d21929cc54b3da11ec4b7f0d220575fbe8528",
+        "instructors": "515d7d090dc17bc902f405fe114dc081495c5c3e3c8c99f60f684a681ba112f0",
+        "reviews": "a12c9c7d1528d82b1b6a4607d8a3dfe61b8be63c6c2783f9ac0f2e9aba9d6698",
+        "users": "8b6505f599a508f8dfdc1b45691be68f65486be3c4df790ff9b6813d9d91c551"
+      }
+    }
+  },
+  "levels": [
+    {
+      "name": "point_collscan",
+      "params": {
+        "predicate": "user_id = <u>",
+        "path": "COLLSCAN"
+      },
+      "probe": {
+        "nReturned": 13,
+        "docsExamined": 100000,
+        "keysExamined": 0,
+        "collection_size": 100000
+      },
+      "stats": {
+        "n": 30,
+        "mean": 21.312223664919536,
+        "sd": 2.055074293532828,
+        "cv": 0.09642702356373693,
+        "min": 19.335583925247192,
+        "p25": 20.2433642745018,
+        "median": 20.702103853225708,
+        "p75": 21.573280692100525,
+        "p90": 24.831233215332034,
+        "p95": 26.34560660123825,
+        "p99": 26.7307009935379,
+        "max": 26.844791889190674,
+        "median_ci95": [
+          20.32366704940796,
+          21.11875009536743
+        ]
+      },
+      "samples": [
+        24.677333116531372,
+        20.957292079925537,
+        20.887375116348267,
+        20.1958749294281,
+        21.655250072479248,
+        22.54212498664856,
+        21.41462516784668,
+        26.216334104537964,
+        26.844791889190674,
+        26.451375007629395,
+        19.335583925247192,
+        20.3920419216156,
+        20.32366704940796,
+        19.798040866851807,
+        20.36616587638855,
+        21.626165866851807,
+        19.537333011627197,
+        19.336459159851074,
+        20.992666959762573,
+        20.539707899093628,
+        20.24258303642273,
+        21.11875009536743,
+        19.57099986076355,
+        20.437083959579468,
+        20.245707988739014,
+        21.00366711616516,
+        20.442167043685913,
+        20.864499807357788,
+        19.641541957855225,
+        21.709500074386597
+      ]
+    },
+    {
+      "name": "point_ixscan",
+      "params": {
+        "predicate": "user_id = <u>",
+        "path": "IXSCAN idx_analytics_user_time (hinted)"
+      },
+      "probe": {
+        "nReturned": 13,
+        "docsExamined": 13,
+        "keysExamined": 13,
+        "collection_size": 100000
+      },
+      "stats": {
+        "n": 30,
+        "mean": 1.5129193703333537,
+        "sd": 1.0670892537399381,
+        "cv": 0.7053179929243802,
+        "min": 0.5541660785675049,
+        "p25": 0.9558128714561462,
+        "median": 1.2167705297470093,
+        "p75": 1.9216976165771484,
+        "p90": 2.091487169265747,
+        "p95": 2.2524294257163993,
+        "p99": 5.190595972537998,
+        "max": 6.33887505531311,
+        "median_ci95": [
+          0.9956250190734863,
+          1.8066035509109497
+        ]
+      },
+      "samples": [
+        1.6459169387817383,
+        2.0635831356048584,
+        2.035374879837036,
+        0.7350001335144043,
+        1.0363750457763672,
+        2.3792920112609863,
+        1.8994159698486328,
+        0.5541660785675049,
+        1.7137911319732666,
+        6.33887505531311,
+        2.0908329486846924,
+        1.0878329277038574,
+        0.5743751525878906,
+        1.0368340015411377,
+        1.3457081317901611,
+        2.0973751544952393,
+        0.7210419178009033,
+        1.0035829544067383,
+        1.6538329124450684,
+        0.8259999752044678,
+        1.977874994277954,
+        0.9876670837402344,
+        0.9855000972747803,
+        1.0193750858306885,
+        1.9250831604003906,
+        0.9459171295166016,
+        0.7120420932769775,
+        0.6375830173492432,
+        1.9115409851074219,
+        1.4457910060882568
+      ]
+    },
+    {
+      "name": "range7d_collscan",
+      "params": {
+        "predicate": "timestamp in last 7 days",
+        "path": "COLLSCAN"
+      },
+      "probe": {
+        "nReturned": 7560,
+        "docsExamined": 100000,
+        "keysExamined": 0,
+        "collection_size": 100000
+      },
+      "stats": {
+        "n": 30,
+        "mean": 51.21939174334208,
+        "sd": 4.760666052597028,
+        "cv": 0.09294655579770446,
+        "min": 46.06720805168152,
+        "p25": 48.915198028087616,
+        "median": 49.63695800304413,
+        "p75": 51.68264555931091,
+        "p90": 58.99510910511017,
+        "p95": 60.941183972358694,
+        "p99": 65.91637591600418,
+        "max": 67.3429582118988,
+        "median_ci95": [
+          49.09645855426788,
+          50.69018805027008
+        ]
+      },
+      "samples": [
+        53.884790897369385,
+        48.67516589164734,
+        49.56795811653137,
+        49.157707929611206,
+        51.73895812034607,
+        51.63983392715454,
+        48.89925003051758,
+        59.12920904159546,
+        67.3429582118988,
+        58.98020911216736,
+        51.69691610336304,
+        49.705957889556885,
+        51.24641704559326,
+        49.171541929244995,
+        47.40933299064636,
+        46.66241693496704,
+        49.35408401489258,
+        49.473459005355835,
+        49.29366707801819,
+        46.06720805168152,
+        48.96304202079773,
+        52.15333414077759,
+        49.85891604423523,
+        48.78112506866455,
+        49.89970803260803,
+        50.1339590549469,
+        49.97529196739197,
+        47.80883288383484,
+        47.48679184913635,
+        62.42370891571045
+      ]
+    },
+    {
+      "name": "range7d_ixscan",
+      "params": {
+        "predicate": "timestamp in last 7 days",
+        "path": "IXSCAN idx_analytics_timestamp (hinted)"
+      },
+      "probe": {
+        "nReturned": 7560,
+        "docsExamined": 7560,
+        "keysExamined": 7560,
+        "collection_size": 100000
+      },
+      "stats": {
+        "n": 30,
+        "mean": 28.918384790420532,
+        "sd": 5.57580850496777,
+        "cv": 0.19281189268962232,
+        "min": 24.444666862487793,
+        "p25": 26.10804158449173,
+        "median": 27.37487506866455,
+        "p75": 29.10907334089279,
+        "p90": 31.958767271041882,
+        "p95": 41.25477503538131,
+        "p99": 47.86557769298554,
+        "max": 49.98654079437256,
+        "median_ci95": [
+          26.53431248664856,
+          28.009853959083557
+        ]
+      },
+      "samples": [
+        49.98654079437256,
+        27.351875066757202,
+        27.967875003814697,
+        26.48783302307129,
+        29.602458000183105,
+        30.037750005722046,
+        25.050958156585693,
+        39.52154183387756,
+        42.67287492752075,
+        30.66545796394348,
+        25.06179189682007,
+        25.130625009536743,
+        26.00945806503296,
+        26.94408416748047,
+        27.677792072296143,
+        25.773499965667725,
+        26.58079195022583,
+        27.50950002670288,
+        28.232791900634766,
+        26.76091694831848,
+        25.630833864212036,
+        25.823540925979614,
+        27.486500024795532,
+        31.11845898628235,
+        26.403792142868042,
+        26.766458988189697,
+        27.3978750705719,
+        24.444666862487793,
+        28.051832914352417,
+        29.401167154312134
+      ]
+    }
+  ],
+  "started_at": "2026-10-04T01:04:51.276Z",
+  "finished_at": "2026-10-04T01:04:55.471Z",
+  "duration_s": 4.195174291849137
+}

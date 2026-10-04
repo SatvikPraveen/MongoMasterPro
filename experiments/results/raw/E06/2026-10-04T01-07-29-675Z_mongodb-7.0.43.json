@@ -1,0 +1,255 @@
+{
+  "schema": "mmp-experiment-result/1",
+  "experiment": {
+    "id": "E06",
+    "title": "insertMany latency with and without $jsonSchema validation",
+    "hypothesis": "Schema validation adds a measurable but modest per-document CPU cost; 'warn' and 'error' cost the same when every document is valid because the schema is evaluated either way.",
+    "design": {
+      "independent": "collection validation setting",
+      "dependent": "insertMany latency for 2000 valid documents",
+      "unit": "ms",
+      "controlled": [
+        "identical documents (users from the reference dataset, _id regenerated)",
+        "deleteMany before each trial so the collection size is constant",
+        "no secondary indexes"
+      ]
+    }
+  },
+  "parameters": {
+    "trials": 20,
+    "warmup": 2,
+    "seed": 1,
+    "order": "blocked-randomised"
+  },
+  "environment": {
+    "captured_at": "2026-10-04T01:07:32.391Z",
+    "server": {
+      "version": "7.0.43",
+      "git_version": "ef5a7d3480b59feae13d564376129fc4ceee6177",
+      "modules": [],
+      "allocator": "tcmalloc",
+      "storage_engine": "wiredTiger",
+      "wiredtiger_cache_max_bytes": 3622830080,
+      "journal_enabled": true,
+      "uptime_s": 1936,
+      "connections_current": 4,
+      "parsed_options": {
+        "net": {
+          "bindIp": "*"
+        },
+        "replication": {
+          "replSet": "rs0"
+        }
+      }
+    },
+    "topology": {
+      "kind": "replica_set",
+      "set_name": "rs0",
+      "members": 1,
+      "is_writable_primary": true
+    },
+    "server_host": {
+      "hostname": "48d2acbf626e",
+      "os": "Ubuntu 22.04",
+      "cpu_arch": "aarch64",
+      "cpu_cores": 10,
+      "mem_mb": 7934,
+      "numa": false
+    },
+    "client_host": {
+      "hostname": "VPN-156-143.vpn.usf.edu",
+      "platform": "darwin 25.6.0",
+      "cpu_model": "Apple M5",
+      "cpu_count": 10,
+      "mem_mb": 24576,
+      "mongosh": "2.12.0",
+      "node": "v20.20.0"
+    },
+    "repository": {
+      "git_commit": "f9a195e7b4e6d546bbeb8a25eea810963721216a",
+      "root": "/Users/satvikpraveen/Documents/github_proj/MongoMasterPro"
+    },
+    "dataset": {
+      "path": "/Users/satvikpraveen/Documents/github_proj/MongoMasterPro/data/generated/manifest.json",
+      "generator_version": "2.0.0",
+      "parameters": {
+        "mode": "full",
+        "reference_date": "2025-01-01T00:00:00+00:00",
+        "scale": 1,
+        "seed": 20251003,
+        "targets": {
+          "analytics_events": 100000,
+          "categories": 50,
+          "courses": 1000,
+          "enrollments": 50000,
+          "instructors": 200,
+          "reviews": 15000,
+          "users": 10000
+        }
+      },
+      "total_records": 176250,
+      "digests": {
+        "analytics_events": "2b2ad2b1ef9d4ca69fbdbb2bac30720109f7715ab5106f13923ed74699ac478c",
+        "categories": "69ea5b8fa926a03b917181a1cf4fd5239a304e339b2507a09c0ea2886c477098",
+        "courses": "e09928036ea8f3ab6625255c5d3e68f543201ae87e1b547f7a2cb267e0116c0c",
+        "enrollments": "529fd0c8b8dfbcfb2b38b16db82d21929cc54b3da11ec4b7f0d220575fbe8528",
+        "instructors": "515d7d090dc17bc902f405fe114dc081495c5c3e3c8c99f60f684a681ba112f0",
+        "reviews": "a12c9c7d1528d82b1b6a4607d8a3dfe61b8be63c6c2783f9ac0f2e9aba9d6698",
+        "users": "8b6505f599a508f8dfdc1b45691be68f65486be3c4df790ff9b6813d9d91c551"
+      }
+    }
+  },
+  "levels": [
+    {
+      "name": "no_validator",
+      "params": {},
+      "probe": {
+        "documents": 2000,
+        "avg_doc_bytes": 743
+      },
+      "stats": {
+        "n": 20,
+        "mean": 34.536281204223634,
+        "sd": 18.970626911424628,
+        "cv": 0.5492955885796008,
+        "min": 23.897083044052124,
+        "p25": 25.938125252723694,
+        "median": 28.831354022026062,
+        "p75": 31.621968686580658,
+        "p90": 43.66797101497652,
+        "p95": 59.057290267944374,
+        "p99": 98.4322245025634,
+        "max": 108.27595806121826,
+        "median_ci95": [
+          26.201771020889282,
+          31.220624923706055
+        ]
+      },
+      "samples": [
+        32.82599997520447,
+        30.611500024795532,
+        25.731624841690063,
+        31.220624923706055,
+        27.6537082195282,
+        39.148499965667725,
+        42.245875120162964,
+        56.46683406829834,
+        29.577040910720825,
+        108.27595806121826,
+        26.417500019073486,
+        25.79437494277954,
+        23.897083044052124,
+        25.3850839138031,
+        25.986042022705078,
+        28.782042026519775,
+        24.026832818984985,
+        30.93904209136963,
+        26.859291076660156,
+        28.88066601753235
+      ]
+    },
+    {
+      "name": "validator_error",
+      "params": {
+        "validationAction": "error"
+      },
+      "probe": {
+        "documents": 2000,
+        "avg_doc_bytes": 743
+      },
+      "stats": {
+        "n": 20,
+        "mean": 38.229837560653685,
+        "sd": 11.749212405930436,
+        "cv": 0.30733095287914003,
+        "min": 27.698292016983032,
+        "p25": 29.516291737556458,
+        "median": 35.54135453701019,
+        "p75": 42.651385486125946,
+        "p90": 52.18391635417939,
+        "p95": 56.71633276939394,
+        "p99": 71.16836649894712,
+        "max": 74.78137493133545,
+        "median_ci95": [
+          29.76858353614807,
+          41.361958503723145
+        ]
+      },
+      "samples": [
+        29.47141695022583,
+        31.35575008392334,
+        32.70991587638855,
+        37.37637495994568,
+        44.830166816711426,
+        55.765541076660156,
+        42.552124977111816,
+        51.78595805168152,
+        74.78137493133545,
+        42.949167013168335,
+        35.597084045410156,
+        27.701082944869995,
+        27.698292016983032,
+        29.53125,
+        28.701957941055298,
+        36.83120918273926,
+        29.294750213623047,
+        35.48562502861023,
+        30.005917072296143,
+        40.17179203033447
+      ]
+    },
+    {
+      "name": "validator_warn",
+      "params": {
+        "validationAction": "warn"
+      },
+      "probe": {
+        "documents": 2000,
+        "avg_doc_bytes": 743
+      },
+      "stats": {
+        "n": 20,
+        "mean": 35.23246455192566,
+        "sd": 7.5229890752751984,
+        "cv": 0.21352434951542507,
+        "min": 27.40066695213318,
+        "p25": 29.759447515010834,
+        "median": 31.96627104282379,
+        "p75": 38.05217659473419,
+        "p90": 47.15358316898346,
+        "p95": 48.449445450305944,
+        "p99": 52.57415556192397,
+        "max": 53.60533308982849,
+        "median_ci95": [
+          30.40022850036621,
+          37.15983307361603
+        ]
+      },
+      "samples": [
+        47.03974986076355,
+        31.03070902824402,
+        29.885915994644165,
+        36.74737501144409,
+        28.182833909988403,
+        39.491832971572876,
+        37.572291135787964,
+        48.17808294296265,
+        44.309208154678345,
+        53.60533308982849,
+        30.914541006088257,
+        29.38004207611084,
+        29.284250020980835,
+        29.355583906173706,
+        33.4684579372406,
+        33.486958026885986,
+        27.40066695213318,
+        31.382916927337646,
+        31.813250064849854,
+        32.11929202079773
+      ]
+    }
+  ],
+  "started_at": "2026-10-04T01:07:29.675Z",
+  "finished_at": "2026-10-04T01:07:32.393Z",
+  "duration_s": 2.717630125045776
+}

@@ -1,0 +1,287 @@
+{
+  "schema": "mmp-experiment-result/1",
+  "experiment": {
+    "id": "E05",
+    "title": "Enrollment counts per course: derived vs denormalised",
+    "hypothesis": "Reading a maintained counter is one to two orders of magnitude cheaper than deriving it; among derived forms, a $group over the indexed enrollments collection beats a per-course $lookup because the latter performs one index probe per course.",
+    "design": {
+      "independent": "method of obtaining the per-course count",
+      "dependent": "latency to produce {course_id, count} for all courses",
+      "unit": "ms",
+      "controlled": [
+        "identical result set (one row per course)",
+        "indexes from the bootstrap"
+      ],
+      "notes": "All three levels return a fully materialised array of {_id, count} on the client."
+    }
+  },
+  "parameters": {
+    "trials": 30,
+    "warmup": 5,
+    "seed": 1,
+    "order": "blocked-randomised"
+  },
+  "environment": {
+    "captured_at": "2026-10-04T01:07:29.082Z",
+    "server": {
+      "version": "7.0.43",
+      "git_version": "ef5a7d3480b59feae13d564376129fc4ceee6177",
+      "modules": [],
+      "allocator": "tcmalloc",
+      "storage_engine": "wiredTiger",
+      "wiredtiger_cache_max_bytes": 3622830080,
+      "journal_enabled": true,
+      "uptime_s": 1933,
+      "connections_current": 4,
+      "parsed_options": {
+        "net": {
+          "bindIp": "*"
+        },
+        "replication": {
+          "replSet": "rs0"
+        }
+      }
+    },
+    "topology": {
+      "kind": "replica_set",
+      "set_name": "rs0",
+      "members": 1,
+      "is_writable_primary": true
+    },
+    "server_host": {
+      "hostname": "48d2acbf626e",
+      "os": "Ubuntu 22.04",
+      "cpu_arch": "aarch64",
+      "cpu_cores": 10,
+      "mem_mb": 7934,
+      "numa": false
+    },
+    "client_host": {
+      "hostname": "VPN-156-143.vpn.usf.edu",
+      "platform": "darwin 25.6.0",
+      "cpu_model": "Apple M5",
+      "cpu_count": 10,
+      "mem_mb": 24576,
+      "mongosh": "2.12.0",
+      "node": "v20.20.0"
+    },
+    "repository": {
+      "git_commit": "f9a195e7b4e6d546bbeb8a25eea810963721216a",
+      "root": "/Users/satvikpraveen/Documents/github_proj/MongoMasterPro"
+    },
+    "dataset": {
+      "path": "/Users/satvikpraveen/Documents/github_proj/MongoMasterPro/data/generated/manifest.json",
+      "generator_version": "2.0.0",
+      "parameters": {
+        "mode": "full",
+        "reference_date": "2025-01-01T00:00:00+00:00",
+        "scale": 1,
+        "seed": 20251003,
+        "targets": {
+          "analytics_events": 100000,
+          "categories": 50,
+          "courses": 1000,
+          "enrollments": 50000,
+          "instructors": 200,
+          "reviews": 15000,
+          "users": 10000
+        }
+      },
+      "total_records": 176250,
+      "digests": {
+        "analytics_events": "2b2ad2b1ef9d4ca69fbdbb2bac30720109f7715ab5106f13923ed74699ac478c",
+        "categories": "69ea5b8fa926a03b917181a1cf4fd5239a304e339b2507a09c0ea2886c477098",
+        "courses": "e09928036ea8f3ab6625255c5d3e68f543201ae87e1b547f7a2cb267e0116c0c",
+        "enrollments": "529fd0c8b8dfbcfb2b38b16db82d21929cc54b3da11ec4b7f0d220575fbe8528",
+        "instructors": "515d7d090dc17bc902f405fe114dc081495c5c3e3c8c99f60f684a681ba112f0",
+        "reviews": "a12c9c7d1528d82b1b6a4607d8a3dfe61b8be63c6c2783f9ac0f2e9aba9d6698",
+        "users": "8b6505f599a508f8dfdc1b45691be68f65486be3c4df790ff9b6813d9d91c551"
+      }
+    }
+  },
+  "levels": [
+    {
+      "name": "group_enrollments",
+      "params": {
+        "pipeline": "$group on enrollments.course_id"
+      },
+      "probe": {
+        "courses": 1000,
+        "enrollments": 50000
+      },
+      "stats": {
+        "n": 30,
+        "mean": 24.705797322591145,
+        "sd": 4.254176455448157,
+        "cv": 0.17219344916903814,
+        "min": 20.92549991607666,
+        "p25": 22.726979196071625,
+        "median": 23.76699995994568,
+        "p75": 25.700625002384186,
+        "p90": 26.656991410255433,
+        "p95": 28.1969251871109,
+        "p99": 40.039852581024185,
+        "max": 44.7720000743866,
+        "median_ci95": [
+          22.79635453224182,
+          25.03166699409485
+        ]
+      },
+      "samples": [
+        23.54929208755493,
+        23.87837505340576,
+        20.92549991607666,
+        23.655624866485596,
+        22.177541971206665,
+        22.719749927520752,
+        26.42295789718628,
+        25.03166699409485,
+        25.711750030517578,
+        27.88241696357727,
+        44.7720000743866,
+        26.344041109085083,
+        25.66724991798401,
+        23.91241717338562,
+        21.960916996002197,
+        28.45425009727478,
+        23.450541973114014,
+        22.785417079925537,
+        22.558957815170288,
+        26.04216694831848,
+        22.807291984558105,
+        23.17116689682007,
+        22.029709100723267,
+        22.748667001724243,
+        20.935499906539917,
+        24.24066710472107,
+        24.782874822616577,
+        21.918750047683716,
+        24.11562490463257,
+        26.520833015441895
+      ]
+    },
+    {
+      "name": "lookup_per_course",
+      "params": {
+        "pipeline": "courses $lookup enrollments, $size"
+      },
+      "probe": {
+        "courses": 1000,
+        "enrollments": 50000
+      },
+      "stats": {
+        "n": 30,
+        "mean": 63.71841792265574,
+        "sd": 12.14208907483409,
+        "cv": 0.19055854603252548,
+        "min": 53.1883327960968,
+        "p25": 56.5115202665329,
+        "median": 59.39462435245514,
+        "p75": 65.00272905826569,
+        "p90": 80.29235427379608,
+        "p95": 89.31513519287105,
+        "p99": 101.21267400026322,
+        "max": 103.2369589805603,
+        "median_ci95": [
+          56.82333314418793,
+          63.799583077430725
+        ]
+      },
+      "samples": [
+        54.999083042144775,
+        56.84691619873047,
+        69.09770894050598,
+        53.84208297729492,
+        53.1883327960968,
+        54.59875011444092,
+        61.79966592788696,
+        65.3058750629425,
+        67.53129196166992,
+        72.81837487220764,
+        103.2369589805603,
+        96.2566659450531,
+        64.09329104423523,
+        62.3050000667572,
+        54.641541957855225,
+        59.01741695404053,
+        63.94195818901062,
+        59.33879089355469,
+        56.799750089645386,
+        57.11325001716614,
+        57.15945816040039,
+        54.199166774749756,
+        59.45045781135559,
+        56.20599985122681,
+        80.83104205131531,
+        80.23250007629395,
+        59.85824990272522,
+        56.43016600608826,
+        56.75558304786682,
+        63.65720796585083
+      ]
+    },
+    {
+      "name": "denormalized_field",
+      "params": {
+        "pipeline": "find courses, project enrollment_count"
+      },
+      "probe": {
+        "courses": 1000,
+        "enrollments": 50000
+      },
+      "stats": {
+        "n": 30,
+        "mean": 3.316829212506612,
+        "sd": 0.9070251179644454,
+        "cv": 0.27346150791978324,
+        "min": 2.208207845687866,
+        "p25": 2.573718786239624,
+        "median": 2.9521045684814453,
+        "p75": 4.136187314987183,
+        "p90": 4.541125082969666,
+        "p95": 4.813100004196166,
+        "p99": 5.278318929672242,
+        "max": 5.381582975387573,
+        "median_ci95": [
+          2.700935024023056,
+          3.695708990097046
+        ]
+      },
+      "samples": [
+        4.539750099182129,
+        4.284708023071289,
+        2.608875036239624,
+        2.5044589042663574,
+        4.553499937057495,
+        5.025500059127808,
+        3.838834047317505,
+        2.929375171661377,
+        4.044874906539917,
+        5.381582975387573,
+        4.286207914352417,
+        3.4425418376922607,
+        2.9872500896453857,
+        2.5167081356048584,
+        3.0285418033599854,
+        2.9748339653015137,
+        2.5239579677581787,
+        2.9151251316070557,
+        2.720583200454712,
+        4.467417001724243,
+        2.562000036239624,
+        2.701333999633789,
+        2.8087499141693115,
+        2.4095418453216553,
+        2.208207845687866,
+        4.1666247844696045,
+        2.441999912261963,
+        2.2109999656677246,
+        2.8682079315185547,
+        3.552583932876587
+      ]
+    }
+  ],
+  "started_at": "2026-10-04T01:07:25.263Z",
+  "finished_at": "2026-10-04T01:07:29.082Z",
+  "duration_s": 3.81901887512207
+}

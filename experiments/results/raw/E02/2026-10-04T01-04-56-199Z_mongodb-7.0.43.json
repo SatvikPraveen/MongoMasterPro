@@ -1,0 +1,289 @@
+{
+  "schema": "mmp-experiment-result/1",
+  "experiment": {
+    "id": "E02",
+    "title": "Embedded vs referenced one-to-many reads (course + enrollments)",
+    "hypothesis": "Reading a course with its enrollments is fastest from a single embedded document, slower with a server-side $lookup, and slowest with two client round trips; the gap is dominated by per-request overhead at this data size rather than by bytes transferred.",
+    "design": {
+      "independent": "document model / access pattern",
+      "dependent": "latency to materialise one course and all its enrollments on the client",
+      "unit": "ms",
+      "controlled": [
+        "same course ids for all levels",
+        "identical enrollment payload",
+        "indexes: idx_enrollments_course_status, _id"
+      ],
+      "notes": "Courses are chosen deterministically: the 20 with the most enrollments, cycled per trial so caches are not primed by one hot document."
+    }
+  },
+  "parameters": {
+    "trials": 30,
+    "warmup": 5,
+    "seed": 1,
+    "order": "blocked-randomised"
+  },
+  "environment": {
+    "captured_at": "2026-10-04T01:04:56.826Z",
+    "server": {
+      "version": "7.0.43",
+      "git_version": "ef5a7d3480b59feae13d564376129fc4ceee6177",
+      "modules": [],
+      "allocator": "tcmalloc",
+      "storage_engine": "wiredTiger",
+      "wiredtiger_cache_max_bytes": 3622830080,
+      "journal_enabled": true,
+      "uptime_s": 1780,
+      "connections_current": 5,
+      "parsed_options": {
+        "net": {
+          "bindIp": "*"
+        },
+        "replication": {
+          "replSet": "rs0"
+        }
+      }
+    },
+    "topology": {
+      "kind": "replica_set",
+      "set_name": "rs0",
+      "members": 1,
+      "is_writable_primary": true
+    },
+    "server_host": {
+      "hostname": "48d2acbf626e",
+      "os": "Ubuntu 22.04",
+      "cpu_arch": "aarch64",
+      "cpu_cores": 10,
+      "mem_mb": 7934,
+      "numa": false
+    },
+    "client_host": {
+      "hostname": "VPN-156-143.vpn.usf.edu",
+      "platform": "darwin 25.6.0",
+      "cpu_model": "Apple M5",
+      "cpu_count": 10,
+      "mem_mb": 24576,
+      "mongosh": "2.12.0",
+      "node": "v20.20.0"
+    },
+    "repository": {
+      "git_commit": "f9a195e7b4e6d546bbeb8a25eea810963721216a",
+      "root": "/Users/satvikpraveen/Documents/github_proj/MongoMasterPro"
+    },
+    "dataset": {
+      "path": "/Users/satvikpraveen/Documents/github_proj/MongoMasterPro/data/generated/manifest.json",
+      "generator_version": "2.0.0",
+      "parameters": {
+        "mode": "full",
+        "reference_date": "2025-01-01T00:00:00+00:00",
+        "scale": 1,
+        "seed": 20251003,
+        "targets": {
+          "analytics_events": 100000,
+          "categories": 50,
+          "courses": 1000,
+          "enrollments": 50000,
+          "instructors": 200,
+          "reviews": 15000,
+          "users": 10000
+        }
+      },
+      "total_records": 176250,
+      "digests": {
+        "analytics_events": "2b2ad2b1ef9d4ca69fbdbb2bac30720109f7715ab5106f13923ed74699ac478c",
+        "categories": "69ea5b8fa926a03b917181a1cf4fd5239a304e339b2507a09c0ea2886c477098",
+        "courses": "e09928036ea8f3ab6625255c5d3e68f543201ae87e1b547f7a2cb267e0116c0c",
+        "enrollments": "529fd0c8b8dfbcfb2b38b16db82d21929cc54b3da11ec4b7f0d220575fbe8528",
+        "instructors": "515d7d090dc17bc902f405fe114dc081495c5c3e3c8c99f60f684a681ba112f0",
+        "reviews": "a12c9c7d1528d82b1b6a4607d8a3dfe61b8be63c6c2783f9ac0f2e9aba9d6698",
+        "users": "8b6505f599a508f8dfdc1b45691be68f65486be3c4df790ff9b6813d9d91c551"
+      }
+    }
+  },
+  "levels": [
+    {
+      "name": "embedded",
+      "params": {
+        "model": "course{enrollments:[...]}",
+        "round_trips": 1
+      },
+      "probe": {
+        "document_bytes": 37689,
+        "enrollments_in_sample": 72
+      },
+      "stats": {
+        "n": 30,
+        "mean": 0.6155291636784871,
+        "sd": 0.11676959842853567,
+        "cv": 0.18970603720984472,
+        "min": 0.5304160118103027,
+        "p25": 0.5739795565605164,
+        "median": 0.5847710371017456,
+        "p75": 0.6193438172340393,
+        "p90": 0.6520453691482544,
+        "p95": 0.8007685899734491,
+        "p99": 1.0544889736175538,
+        "max": 1.1184580326080322,
+        "median_ci95": [
+          0.5766880512237549,
+          0.6109556764364242
+        ]
+      },
+      "samples": [
+        0.6487078666687012,
+        0.5749590396881104,
+        0.6345839500427246,
+        0.5866248607635498,
+        0.6169581413269043,
+        0.5749170780181885,
+        0.5525839328765869,
+        0.5784170627593994,
+        0.8978750705718994,
+        0.6201250553131104,
+        0.5983750820159912,
+        0.5321669578552246,
+        0.5313329696655273,
+        0.573667049407959,
+        0.539874792098999,
+        0.5455000400543213,
+        1.1184580326080322,
+        0.6170001029968262,
+        0.5817089080810547,
+        0.5304160118103027,
+        0.5355410575866699,
+        0.5881249904632568,
+        0.621290922164917,
+        0.5844171047210693,
+        0.5851249694824219,
+        0.6820828914642334,
+        0.6453750133514404,
+        0.5821249485015869,
+        0.6048331260681152,
+        0.5827078819274902
+      ]
+    },
+    {
+      "name": "referenced_lookup",
+      "params": {
+        "model": "courses + enrollments, $lookup",
+        "round_trips": 1
+      },
+      "probe": {
+        "enrollments_in_sample": 72
+      },
+      "stats": {
+        "n": 30,
+        "mean": 0.7780401547749837,
+        "sd": 0.06477241644800355,
+        "cv": 0.0832507371894402,
+        "min": 0.6660830974578857,
+        "p25": 0.7260002493858337,
+        "median": 0.769229531288147,
+        "p75": 0.810843288898468,
+        "p90": 0.8704663038253785,
+        "p95": 0.8917641162872314,
+        "p99": 0.931630494594574,
+        "max": 0.9453330039978027,
+        "median_ci95": [
+          0.7427915334701538,
+          0.7980624437332153
+        ]
+      },
+      "samples": [
+        0.8840410709381104,
+        0.8061249256134033,
+        0.898082971572876,
+        0.8187499046325684,
+        0.7809998989105225,
+        0.8295419216156006,
+        0.7492499351501465,
+        0.7986249923706055,
+        0.7659170627593994,
+        0.8446669578552246,
+        0.7050418853759766,
+        0.6974999904632568,
+        0.7132918834686279,
+        0.7974998950958252,
+        0.7615840435028076,
+        0.7534999847412109,
+        0.8689579963684082,
+        0.8124160766601562,
+        0.7639579772949219,
+        0.714540958404541,
+        0.6660830974578857,
+        0.7240419387817383,
+        0.7725419998168945,
+        0.7207911014556885,
+        0.7189579010009766,
+        0.7318751811981201,
+        0.9453330039978027,
+        0.7363331317901611,
+        0.7836658954620361,
+        0.7772910594940186
+      ]
+    },
+    {
+      "name": "referenced_2q",
+      "params": {
+        "model": "courses + enrollments, two queries",
+        "round_trips": 2
+      },
+      "probe": {
+        "enrollments_in_sample": 72
+      },
+      "stats": {
+        "n": 30,
+        "mean": 1.1664944330851237,
+        "sd": 0.22633496457941035,
+        "cv": 0.19403004263021098,
+        "min": 1.00962495803833,
+        "p25": 1.0784793496131897,
+        "median": 1.126957893371582,
+        "p75": 1.1596559286117554,
+        "p90": 1.2367420196533203,
+        "p95": 1.3254121899604794,
+        "p99": 2.0242937970161448,
+        "max": 2.2920000553131104,
+        "median_ci95": [
+          1.0864589214324951,
+          1.1541670560836792
+        ]
+      },
+      "samples": [
+        2.2920000553131104,
+        1.2327921390533447,
+        1.3688750267028809,
+        1.2252919673919678,
+        1.1564998626708984,
+        1.1370840072631836,
+        1.0770001411437988,
+        1.0974578857421875,
+        1.050374984741211,
+        1.1919169425964355,
+        1.1132078170776367,
+        1.0420000553131104,
+        1.0864589214324951,
+        1.1720001697540283,
+        1.090207815170288,
+        1.1247498989105225,
+        1.2722909450531006,
+        1.1525840759277344,
+        1.160707950592041,
+        1.033083200454712,
+        1.0148751735687256,
+        1.00962495803833,
+        1.0627501010894775,
+        1.1273329257965088,
+        1.0829169750213623,
+        1.1265828609466553,
+        1.155750036239624,
+        1.129667043685913,
+        1.1427080631256104,
+        1.0660409927368164
+      ]
+    }
+  ],
+  "started_at": "2026-10-04T01:04:56.199Z",
+  "finished_at": "2026-10-04T01:04:56.826Z",
+  "duration_s": 0.626814875125885
+}
