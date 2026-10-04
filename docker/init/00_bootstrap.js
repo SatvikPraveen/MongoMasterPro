@@ -511,6 +511,11 @@ try {
 // =============================================================================
 
 print("\n🌱 Inserting seed data...");
+// Sample documents are only inserted into empty collections. The canonical
+// population is the generated dataset (make data); re-running the bootstrap
+// after an import must not add documents the manifest does not know about.
+const SEED_SAMPLES = db.users.countDocuments() === 0 && db.courses.countDocuments() === 0;
+if (!SEED_SAMPLES) print("• Collections already populated; sample seed data skipped");
 
 // Insert categories
 try {
@@ -562,8 +567,10 @@ try {
     },
   ];
 
-  const categoryResult = db.categories.insertMany(categories);
-  print(`✅ Inserted ${categoryResult.insertedIds.length} categories`);
+  if (SEED_SAMPLES) {
+    const categoryResult = db.categories.insertMany(categories);
+    print(`✅ Inserted ${Object.keys(categoryResult.insertedIds).length} categories`);
+  }
 } catch (e) {
   print("⚠️ Categories seed data error: " + e.message);
 }
@@ -615,11 +622,14 @@ try {
     },
   ];
 
-  const userResult = db.users.insertMany(instructors);
-  print(`✅ Inserted ${userResult.insertedIds.length} instructors`);
+  let userResult = null;
+  if (SEED_SAMPLES) {
+    userResult = db.users.insertMany(instructors);
+    print(`✅ Inserted ${Object.keys(userResult.insertedIds).length} instructors`);
+  }
 
-  // Store instructor IDs for course creation
-  const instructorIds = Object.values(userResult.insertedIds);
+  // Store instructor IDs for course creation (empty when seeding is skipped)
+  const instructorIds = userResult ? Object.values(userResult.insertedIds) : [];
 
   // Insert sample courses
   const dbCategory = db.categories.findOne({ name: "Database" });
@@ -696,8 +706,10 @@ try {
     },
   ];
 
-  const courseResult = db.courses.insertMany(courses);
-  print(`✅ Inserted ${courseResult.insertedIds.length} courses`);
+  if (SEED_SAMPLES && instructorIds.length > 0) {
+    const courseResult = db.courses.insertMany(courses);
+    print(`✅ Inserted ${Object.keys(courseResult.insertedIds).length} courses`);
+  }
 } catch (e) {
   print("⚠️ Seed data insertion error: " + e.message);
 }
