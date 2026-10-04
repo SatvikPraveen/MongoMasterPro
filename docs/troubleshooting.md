@@ -5,21 +5,21 @@
 ## Quick Diagnosis Commands
 
 ```bash
-# Check Docker status
-docker ps
-docker-compose ps
+make status                                   # container table
+docker compose -f docker/docker compose.yml ps
+docker logs mongo-primary --tail 50           # mongo-rs-primary / mongos for the other stacks
 
-# Check MongoDB logs
-docker logs mongomaster_mongo_1
-docker logs mongomaster_mongo_2
-docker logs mongomaster_mongo_3
+# Is the server up and primary?
+docker exec mongo-primary mongosh --quiet --eval 'db.hello().isWritablePrimary'
+docker exec mongo-primary mongosh --quiet --eval 'rs.status().members.map(m => [m.name, m.stateStr])'
 
-# Test MongoDB connection
-mongo --host localhost:27017 --eval "db.runCommand('hello')"
-
-# Check replica set status
-mongo --host localhost:27017 --eval "rs.status()"
+# Is the reference dataset intact?
+make validate-reference
 ```
+
+Container names: `mongo-primary` (single node), `mongo-rs-primary`,
+`mongo-rs-secondary1`, `mongo-rs-secondary2`, `mongo-rs-arbiter` (replica
+set), `mmp-cfg1`, `mmp-shard1`, `mmp-shard2`, `mongos` (sharded cluster).
 
 ## Common Issues & Solutions
 
@@ -47,23 +47,23 @@ sudo lsof -ti:27018 | xargs sudo kill -9
 sudo lsof -ti:27019 | xargs sudo kill -9
 
 # Restart Docker services
-docker-compose down -v
-docker-compose up -d
+make clean
+make start
 ```
 
 #### Problem: Docker compose file not found
 
-**Error:** `docker-compose.yml not found`
+**Error:** `docker compose.yml not found`
 
 **Solution:**
 
 ```bash
 # Ensure you're in the project root
 cd /path/to/MongoMasterPro
-ls -la docker-compose.yml
+ls -la docker compose.yml
 
 # If file is missing, use the replica set version
-cp docker/docker-compose.rs.yml docker-compose.yml
+cp docker/docker compose.rs.yml docker compose.yml
 ```
 
 #### Problem: Permission denied errors
@@ -102,20 +102,20 @@ telnet localhost 27017
 
 # Check Docker network
 docker network ls
-docker network inspect mongomaster_default
+docker network inspect mongo-network
 ```
 
 **Solution:**
 
 ```bash
 # Restart MongoDB containers
-docker-compose restart mongo1 mongo2 mongo3
+docker compose -f docker/docker compose.rs.yml restart mongo-rs-primary mongo-rs-secondary1 mongo-rs-secondary2
 
 # Check container health
-docker exec -it mongomaster_mongo1_1 mongo --eval "db.runCommand('ping')"
+docker exec mongo-rs-primary mongosh --quiet --eval "db.runCommand('ping')"
 
 # Verify replica set initialization
-docker exec -it mongomaster_mongo1_1 mongo --eval "rs.status().ok"
+docker exec mongo-rs-primary mongosh --quiet --eval "rs.status().ok"
 ```
 
 #### Problem: Replica set not initialized
@@ -152,13 +152,13 @@ rs.status()
 
 ```bash
 # Check if databases exist
-docker exec -it mongomaster_mongo1_1 mongo --eval "show dbs"
+docker exec mongo-rs-primary mongosh --quiet --eval "show dbs"
 
 # Run bootstrap script with verbose output
 docker exec -it mongomaster_mongo1_1 mongo /scripts/bootstrap.js --verbose
 
 # Check for specific collection issues
-docker exec -it mongomaster_mongo1_1 mongo --eval "
+docker exec mongo-rs-primary mongosh --quiet --eval "
 use elearning;
 db.getCollectionNames();
 db.users.countDocuments();
@@ -224,11 +224,11 @@ db.collection.find({}).hint({ index_name: 1 });
 
 ```bash
 # Check MongoDB memory stats
-docker exec -it mongomaster_mongo1_1 mongo --eval "
+docker exec mongo-rs-primary mongosh --quiet --eval "
 db.runCommand({ serverStatus: 1 }).mem
 "
 
-# Limit memory in docker-compose.yml
+# Limit memory in docker compose.yml
 services:
   mongo1:
     deploy:
@@ -514,7 +514,7 @@ docker logs mongomaster_mongo1_1 2>&1 | grep -i "error\|exception\|failed"
 
 ```bash
 # Enable verbose logging in MongoDB
-docker exec -it mongomaster_mongo1_1 mongo --eval "
+docker exec mongo-rs-primary mongosh --quiet --eval "
 db.adminCommand({
   setParameter: 1,
   logComponentVerbosity: {
@@ -574,7 +574,7 @@ docker exec mongomaster_mongo1_1 mongorestore --host localhost:27017 /backup
 
 ```bash
 # Force replica set reconfiguration
-docker exec -it mongomaster_mongo1_1 mongo --eval "
+docker exec mongo-rs-primary mongosh --quiet --eval "
 cfg = rs.conf();
 cfg.version++;
 rs.reconfig(cfg, {force: true});

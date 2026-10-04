@@ -1,192 +1,57 @@
-# MongoMasterPro Roadmap
+# Roadmap
 
-**Location:** `docs/roadmap.md`
+**Current release:** 2.0.0 (October 2026). See `CHANGELOG.md` for what it
+contains and `docs/research/adr/` for the decisions behind it.
 
-## Project Vision
+## Where the project stands
 
-MongoMasterPro is a comprehensive MongoDB mastery platform designed to take developers from beginner to expert through hands-on, practical learning modules covering all aspects of MongoDB development, administration, and optimization.
+| Area | State |
+|------|-------|
+| Learning modules 00–11 | 49/49 scripts pass on a fresh MongoDB 7.0 and on re-run; CI exercises 6.0, 7.0 and 8.0 |
+| Reference dataset | deterministic, checksummed, validated (38 checks), documented in a data card |
+| Experiments | six experiments with committed baseline, generated report and figures |
+| Topologies | single node, 3-member replica set with auth, sharded cluster (config RS + 2 shards + mongos) |
+| Verification | module matrix, Node suites, Python tests, lint, shellcheck, secret scan, Dependabot |
 
-## Development Phases
+## Planned
 
-### Phase 1: Foundation (Weeks 1-2) ✅
+### Measurement depth
+- Baselines on a multi-member replica set (`make start-rs`) so E04's
+  `majority` level measures replication, not only journaling.
+- Cold-cache variants that restart the server between trials.
+- A concurrent-load harness (driver-based, configurable client count) for
+  throughput-under-load versions of E01 and E05.
+- Baselines at larger `--scale` values where collections exceed the
+  WiredTiger cache.
+- Committed baselines for MongoDB 6.0 and 8.0 alongside 7.0.
 
-- [x] Core project structure setup
-- [x] Docker containerization with replica set support
-- [x] Base data models and seed data
-- [x] Bootstrap scripts and validation
-- [x] CRUD operations module
-- [x] Basic indexing fundamentals
+### New experiments
+- E07 Shard key choice (hashed vs ranged vs compound) and insert hotspots on
+  the sharded cluster.
+- E08 Covered queries and projection size.
+- E09 Read concern (`local` vs `majority`) and read preference latency on a
+  replica set.
+- E10 Time-series collections vs ordinary collections for the events workload.
+- E11 Change-stream delivery latency under write load.
 
-### Phase 2: Intermediate Concepts (Weeks 3-4)
+### Modules and documentation
+- Module 12: time-series collections and window functions on them.
+- Module 13: Queryable Encryption and client-side field-level encryption
+  with a local KMS.
+- Jupyter notebooks that load `experiments/results/summary/*.csv` for
+  interactive exploration.
+- Instructor notes per module (learning objectives, common mistakes,
+  assessment questions).
 
-- [ ] Advanced indexing strategies and performance analysis
-- [ ] Schema design patterns and migrations
-- [ ] Aggregation pipeline mastery
-- [ ] Transaction handling and session management
-- [ ] Comprehensive validation scripts
+### Engineering
+- Unify the camelCase lab schema and the snake_case reference schema once the
+  modules have per-module fixtures (tracked as a long-term item; see ADR 0001
+  for why it was deferred).
+- Container image with the Python and Node toolchains preinstalled so
+  `make ci-local` needs no host dependencies.
 
-### Phase 3: Advanced Operations (Weeks 5-6)
+## Contributing to the roadmap
 
-- [ ] Replica set configuration and management
-- [ ] Sharding cluster setup and optimization
-- [ ] Change streams and real-time data processing
-- [ ] Security implementation (RBAC, field-level encryption)
-- [ ] Performance monitoring and profiling
-
-### Phase 4: Expert Level (Weeks 7-8)
-
-- [ ] Advanced performance tuning and optimization
-- [ ] Multi-tenant SaaS architecture patterns
-- [ ] Analytics dashboard integration
-- [ ] Migration and evolution strategies
-- [ ] Capstone projects and portfolio pieces
-
-### Phase 5: Production Ready (Weeks 9-10)
-
-- [ ] Comprehensive testing suite
-- [ ] CI/CD pipeline integration
-- [ ] Documentation completion
-- [ ] Performance benchmarking
-- [ ] Community contribution guidelines
-
-## Key Milestones
-
-### M1: Core Infrastructure (Week 2)
-
-- Docker environment with replica sets
-- Basic CRUD operations
-- Index fundamentals
-- Data generation system
-
-### M2: Advanced Development (Week 4)
-
-- Complex aggregation pipelines
-- Schema design mastery
-- Transaction patterns
-- Performance monitoring
-
-### M3: Operations Excellence (Week 6)
-
-- Replica set management
-- Sharding strategies
-- Security hardening
-- Change stream processing
-
-### M4: Production Mastery (Week 8)
-
-- Performance optimization
-- Multi-tenant architectures
-- Analytics integration
-- Migration strategies
-
-### M5: Portfolio Ready (Week 10)
-
-- Complete capstone projects
-- Performance case studies
-- Architecture documentation
-- Benchmark results
-
-## Technical Priorities
-
-### High Priority
-
-1. **Data Generation System** - Scalable from lite (5K) to full (50K+) datasets
-2. **Validation Framework** - Automated verification for all modules
-3. **Performance Monitoring** - Built-in profiling and analysis
-4. **Documentation** - Comprehensive guides and cheat sheets
-
-### Medium Priority
-
-1. **Testing Coverage** - Unit and integration tests
-2. **CI/CD Integration** - Automated deployment and validation
-3. **Portfolio Artifacts** - Showcase-ready deliverables
-4. **Community Features** - Contribution guidelines and templates
-
-### Future Enhancements
-
-1. **Interactive Tutorials** - Web-based learning interface
-2. **Cloud Integration** - Atlas and cloud deployment patterns
-3. **Monitoring Dashboards** - Real-time performance visualization
-4. **Advanced Analytics** - ML/AI integration patterns
-
-## Success Metrics
-
-### Learning Outcomes
-
-- Complete mastery of MongoDB CRUD operations
-- Advanced indexing and query optimization
-- Schema design pattern expertise
-- Transaction and concurrency handling
-- Replica set and sharding proficiency
-- Security and performance optimization
-
-### Portfolio Deliverables
-
-- KPI dashboard implementations
-- Architecture design documentation
-- Performance optimization case studies
-- Migration project simulations
-- Multi-tenant SaaS patterns
-
-### Technical Achievements
-
-- Sub-100ms query performance on complex aggregations
-- 99.9% uptime on replica set configurations
-- Successful sharding implementations
-- Comprehensive security audits
-- Benchmark results exceeding industry standards
-
-## Resource Allocation
-
-### Development Team
-
-- **MongoDB Expert**: Core functionality and advanced patterns
-- **DevOps Engineer**: Containerization and deployment
-- **Documentation Writer**: Guides, tutorials, and references
-- **QA Engineer**: Testing and validation frameworks
-
-### Infrastructure Requirements
-
-- Docker environment with multi-container support
-- MongoDB replica sets (3+ nodes)
-- Sharding cluster capabilities
-- Performance monitoring tools
-- Automated testing pipeline
-
-## Risk Management
-
-### Technical Risks
-
-- **Complex Setup**: Mitigated by comprehensive documentation
-- **Performance Issues**: Addressed through built-in monitoring
-- **Data Consistency**: Handled via validation frameworks
-- **Security Vulnerabilities**: Prevented through security modules
-
-### Timeline Risks
-
-- **Scope Creep**: Controlled through milestone-based development
-- **Resource Constraints**: Managed via priority-based allocation
-- **Integration Challenges**: Reduced through modular architecture
-
-## Next Steps
-
-### Immediate Actions (Week 1)
-
-1. Complete aggregation pipeline module
-2. Implement schema design patterns
-3. Add transaction handling capabilities
-4. Create performance monitoring scripts
-
-### Short-term Goals (Month 1)
-
-1. Finish all core modules (01-10)
-2. Complete capstone projects
-3. Generate portfolio artifacts
-4. Implement comprehensive testing
-
-### Long-term Vision (Quarter 1)
-
-1. Community adoption and feedback
-2. Cloud integration patterns
-3. Advanced analytics features
-4. Enterprise-ready deployment guides
+Open an issue with the *experiment proposal* template for new experiments,
+or a regular issue for modules and tooling. Items move to "planned" when they
+have an owner and a verification criterion.

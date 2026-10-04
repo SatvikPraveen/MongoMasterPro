@@ -1,736 +1,171 @@
 # MongoMasterPro
 
-> **Comprehensive MongoDB learning platform with 80+ hands-on scripts covering CRUD, aggregation, sharding, replication, transactions, and performance optimization. Features real-world e-learning data models, automated testing, and production-ready patterns. Transform from beginner to MongoDB expert.**
-
-A comprehensive MongoDB learning and mastery platform designed for developers, DBAs, and data engineers. This project provides hands-on experience with MongoDB concepts from basics to advanced enterprise patterns through real-world scenarios and practical exercises.
-
-## 🎯 Project Overview
-
-MongoMasterPro is a structured, production-ready learning environment that transforms you from a MongoDB beginner to an enterprise-level expert. Built around a realistic e-learning platform scenario, it covers every aspect of MongoDB development and administration.
-
-### What You'll Master
-
-- **CRUD Operations** - Complete data manipulation with validation and error handling
-- **Index Optimization** - Performance tuning, query analysis, and index strategies
-- **Schema Design** - Embedded vs Referenced patterns, migrations, and evolution
-- **Aggregation Framework** - Pipeline operations, window functions, and advanced analytics
-- **Transactions** - ACID compliance, session management, and error recovery
-- **Replication** - High availability, failover, and read preference optimization
-- **Sharding** - Horizontal scaling, shard key selection, and chunk management
-- **Change Streams** - Real-time data processing, CDC, and event-driven architectures
-- **Security** - Authentication, RBAC, field-level encryption, and audit trails
-- **Performance** - Profiling, benchmarking, optimization, and monitoring
-- **Capstone Projects** - Multi-tenant SaaS, analytics dashboards, and migration strategies
-
-### Key Differentiators
-
-✅ **Production-Scale Data**: Test with datasets ranging from 5K to 50K+ records
-✅ **Real-World Scenarios**: E-learning platform with users, courses, enrollments
-✅ **Comprehensive Validation**: Automated testing and performance benchmarking
-✅ **Portfolio Ready**: Generate showcase artifacts for interviews and presentations
-✅ **Enterprise Patterns**: Multi-tenant architectures, security hardening, scaling strategies
-✅ **Hands-On Learning**: 80+ practical scripts with detailed explanations
-
-## 🚀 Quick Start
-
-### Prerequisites
-
-- **Docker & Docker Compose** (Latest versions recommended)
-- **Python 3.8+** (for data generators)
-- **MongoDB Shell (mongosh)** 5.0+
-- **4GB+ RAM** (8GB recommended for full datasets)
-
-### Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/SatvikPraveen/MongoMasterPro.git
-cd MongoMasterPro
-
-# Start MongoDB cluster (replica set with 3 nodes)
-make start
-
-# Initialize database and create indexes
-make setup
-
-# Generate test data
-make data-lite    # 5K records for learning
-# OR
-make data-full    # 50K+ records for production testing
-
-# Verify installation
-make validate
-
-# Check cluster status
-make status
-```
-
-### Alternative Setup (Manual)
-
-```bash
-# Start Docker services
-docker-compose -f docker/docker-compose.rs.yml up -d
-
-# Wait for replica set initialization
-sleep 30
-
-# Run bootstrap script
-docker exec mongo-primary mongosh --file /docker-entrypoint-initdb.d/00_bootstrap.js
-
-# Generate data
-python data/generators/generate_data.py --mode lite --output data/generated
-```
-
-### Environment Verification
-
-```bash
-# Check MongoDB cluster health
-mongosh --eval "rs.status()" --host localhost:27017
-
-# Verify data creation
-mongosh learning_platform --eval "
-  print('Users:', db.users.countDocuments());
-  print('Courses:', db.courses.countDocuments());
-  print('Enrollments:', db.enrollments.countDocuments());
-"
-```
-
-## 📚 Learning Path
-
-The curriculum is designed as a progressive learning journey with increasing complexity and real-world applicability.
-
-### Phase 1: Foundations (Weeks 1-2) 🏗️
-
-**Module 00: Setup & Environment**
-
-- Docker containerization with replica sets
-- Data model design and relationships
-- Bootstrap scripts and validation frameworks
-
-**Module 01: CRUD Operations**
-
-- Advanced insert patterns with validation
-- Complex query operations and filtering
-- Bulk operations and performance optimization
-- Update operators and atomic operations
-
-**Module 02: Index Fundamentals**
-
-- Single and compound index strategies
-- Index performance analysis and explain plans
-- Specialized indexes (text, geo, partial, TTL)
-- Index usage monitoring and optimization
-
-### Phase 2: Design Patterns (Weeks 3-4) 📐
-
-**Module 03: Schema Design**
-
-- Embedded vs Referenced data models
-- One-to-One, One-to-Many, Many-to-Many patterns
-- Schema migration strategies and versioning
-- Polymorphic schemas and inheritance patterns
-
-**Module 04: Aggregation Framework**
-
-- Pipeline fundamentals (match, group, sort, limit)
-- Advanced stages (lookup, unwind, facet, bucket)
-- Window functions for analytics (MongoDB 5.0+)
-- Geospatial, text search, and time-series aggregations
-
-**Module 05: Transactions**
-
-- Multi-document ACID transactions
-- Session management and lifecycle
-- Error handling and retry patterns
-- Transaction performance optimization
-
-### Phase 3: Scale & Operations (Weeks 5-6) ⚖️
-
-**Module 06: Replication**
-
-- Replica set configuration and management
-- Read preferences and write concerns
-- Failover scenarios and recovery procedures
-- Replication monitoring and troubleshooting
-
-**Module 07: Sharding**
-
-- Shard cluster initialization and configuration
-- Shard key selection strategies and best practices
-- Chunk management and balancer optimization
-- Cross-shard query performance
-
-**Module 08: Change Streams**
-
-- Real-time change detection and processing
-- Materialized view patterns with CDC
-- Event-driven architecture implementations
-- Stream processing and error handling
-
-### Phase 4: Production Ready (Weeks 7-8) 🚀
-
-**Module 09: Security**
-
-- Authentication mechanisms (SCRAM, x.509, LDAP)
-- Role-based access control (RBAC) and custom roles
-- Field-level security and data redaction
-- Audit logging and compliance
-
-**Module 10: Performance**
-
-- Database profiling and slow operation analysis
-- Performance benchmarking and workload simulation
-- Server optimization and parameter tuning
-- Memory, storage, and connection optimization
-
-**Module 11: Capstone Projects**
-
-- Analytics dashboard with complex aggregations
-- Multi-tenant SaaS architecture patterns
-- Large-scale data migration simulation
-- Complete system integration validation
-
-## 🏗 Project Structure
-
-```
-MongoMasterPro/
-├── README.md                    # This comprehensive guide
-├── LICENSE                      # MIT License
-├── Makefile                     # Automation commands
-├── .gitignore                   # Git ignore patterns
-│
-├── docker/                      # Container configuration
-│   ├── Dockerfile              # MongoDB custom image
-│   ├── docker-compose.yml      # Single node setup
-│   ├── docker-compose.rs.yml   # Replica set (recommended)
-│   └── init/
-│       └── bootstrap.js        # Database initialization
-│
-├── config/                      # MongoDB configurations
-│   ├── mongodb.conf            # Single node config
-│   ├── mongodb-rs.conf         # Replica set config
-│   ├── replica.key             # Inter-node authentication
-│   └── env.example             # Environment variables
-│
-├── data/                        # Data generation system
-│   ├── generators/
-│   │   ├── generate_data.py    # Unified data generator
-│   │   ├── schemas.json        # Data schemas and constraints
-│   │   └── requirements.txt    # Python dependencies
-│   └── seed/
-│       ├── base_users.json     # Initial user dataset
-│       ├── base_courses.json   # Core course catalog
-│       └── base_config.json    # System configuration
-│
-├── scripts/                     # Learning modules (80+ files)
-│   ├── 00_setup/               # Environment setup and validation
-│   ├── 01_crud/                # CRUD operations and patterns
-│   ├── 02_indexes/             # Index strategies and optimization
-│   ├── 03_schema_design/       # Data modeling patterns
-│   ├── 04_aggregation/         # Pipeline and analytics
-│   ├── 05_transactions/        # ACID transactions and sessions
-│   ├── 06_replication/         # High availability patterns
-│   ├── 07_sharding/            # Horizontal scaling strategies
-│   ├── 08_change_streams/      # Real-time data processing
-│   ├── 09_security/            # Authentication and authorization
-│   ├── 10_performance/         # Optimization and monitoring
-│   └── 11_capstones/           # Integration projects
-│
-├── docs/                        # Comprehensive documentation
-│   ├── learning_path.md        # Detailed curriculum guide
-│   ├── roadmap.md              # Project development roadmap
-│   ├── troubleshooting.md      # Problem-solving guide
-│   ├── cheat_sheets/           # Quick reference materials
-│   ├── results/                # Captured outputs and metrics
-│   └── portfolio/              # Showcase artifacts
-│
-└── tests/                       # Testing and validation
-    ├── unit/                   # Unit tests for components
-    ├── integration/            # End-to-end workflow tests
-    └── utils/                  # Testing utilities and helpers
-```
-
-## 🎯 Learning Outcomes
-
-Upon completion of MongoMasterPro, you will have demonstrable expertise in:
-
-### Database Design & Development
-
-- Design optimal schemas for any application pattern
-- Write complex aggregation pipelines for analytics
-- Implement robust error handling and validation
-- Build real-time data processing systems
-
-### Performance & Optimization
-
-- Analyze and optimize query performance
-- Design efficient indexing strategies
-- Benchmark and monitor database performance
-- Troubleshoot performance bottlenecks
-
-### Operations & Administration
-
-- Configure and manage replica sets
-- Design and implement sharding strategies
-- Set up comprehensive security and monitoring
-- Plan capacity and scaling strategies
-
-### Enterprise Architecture
-
-- Design multi-tenant SaaS architectures
-- Implement enterprise security patterns
-- Build analytics and reporting systems
-- Manage large-scale data migrations
-
-## 📊 Data Models & Scenarios
-
-MongoMasterPro uses a realistic e-learning platform as the foundation for all exercises:
-
-### Core Collections
-
-**Users** (~50K records in full mode)
-
-- Students, instructors, and administrators
-- Profile information and preferences
-- Authentication and role data
-
-**Courses** (~5K records)
-
-- Course catalog with categories and metadata
-- Instructor assignments and capacity limits
-- Pricing and enrollment information
-
-**Enrollments** (~200K records)
-
-- Student-course relationships
-- Progress tracking and completion status
-- Performance metrics and scoring
-
-**Activities** (~1M+ records)
-
-- User interaction and engagement data
-- Time-series data for analytics
-- Event sourcing patterns
-
-### Advanced Scenarios
-
-- **Multi-tenant Architecture**: Separate customer data isolation
-- **Analytics Dashboards**: Complex aggregation pipelines
-- **Real-time Processing**: Change streams and event handling
-- **Migration Projects**: Schema evolution and data transformation
-
-## 🛠 Available Commands
-
-### Core Operations
-
-```bash
-make start          # Start MongoDB cluster
-make stop           # Stop all services
-make restart        # Restart cluster
-make status         # Check cluster health
-make logs           # View container logs
-```
-
-### Data Management
-
-```bash
-make setup          # Initialize database and indexes
-make data-lite      # Generate 5K records dataset
-make data-full      # Generate 50K+ records dataset
-make reset-data     # Clear all data and reinitialize
-make backup         # Create database backup
-make restore        # Restore from backup
-```
-
-### Testing & Validation
-
-```bash
-make test           # Run all test suite validation
-make validate       # Validate setup and schemas
-make shell          # Connect to MongoDB shell (learning_platform)
-```
-
-### Utilities & Automation
-
-```bash
-# Backup and restore
-./scripts/utilities/backup-restore.sh backup          # Create full backup
-./scripts/utilities/backup-restore.sh restore         # Restore from latest backup
-./scripts/utilities/backup-restore.sh list            # List available backups
-./scripts/utilities/backup-restore.sh cleanup         # Clean old backups
-
-# Automated testing
-./scripts/utilities/test-runner.sh                    # Run comprehensive test suite
-./scripts/utilities/test-runner.sh --verbose          # Show detailed test output
-
-# Monitoring and diagnostics
-node scripts/advanced/monitoring_dashboard.js  # Real-time performance metrics
-```
-
-### Key Documentation Files
-
-- **[QUICK_START.md](QUICK_START.md)** - Get started in 5 minutes
-- **[docs/internal/DOCUMENTATION_INDEX.md](docs/internal/DOCUMENTATION_INDEX.md)** - Complete documentation index
-- **[docs/internal/PROJECT_STATUS.md](docs/internal/PROJECT_STATUS.md)** - Current project status and achievements
-- **[docs/internal/RESTORATION_SUMMARY.md](docs/internal/RESTORATION_SUMMARY.md)** - All fixes and improvements applied
-
-## 🧪 Testing & Validation
-
-MongoMasterPro includes comprehensive testing frameworks:
-
-### Automated Validation
-
-- **Data Quality Tests**: Verify data integrity and relationships
-- **Performance Benchmarks**: Measure query and operation performance
-- **Schema Validation**: Test document structure and constraints
-- **Integration Tests**: End-to-end workflow validation
-
-### Performance Testing
-
-```bash
-# Comprehensive automated test suite
-./scripts/utilities/test-runner.sh
-
-# Detailed performance analysis
-cd scripts/10_performance
-mongosh benchmarking.js
-mongosh optimization_tuning.js
-mongosh validate_performance.js
-
-# Real-time monitoring dashboard
-node scripts/advanced/monitoring_dashboard.js
-```
-
-### Backup & Recovery Testing
-
-```bash
-# Create backup before testing
-./scripts/utilities/backup-restore.sh backup
-
-# Run test suite
-./scripts/utilities/test-runner.sh
-
-# Restore if needed
-./scripts/utilities/backup-restore.sh restore
-
-# List available backups
-./scripts/utilities/backup-restore.sh list
-```
-
-## 📖 Documentation & Resources
-
-### Getting Started (⭐ Start Here)
-
-- **[QUICK_START.md](QUICK_START.md)** - 5-minute setup guide with common commands
-- **[docs/internal/DOCUMENTATION_INDEX.md](docs/internal/DOCUMENTATION_INDEX.md)** - Complete documentation roadmap
-- **[docs/internal/PROJECT_STATUS.md](docs/internal/PROJECT_STATUS.md)** - Production-ready status and feature list
-
-### Core Learning Documentation
-
-- **[Learning Path](docs/learning_path.md)** - Detailed curriculum with time estimates
-- **[Troubleshooting Guide](docs/troubleshooting.md)** - Common issues and solutions
-- **[Project Roadmap](docs/roadmap.md)** - Development phases and milestones
-
-### Quick References
-
-- **[Aggregation Pipeline](docs/cheat_sheets/aggregation_pipeline.md)** - Complete operator reference
-- **[Index Strategies](docs/cheat_sheets/index_strategies.md)** - Performance optimization patterns
-- **[Transaction Patterns](docs/cheat_sheets/transaction_patterns.md)** - ACID transaction examples
-- **[Performance Tuning](docs/cheat_sheets/performance_tuning.md)** - Optimization checklists
-
-### Restoration & Enhancement Records
-
-- **[docs/internal/RESTORATION_SUMMARY.md](docs/internal/RESTORATION_SUMMARY.md)** - All fixes and improvements applied (35+ files updated)
-- **[docs/internal/ISSUES_AND_FIXES.md](docs/internal/ISSUES_AND_FIXES.md)** - Detailed issue documentation with solutions
-
-### Portfolio Artifacts
-
-- **[Architecture Designs](docs/portfolio/architecture_designs/)** - System design documents
-- **[Results](docs/results/)** - Performance reports and schema diagrams
-
-### Development & CI/CD
-
-- **.github/workflows/ci-cd.yml** - Automated GitHub Actions pipeline for testing
-
-## 🔧 Configuration Options
-
-### Environment Variables
-
-```bash
-# Copy and customize environment settings
-cp config/env.example .env
-
-# Key configurations
-MONGO_INITDB_ROOT_USERNAME=admin
-MONGO_INITDB_ROOT_PASSWORD=securepassword
-MONGODB_REPLICA_SET_NAME=rs0
-MONGODB_DATA_DIR=./data/mongodb
-MONGODB_LOG_DIR=./logs
-```
-
-### Data Generation Options
-
-```bash
-# Lite mode (development)
-python data/generators/generate_data.py --mode lite --users 5000
-
-# Full mode (production testing)
-python data/generators/generate_data.py --mode full --users 50000 --courses 5000
-
-# Custom configuration
-python data/generators/generate_data.py \
-  --users 25000 \
-  --courses 2500 \
-  --enrollments-per-user 3 \
-  --activities-per-enrollment 50
-```
-
-### Performance Tuning
-
-```bash
-# Adjust container resources in docker-compose
-services:
-  mongo1:
-    deploy:
-      resources:
-        limits:
-          memory: 4G
-          cpus: '2'
-        reservations:
-          memory: 2G
-          cpus: '1'
-```
-
-## 🚀 Advanced Usage
-
-### Custom Learning Paths
-
-Create your own learning sequences:
-
-```bash
-# Focus on performance optimization
-make setup
-cd scripts/02_indexes && mongosh index_fundamentals.js
-cd ../10_performance && mongosh profiling_analysis.js
-cd ../10_performance && mongosh optimization_tuning.js
-
-# Data modeling deep-dive
-cd scripts/03_schema_design && mongosh embedded_models.js
-cd ../03_schema_design && mongosh referenced_models.js
-cd ../03_schema_design && mongosh schema_migrations.js
-```
-
-### Integration with MongoDB Tools
-
-```bash
-# Connect with MongoDB Compass
-# mongodb+srv://admin:securepassword@localhost:27017/learning_platform?authSource=admin
-
-# Export collection data
-mongoexport --host localhost:27017 --db learning_platform \
-           --collection courses --out exports/courses.json \
-           --authenticationDatabase admin
-
-# Import custom datasets
-mongoimport --host localhost:27017 --db learning_platform \
-           --collection custom_data --file data/custom.json \
-           --authenticationDatabase admin
-```
-
-### Production Deployment Patterns
-
-Learn deployment strategies:
-
-```bash
-# Replica set configuration
-cd scripts/06_replication
-mongosh replica_set_ops.js
-
-# Sharding setup simulation
-cd scripts/07_sharding
-mongosh shard_cluster_init.js
-mongosh shard_key_strategies.js
-```
-
-## 🤝 Contributing
-
-We welcome contributions to make MongoMasterPro even better!
-
-### Contribution Areas
-
-- **New Learning Modules**: Additional MongoDB features or use cases
-- **Performance Optimizations**: Improved benchmarks and test scenarios
-- **Documentation**: Enhanced guides, examples, and troubleshooting
-- **Data Generators**: More realistic or diverse dataset options
-- **Testing**: Additional validation and integration tests
-
-### Development Setup
-
-```bash
-# Fork and clone
-git clone https://github.com/YOUR_USERNAME/MongoMasterPro.git
-cd MongoMasterPro
-
-# Create development branch
-git checkout -b feature/your-feature-name
-
-# Set up pre-commit hooks
-pip install pre-commit
-pre-commit install
-
-# Make changes and test
-make test
-make benchmark
-
-# Submit pull request
-git add .
-git commit -m "Add: Your feature description"
-git push origin feature/your-feature-name
-```
-
-### Code Standards
-
-- **JavaScript**: Follow MongoDB shell best practices
-- **Python**: PEP 8 compliance for data generators
-- **Documentation**: Clear examples and explanations
-- **Testing**: Include validation for all new features
-
-**For detailed contribution guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md)**
-
-
-
-## 📈 Performance Expectations
-
-Benchmark performance metrics for the e-learning platform:
-
-### Query Performance Targets
-
-- **Simple Queries**: <10ms average response time
-- **Complex Aggregations**: <100ms for most pipelines
-- **Index Scans**: >95% of queries use indexes
-- **Bulk Operations**: >10,000 ops/second throughput
-
-### System Performance Targets
-
-- **Memory Usage**: <4GB for full 50K+ record datasets
-- **Storage Efficiency**: >70% data to storage ratio
-- **Connection Pool**: <80% utilization under load
-- **Replication Lag**: <1 second in normal conditions
-
-### Data Scale
-
-- **Users**: 5K (lite) to 50K (full)
-- **Courses**: 500 (lite) to 5K (full)
-- **Enrollments**: 25K (lite) to 200K+ (full)
-- **Activities**: 100K (lite) to 1M+ (full)
-
-### Optimization Targets
-
-- **Cache Hit Ratio**: >95%
-- **Index Utilization**: >90% of indexes actively used
-- **Query Efficiency**: Documents examined ≈ documents returned
-- **Write Performance**: <50ms for single document writes
-
-## ❓ FAQ
-
-### General Questions
-
-**Q: Do I need prior MongoDB experience?**
-A: No, MongoMasterPro starts from basics and progresses to advanced topics. However, basic database concepts are helpful.
-
-**Q: How long does it take to complete?**
-A: The full curriculum is designed for 8-10 weeks of dedicated study (10-15 hours/week). You can also focus on specific modules as needed.
-
-**Q: Can I use this for production learning?**
-A: Absolutely! The patterns and configurations are production-ready and follow MongoDB best practices.
-
-### Technical Questions
-
-**Q: What MongoDB version is required?**
-A: MongoDB 7.0 is installed in Docker containers. The learning modules support MongoDB 5.0+ features including window functions and time-series collections.
-
-**Q: Can I run this on my laptop?**
-A: Yes, lite mode works on systems with 8GB RAM. Full mode is recommended for 16GB+ RAM systems. Docker handles resource management.
-
-**Q: How do I scale the datasets?**
-A: Use data generator parameters to create custom sizes:
-```bash
-python data/generators/generate_data.py --users 25000 --courses 2500 --mode full
-```
-The system scales from 5K to 200K+ records.
-
-**Q: What's the difference between lite and full modes?**
-A: Lite mode creates 5K users/500 courses for development. Full mode creates 50K+ users/5K courses for production-level testing.
-
-**Q: How do I use the backup and restore utilities?**
-A: Simple commands:
-```bash
-./backup-restore.sh backup    # Auto-timestamped backup
-./backup-restore.sh restore   # Restore latest backup
-./backup-restore.sh list      # Show available backups
-```
-
-### Troubleshooting
-
-**Q: MongoDB won't start in Docker**
-A: Check port conflicts (`port 27017` must be free), ensure Docker has 4GB+ memory, verify the replica set key file permissions. See [troubleshooting.md](docs/troubleshooting.md) for detailed solutions.
-
-**Q: Performance benchmarks are slower than expected**
-A: Ensure adequate system resources (8GB+ RAM recommended), check Docker memory limits in docker-compose.yml, verify SSD storage is being used. Run `./scripts/utilities/test-runner.sh --verbose` for diagnostics.
-
-**Q: Data generation is taking too long**
-A: Start with `make data-lite` for development, use the data generator parameters to reduce dataset size, or check available system RAM. Lite mode typically completes in <2 minutes.
-
-**Q: Tests are failing with database errors**
-A: Ensure MongoDB is running (`make start`), database is initialized (`make setup`), and schemas are validated. Check `make logs` for detailed error messages.
-
-**Q: "Database mongomasterpro not found" error?**
-A: Update your connection strings to use `learning_platform` instead. All modules have been updated to use the standardized database name.
-
-## 🎉 Success Stories & Testimonials
-
-MongoMasterPro has helped developers and teams achieve:
-
-- **Career Advancement**: Transitions to senior database roles
-- **Performance Improvements**: 10x query performance optimizations
-- **Successful Migrations**: Large-scale MongoDB deployments
-- **Interview Success**: Technical interview preparation and confidence
-- **Project Delivery**: Real-world MongoDB implementations
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-### Open Source Components
-
-- MongoDB Community Server (Server Side Public License)
-- Docker & Docker Compose (Apache License 2.0)
-- Python libraries as specified in requirements.txt
-
-## 🙏 Acknowledgments
-
-Special thanks to:
-
-- **MongoDB University** for educational inspiration and best practices
-- **MongoDB Community** for sharing real-world patterns and solutions
-- **Enterprise Contributors** for production use case validation
-- **Open Source Contributors** who helped improve and expand the project
-- **Early Adopters** who provided valuable feedback and testing
+**A reproducible MongoDB learning and experimentation platform.** Eleven
+executable modules verified against three MongoDB versions, a deterministic
+and checksummed reference dataset, and a benchmark harness whose results carry
+their own provenance and statistics.
+
+[![CI](https://github.com/SatvikPraveen/MongoMasterPro/actions/workflows/ci.yml/badge.svg)](https://github.com/SatvikPraveen/MongoMasterPro/actions/workflows/ci.yml)
+[![MongoDB 6.0 | 7.0 | 8.0](https://img.shields.io/badge/MongoDB-6.0%20%7C%207.0%20%7C%208.0-116149)](.github/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Cite](https://img.shields.io/badge/cite-CITATION.cff-informational)](CITATION.cff)
 
 ---
 
-## 🚀 Ready to Master MongoDB?
+## Why this repository exists
 
-Start your journey from MongoDB basics to production expertise:
+Most MongoDB tutorials assert performance and design claims; this project
+measures them. Every lesson is a script that runs end to end and finishes with
+assertions; every performance statement in the documentation links to an
+experiment with a stated hypothesis, raw samples, confidence intervals and the
+exact environment and dataset it was measured on.
+
+| Property | How it is guaranteed |
+|----------|---------------------|
+| Every module script runs | `make matrix` executes all 50 scripts under `scripts/` and fails on any exception or failure marker; CI does this on MongoDB 6.0, 7.0 and 8.0 |
+| The dataset is the same for everyone | `generate_data.py` is seeded end to end; identical parameters give byte-identical files, recorded in a manifest with SHA-256 digests |
+| Results are interpretable and reproducible | the harness writes raw per-trial samples with server build, topology, host, versions, git commit and dataset manifest; analysis uses rank-based statistics |
+| Claims are falsifiable | each experiment states its hypothesis before running; the generated report shows the data and effect sizes |
+
+## Quick start
 
 ```bash
-git clone https://github.com/SatvikPraveen/MongoMasterPro.git
-cd MongoMasterPro
-make start
+git clone https://github.com/SatvikPraveen/MongoMasterPro.git && cd MongoMasterPro
+make install-deps        # pip + npm
+make setup               # start MongoDB, create schema, generate + import + validate data, build the lab
+make run-module MODULE=01_crud
+make matrix              # verify everything
 ```
 
-**Transform your MongoDB skills. Build enterprise-ready solutions. Master the future of data.**
+Requires Docker (Compose v2), Python 3.10+ and Node 18+. The
+[quick start](QUICK_START.md) has the details; `make help` lists every target.
 
-For questions, issues, or contributions, visit: https://github.com/SatvikPraveen/MongoMasterPro
+## What is inside
 
-**Happy Learning! 🎓**
+```
+scripts/                learning modules 00-11 (mongosh), each ending in a validate_*.js
+data/                   deterministic dataset generator, vocabulary, data card
+experiments/            benchmark harness, six experiments, committed baseline, generated report
+docker/                 single node, 3-member replica set with auth, sharded cluster
+tests/                  Node driver suites and Python generator tests
+docs/research/          methodology, threats to validity, bibliography, decision records
+docs/cheat_sheets/      aggregation, indexes, performance, transactions
+```
+
+### Learning modules
+
+Each module is a directory of self-contained mongosh scripts that build their
+own fixtures, teach by doing, and end with a validator that asserts the
+module's claims. The [learning path](docs/learning_path.md) suggests an order
+and time budget.
+
+| Module | Topics | Topology |
+|--------|--------|----------|
+| 00 setup | bootstrap, lab database, reference-dataset validation | any |
+| 01 crud | insert/update/replace/delete, bulk writes, upserts, write results | any |
+| 02 indexes | single, compound, text, geospatial, TTL, partial, sparse, wildcard; explain and selectivity | any |
+| 03 schema design | embedded vs referenced models, `$jsonSchema` validation, schema evolution and migration | any |
+| 04 aggregation | pipeline stages, `$lookup`, `$setWindowFields`, geospatial, text, time-series patterns | any |
+| 05 transactions | sessions, multi-document ACID, retry and error handling | replica set |
+| 06 replication | replica-set operations, read preferences, write concerns | replica set (multi-member recommended) |
+| 07 sharding | cluster initialisation, shard-key strategies, chunk management | sharded cluster (`make start-sharded`) |
+| 08 change streams | event processing, materialized views, real-time audit | replica set |
+| 09 security | authentication, RBAC, field-level security | auth-enabled set recommended (`make start-rs`) |
+| 10 performance | profiling, benchmarking, optimisation | any |
+| 11 capstones | multi-tenant SaaS, analytics dashboard, migration project, integration validation | any |
+
+Two databases serve two purposes ([ADR 0001](docs/research/adr/0001-two-database-layout.md)):
+`learning_platform` holds the strict, validated reference dataset; the
+disposable `mongomasterpro` lab and per-module `mmp_*` sandboxes absorb
+whatever a lesson writes. Modules that need a topology the current server does
+not provide skip explicitly instead of failing
+([ADR 0002](docs/research/adr/0002-environment-dependent-checks.md)).
+
+### Reference dataset
+
+A synthetic online-learning platform: users, instructors, categories,
+courses, enrollments, reviews and click-stream events, with ObjectId
+references, unique compound keys and denormalised counters that are kept
+consistent. `lite` is 17 670 documents; `full` is 176 250.
+
+```bash
+make data                                   # lite, seed 20251003
+DATA_MODE=full DATA_SEED=7 make data        # any mode / seed / scale
+make validate-reference                     # 38 checks: schema, indexes, counts, validator
+                                            # compliance, referential integrity, counters
+```
+
+Output is canonical Extended JSON (types survive `mongoimport`), with
+`manifest.json` and `checksums.sha256`. Composition, distributions and
+limitations are documented in the [data card](data/DATA_CARD.md).
+
+### Experiments
+
+Six one-factor experiments with a committed baseline on MongoDB 7.0.43 (full
+dataset, single-node replica set in Docker on Apple silicon). Medians below;
+the [report](experiments/results/REPORT.md) has 95 % bootstrap intervals,
+p95, Mann-Whitney U with Holm correction and Cliff's delta for each.
+
+| ID | Question | Result (median) |
+|----|----------|-----------------|
+| [E01](experiments/specs/E01_index_vs_collscan.js) | Index vs collection scan, 100 000 events | point lookup 1.2 ms vs 20.7 ms (17× faster, 13 vs 100 000 docs examined); 7-day range 27 ms vs 50 ms |
+| [E02](experiments/specs/E02_embedded_vs_referenced.js) | One-to-many read: embedded, `$lookup`, two queries | 0.58 ms, 0.77 ms (1.3×), 1.13 ms (1.9×) for a course with 72 enrollments |
+| [E03](experiments/specs/E03_bulk_batch_size.js) | Insert throughput vs batch size | 1.5 k docs/s at batch 1 → 35 k at 100 → 148 k at 1 000 → 176 k at 5 000 |
+| [E04](experiments/specs/E04_write_concern.js) | Cost of acknowledgement level | `w:1` 0.47 ms; `j:true` 1.08 ms (2.3×); `majority` 1.13 ms on one member |
+| [E05](experiments/specs/E05_denormalized_counter.js) | Per-course counts: derive or maintain | denormalised field 3.0 ms; `$group` 23.8 ms; `$lookup` 59.4 ms, for 1 000 courses |
+| [E06](experiments/specs/E06_schema_validation_overhead.js) | `$jsonSchema` validation on insert | +23 % (`error`) and +11 % (`warn`) on a 2 000-document insertMany; medium effect |
+
+```bash
+make experiment EXP=E01      # or: make experiments
+make analyze                 # regenerates summary/, figures/ and REPORT.md from raw/
+```
+
+How measurements are taken and what they do not show:
+[methodology](docs/research/METHODOLOGY.md) ·
+[threats to validity](docs/research/THREATS_TO_VALIDITY.md) ·
+[adding an experiment](experiments/README.md).
+
+## Verification
+
+| Gate | Command | What it checks |
+|------|---------|----------------|
+| Module matrix | `make matrix` | every script under `scripts/` exits 0 with no exception and no failure marker; re-runnable |
+| Reference dataset | `make validate-reference` | validators present, expected indexes, counts equal manifest, zero validator violations, no orphans, consistent counters |
+| Node suites | `make test-node` | data quality, schema validation, end-to-end workflow, cross-module integration |
+| Python tests | `make test-python` | determinism, referential integrity, uniqueness, Extended JSON types, manifest digests |
+| Lint | `make lint` | V8 parse of all JavaScript, ESLint with mongosh globals, black/isort/flake8 |
+| CI | [ci.yml](.github/workflows/ci.yml) | all of the above on MongoDB 6.0, 7.0 and 8.0, the sharding module on a real sharded cluster, image build, secret scan |
+
+Local result at release 2.0.0 on MongoDB 7.0.43: 50/50 scripts under
+`scripts/` (49 module scripts plus the reference-dataset validator), 4/4
+sharding scripts through mongos, 4/4 Node suites, 13/13 Python tests,
+38/38 reference checks.
+
+## Topologies
+
+| Command | Topology | Use |
+|---------|----------|-----|
+| `make start` | single-node replica set `mongo-primary` + Mongo Express (8081) | default for modules, tests and the baseline |
+| `make start-rs` | primary, two secondaries, arbiter, key-file authentication | modules 05, 06, 08, 09 with real replication |
+| `make start-sharded` | config server RS, two shard RSs, `mongos` on 27017 | module 07 and shard-key experiments |
+
+## Documentation
+
+[Documentation index](docs/README.md) ·
+[Changelog](CHANGELOG.md) ·
+[Decision records](docs/research/adr/) ·
+[Roadmap](docs/roadmap.md) ·
+[Contributing](CONTRIBUTING.md) ·
+[Security](SECURITY.md)
+
+## Citing
+
+If this repository, its dataset or its harness is useful in your work, please
+cite it using [CITATION.cff](CITATION.cff) (GitHub renders a "Cite this
+repository" button from it).
+
+## License
+
+MIT. Everything in the dataset is synthetic; the default credentials in the
+compose files are public and intended for local use only (see
+[SECURITY.md](SECURITY.md)).

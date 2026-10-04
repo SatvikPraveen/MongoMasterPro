@@ -13,11 +13,11 @@ This guided progression takes you from MongoDB basics to expert-level mastery th
 - Basic database concepts (tables, relations, queries)
 - JavaScript fundamentals (objects, arrays, functions)
 - Command line interface familiarity
-- Docker basics (containers, docker-compose)
+- Docker basics (containers, Docker Compose)
 
 ### Technical Setup
 
-- Docker and docker-compose installed
+- Docker with Compose v2 installed (see `QUICK_START.md`; `make setup` prepares everything)
 - MongoDB Compass (GUI) recommended
 - Code editor (VS Code preferred)
 - Terminal/command prompt access

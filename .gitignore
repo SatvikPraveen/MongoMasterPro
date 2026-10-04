@@ -129,5 +129,8 @@ mongod.conf.orig
 # Local assistant / editor state
 .claude/
 
+# Output of make matrix / make ci-local (CI uploads these as artifacts)
+/results/
+
 # Experiment scratch output (curated baselines are committed under experiments/results/)
 experiments/results/tmp/

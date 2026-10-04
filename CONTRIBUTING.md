@@ -26,11 +26,11 @@ Found a bug? Please report it by opening an issue with:
 ## Bug: Data generation fails with analytics events
 
 ### Description
-Running `make data-full` fails with ValueError about weights
+Running `DATA_MODE=full make data` fails with ValueError about weights
 
 ### Steps to Reproduce
 1. Run `make start`
-2. Run `make data-full`
+2. Run `DATA_MODE=full make data`
 3. Observe error in terminal
 
 ### Expected Behavior
@@ -142,27 +142,26 @@ make validate
 ### Useful Development Commands
 
 ```bash
-# Start/stop services
-make start           # Start MongoDB
-make stop            # Stop MongoDB
-make restart         # Restart MongoDB
-make logs            # View logs
-make shell           # Open MongoDB shell
+# Environment
+make start / make stop / make clean      # single-node replica set (mongo-primary)
+make start-rs / make start-sharded       # 3-member replica set / sharded cluster
+make status / make logs / make shell
 
-# Data management
-make data-lite       # Generate test data
-make data-full       # Generate full dataset
-make clean-data      # Clear generated data
+# Data
+make bootstrap                           # learning_platform schema, validators, indexes
+make data                                # generate + import (DATA_MODE=lite|full, DATA_SCALE, DATA_SEED)
+make validate-reference                  # 38 schema/manifest/integrity checks
+make lab-setup                           # rebuild the disposable lab for modules 01-05
 
-# Testing & validation
-make test            # Run tests
-make validate        # Validate setup
-make benchmark       # Run benchmarks
+# Verification (what CI runs)
+make lint                                # eslint, V8 parse, black/isort/flake8
+make test-python                         # generator tests
+make matrix                              # every module script, fails on any error
+make test-node                           # Node driver suites
+make ci-local                            # all of the above
 
-# Utilities
-make test-all        # Run comprehensive test suite
-make backup          # Create backup
-make restore         # Restore from backup
+# Experiments
+make experiment EXP=E01 / make experiments / make analyze
 ```
 
 ## 📝 Development Workflow
@@ -187,14 +186,14 @@ Follow the code style guidelines below.
 ### 3. **Test Your Changes**
 
 ```bash
-# Test your specific module
-mongosh --file scripts/XX_module/your_script.js
+# Run the module you changed
+make run-module MODULE=XX_module
 
-# Run validation
-make validate
+# Run every module script against a fresh server (the primary gate)
+make matrix
 
-# Run full test suite
-make test-all
+# Everything CI runs
+make ci-local
 ```
 
 ### 4. **Commit Your Changes**
@@ -344,11 +343,11 @@ Use tables for structured info:
 ### Running Tests
 
 ```bash
-# Run all tests
-make test-all
+# Run all gates
+make ci-local
 
-# Run specific test
-mongosh test_file.js
+# Run one module script directly
+docker exec mongo-primary mongosh --quiet --file /app/scripts/XX_module/your_script.js
 
 # Run with verbose output
 ./scripts/utilities/test-runner.sh --verbose
@@ -545,8 +544,8 @@ Brief description of changes
 Fixes #(issue number)
 
 ## Testing Performed
-- [ ] Ran `make validate`
-- [ ] Ran `make test-all`
+- [ ] Ran `make lint`
+- [ ] Ran `make matrix` (paste the final `module matrix: N/N` line)
 - [ ] Tested in Docker
 - [ ] Tested with lite dataset
 - [ ] Tested with full dataset
@@ -578,8 +577,8 @@ git checkout -b fix/issue-description
 # Make minimal changes to fix the bug
 
 # 4. Verify fix
-make validate
-make test-all
+make matrix
+make test
 
 # 5. Commit
 git commit -m "fix: Brief description of fix
@@ -604,7 +603,7 @@ git checkout -b feature/new-capability
 # Create tests
 
 # 3. Test thoroughly
-make test-all
+make ci-local
 ./scripts/utilities/test-runner.sh --verbose
 
 # 4. Update documentation
