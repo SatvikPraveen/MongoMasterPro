@@ -124,7 +124,7 @@ jobs:
 
       - name: Upload matrix logs and smoke results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: module-matrix-mongo-${{ matrix.mongo }}
           path: |
@@ -149,7 +149,7 @@ jobs:
           docker exec mongos mongosh --quiet --eval 'printjson(db.adminCommand({listShards:1}).shards.map(s => s._id))'
       - name: Run the sharding module through mongos
         run: scripts/utilities/run_module_matrix.sh -c mongos -s -m 07_sharding -o results/sharded
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: sharded-module-logs
