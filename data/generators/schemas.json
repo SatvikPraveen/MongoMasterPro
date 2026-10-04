@@ -1,7 +1,5 @@
 {
-  "//": "Location: `/data/generators/schemas.json`",
-  "//": "Data schemas and constraints for MongoMasterPro data generation",
-
+  "//": "Vocabulary used by generate_data.py. event_types mirrors the analytics_events validator enum in docker/init/00_bootstrap.js.",
   "categories": [
     "Programming",
     "Data Science",
@@ -24,7 +22,6 @@
     "Network Administration",
     "System Architecture"
   ],
-
   "programming_languages": [
     "JavaScript",
     "Python",
@@ -46,15 +43,27 @@
     "MongoDB",
     "PostgreSQL"
   ],
-
-  "difficulty_levels": ["beginner", "intermediate", "advanced"],
-
-  "course_statuses": ["draft", "published", "archived"],
-
-  "user_statuses": ["active", "inactive", "suspended"],
-
-  "completion_statuses": ["not_started", "in_progress", "completed", "dropped"],
-
+  "difficulty_levels": [
+    "beginner",
+    "intermediate",
+    "advanced"
+  ],
+  "course_statuses": [
+    "draft",
+    "published",
+    "archived"
+  ],
+  "user_statuses": [
+    "active",
+    "inactive",
+    "suspended"
+  ],
+  "completion_statuses": [
+    "not_started",
+    "in_progress",
+    "completed",
+    "dropped"
+  ],
   "event_types": [
     "login",
     "logout",
@@ -63,15 +72,16 @@
     "completion",
     "quiz_attempt",
     "video_play",
-    "download",
-    "forum_post",
-    "assignment_submit",
-    "certificate_download",
-    "profile_update"
+    "download"
   ],
-
-  "currencies": ["USD", "EUR", "GBP", "CAD", "AUD", "JPY"],
-
+  "currencies": [
+    "USD",
+    "EUR",
+    "GBP",
+    "CAD",
+    "AUD",
+    "JPY"
+  ],
   "timezones": [
     "UTC",
     "America/New_York",
@@ -82,9 +92,18 @@
     "Asia/Shanghai",
     "Australia/Sydney"
   ],
-
-  "languages": ["en", "es", "fr", "de", "ja", "zh", "pt", "ru", "ar", "hi"],
-
+  "languages": [
+    "en",
+    "es",
+    "fr",
+    "de",
+    "ja",
+    "zh",
+    "pt",
+    "ru",
+    "ar",
+    "hi"
+  ],
   "course_tags": [
     "tutorial",
     "hands-on",
@@ -104,7 +123,6 @@
     "enterprise",
     "freelancer"
   ],
-
   "specializations": {
     "Programming": [
       "Frontend Development",
@@ -163,7 +181,6 @@
       "MLOps"
     ]
   },
-
   "course_modules": {
     "beginner": [
       "Introduction and Setup",
@@ -190,7 +207,6 @@
       "Leadership & Strategy"
     ]
   },
-
   "assignment_types": [
     "Coding Challenge",
     "Project Build",
@@ -202,7 +218,6 @@
     "Presentation",
     "Peer Review"
   ],
-
   "resource_types": [
     "Video Lectures",
     "Interactive Exercises",
@@ -217,7 +232,6 @@
     "Documentation",
     "External Links"
   ],
-
   "certification_types": [
     "Course Completion Certificate",
     "Professional Certification",
@@ -225,7 +239,6 @@
     "Verified Certificate",
     "Honor Code Certificate"
   ],
-
   "user_roles": [
     "student",
     "instructor",
@@ -233,7 +246,6 @@
     "moderator",
     "teaching_assistant"
   ],
-
   "payment_methods": [
     "credit_card",
     "paypal",
@@ -241,7 +253,6 @@
     "cryptocurrency",
     "gift_card"
   ],
-
   "social_platforms": [
     "linkedin",
     "github",
@@ -250,7 +261,6 @@
     "blog",
     "youtube"
   ],
-
   "review_sentiments": {
     "5": {
       "titles": [
@@ -328,7 +338,6 @@
       ]
     }
   },
-
   "data_constraints": {
     "email_domains": [
       "gmail.com",
@@ -341,19 +350,50 @@
       "student.edu"
     ],
     "price_ranges": {
-      "beginner": { "min": 19.99, "max": 99.99 },
-      "intermediate": { "min": 49.99, "max": 199.99 },
-      "advanced": { "min": 99.99, "max": 399.99 }
+      "beginner": {
+        "min": 19.99,
+        "max": 99.99
+      },
+      "intermediate": {
+        "min": 49.99,
+        "max": 199.99
+      },
+      "advanced": {
+        "min": 99.99,
+        "max": 399.99
+      }
     },
     "duration_ranges": {
-      "beginner": { "min": 3.0, "max": 15.0 },
-      "intermediate": { "min": 8.0, "max": 30.0 },
-      "advanced": { "min": 20.0, "max": 60.0 }
+      "beginner": {
+        "min": 3.0,
+        "max": 15.0
+      },
+      "intermediate": {
+        "min": 8.0,
+        "max": 30.0
+      },
+      "advanced": {
+        "min": 20.0,
+        "max": 60.0
+      }
     },
     "enrollment_patterns": {
-      "peak_months": [1, 9, 10],
-      "peak_days": [1, 2, 3],
-      "peak_hours": [18, 19, 20, 21]
+      "peak_months": [
+        1,
+        9,
+        10
+      ],
+      "peak_days": [
+        1,
+        2,
+        3
+      ],
+      "peak_hours": [
+        18,
+        19,
+        20,
+        21
+      ]
     }
   }
 }
