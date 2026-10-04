@@ -20,6 +20,8 @@ class DataQualityTests {
     );
     await this.client.connect();
     this.db = this.client.db("mongomasterpro_test");
+    // Each suite starts from an empty database so runs are independent and repeatable.
+    await this.db.dropDatabase();
     console.log("✓ Data Quality Tests - Setup complete");
   }
 
@@ -110,10 +112,10 @@ class DataQualityTests {
     // Find courses with all required fields
     const completeCourses = await collection
       .find({
-        title: { $exists: true, $ne: "", $ne: null },
-        description: { $exists: true, $ne: "", $ne: null },
+        title: { $exists: true, $nin: ["", null] },
+        description: { $exists: true, $nin: ["", null] },
         price: { $exists: true, $ne: null, $type: "number" },
-        instructor: { $exists: true, $ne: "", $ne: null },
+        instructor: { $exists: true, $nin: ["", null] },
       })
       .toArray();
 
@@ -281,6 +283,8 @@ class DataQualityTests {
   // Test 5: Range Validation
   async testRangeValidation() {
     const collection = this.db.collection("courses");
+    // Earlier tests in this suite insert into the same collection.
+    await collection.deleteMany({});
 
     const testCourses = [
       { title: "Valid Course 1", price: 29.99, rating: 4.5 },
@@ -355,6 +359,13 @@ class DataQualityTests {
     const usersCollection = this.db.collection("users");
     const coursesCollection = this.db.collection("courses");
     const enrollmentsCollection = this.db.collection("enrollments");
+
+    // Earlier tests in this suite write to the same collections.
+    await Promise.all([
+      usersCollection.deleteMany({}),
+      coursesCollection.deleteMany({}),
+      enrollmentsCollection.deleteMany({}),
+    ]);
 
     // Insert test data
     await usersCollection.insertMany([

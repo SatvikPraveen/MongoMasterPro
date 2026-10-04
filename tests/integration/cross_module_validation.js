@@ -19,6 +19,8 @@ class CrossModuleValidationTests {
     );
     await this.client.connect();
     this.db = this.client.db("mongomasterpro_cross_module_test");
+    // Each suite starts from an empty database so runs are independent and repeatable.
+    await this.db.dropDatabase();
     console.log("✓ Cross-Module Validation Tests - Setup complete");
   }
 
@@ -632,7 +634,7 @@ class CrossModuleValidationTests {
 
     // 1. Schema Design + Validation
     await usersCollection.drop().catch(() => {});
-    await usersCollection.createCollection("integration_users", {
+    await this.db.createCollection("integration_users", {
       validator: {
         $jsonSchema: {
           bsonType: "object",

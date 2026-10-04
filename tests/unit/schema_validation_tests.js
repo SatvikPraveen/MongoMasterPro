@@ -19,6 +19,8 @@ class SchemaValidationTests {
     );
     await this.client.connect();
     this.db = this.client.db("mongomasterpro_test");
+    // Each suite starts from an empty database so runs are independent and repeatable.
+    await this.db.dropDatabase();
     console.log("✓ Schema Validation Tests - Setup complete");
   }
 

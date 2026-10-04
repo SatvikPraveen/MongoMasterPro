@@ -20,6 +20,8 @@ class EndToEndWorkflowTests {
     );
     await this.client.connect();
     this.db = this.client.db("learning_platform_test");
+    // Each suite starts from an empty database so runs are independent and repeatable.
+    await this.db.dropDatabase();
     console.log("✓ End-to-End Workflow Tests - Setup complete");
   }
 
@@ -167,8 +169,9 @@ class EndToEndWorkflowTests {
       await coursesCollection.updateOne(
         { _id: "course456" },
         {
+          // $inc on an upsert initialises the field to 1; combining it with
+          // $setOnInsert on the same path is a conflicting update.
           $inc: { enrollmentCount: 1 },
-          $setOnInsert: { enrollmentCount: 1 },
         },
         { session: this.testSession, upsert: true }
       );
@@ -476,6 +479,7 @@ class EndToEndWorkflowTests {
     const additionalPayments = [
       {
         _id: "payment456",
+        enrollmentId: "enrollment456",
         userId: "user456",
         courseId: "course789",
         amount: 149.99,
@@ -484,6 +488,7 @@ class EndToEndWorkflowTests {
       },
       {
         _id: "payment101",
+        enrollmentId: "enrollment101",
         userId: "user456",
         courseId: "course101",
         amount: 99.99,

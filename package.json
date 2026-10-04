@@ -1,0 +1,30 @@
+{
+  "name": "mongomasterpro",
+  "version": "2.0.0",
+  "description": "Research-grade MongoDB learning and experimentation platform: curated dataset, module sandboxes, reproducible benchmarks.",
+  "private": true,
+  "license": "MIT",
+  "author": "Satvik Praveen <satvikpraveen707@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SatvikPraveen/MongoMasterPro.git"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "check:syntax": "node scripts/utilities/check_syntax.mjs",
+    "test": "node tests/run_node_tests.mjs",
+    "test:unit": "node tests/run_node_tests.mjs unit",
+    "test:integration": "node tests/run_node_tests.mjs integration"
+  },
+  "dependencies": {
+    "mongodb": "^6.9.0"
+  },
+  "devDependencies": {
+    "eslint": "^9.12.0",
+    "globals": "^15.11.0"
+  }
+}
