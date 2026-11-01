@@ -2,4 +2,4 @@
 # Pinned exactly so that a given (seed, version) pair reproduces byte-identical output.
 # Development/analysis tooling lives in ../../requirements-dev.txt.
 Faker==40.40.0
-pymongo==4.18.2
+pymongo==4.19.0
