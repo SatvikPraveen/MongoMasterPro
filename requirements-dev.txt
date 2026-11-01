@@ -3,7 +3,7 @@
 -r data/generators/requirements.txt
 
 # Experiment analysis
-pandas==3.0.6
+pandas==3.1.0
 numpy==2.5.3
 scipy==1.18.1
 matplotlib==3.11.2
