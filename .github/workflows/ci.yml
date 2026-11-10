@@ -70,10 +70,14 @@ jobs:
     name: Module matrix (MongoDB ${{ matrix.mongo }})
     runs-on: ubuntu-latest
     needs: [lint, python-tests]
+    # mongod 8.0 refuses to start on Linux kernel >= 6.19, which the hosted
+    # runners now use (https://jira.mongodb.org/browse/SERVER-121912). Keep it
+    # in the matrix but non-blocking until a fixed 8.0 patch ships; 8.2 starts.
+    continue-on-error: ${{ matrix.mongo == '8.0' }}
     strategy:
       fail-fast: false
       matrix:
-        mongo: ["6.0", "7.0", "8.0"]
+        mongo: ["6.0", "7.0", "8.0", "8.2"]
     env:
       MONGO_URI: mongodb://localhost:27017/?directConnection=true
     steps:
