@@ -70,10 +70,6 @@ jobs:
     name: Module matrix (MongoDB ${{ matrix.mongo }})
     runs-on: ubuntu-latest
     needs: [lint, python-tests]
-    # mongod 8.0 refuses to start on Linux kernel >= 6.19, which the hosted
-    # runners now use (https://jira.mongodb.org/browse/SERVER-121912). Keep it
-    # in the matrix but non-blocking until a fixed 8.0 patch ships; 8.2 starts.
-    continue-on-error: ${{ matrix.mongo == '8.0' }}
     strategy:
       fail-fast: false
       matrix:
@@ -95,7 +91,10 @@ jobs:
 
       - name: Start MongoDB ${{ matrix.mongo }} as a single-node replica set
         run: |
-          docker run -d --name mongo -p 27017:27017 -v "$PWD":/app:ro mongo:${{ matrix.mongo }} --replSet rs0 --bind_ip_all
+          # mongod 8.0's bundled tcmalloc crashes at start-up on Linux kernel
+          # >= 6.19, which the hosted runners use (SERVER-121912, no 8.0 fix).
+          # Turning off glibc's rseq registration lets it start.
+          docker run -d --name mongo -p 27017:27017 -e GLIBC_TUNABLES=glibc.pthread.rseq=0 -v "$PWD":/app:ro mongo:${{ matrix.mongo }} --replSet rs0 --bind_ip_all
           for i in $(seq 1 30); do
             docker exec mongo mongosh --quiet --eval 'db.adminCommand("ping").ok' >/dev/null 2>&1 && break; sleep 2
           done
@@ -103,7 +102,7 @@ jobs:
           for i in $(seq 1 30); do
             docker exec mongo mongosh --quiet --eval 'db.hello().isWritablePrimary' | grep -q true && break; sleep 2
           done
-          docker exec mongo mongosh --quiet --eval 'print("MongoDB", db.version(), "primary:", db.hello().isWritablePrimary)'
+          docker exec mongo mongosh --quiet --eval 'print("MongoDB", db.version(), "primary:", db.hello().isWritablePrimary)' || { docker logs mongo | tail -40; exit 1; }
 
       - name: Reference dataset schema (bootstrap)
         run: docker exec mongo mongosh --quiet --file /app/docker/init/00_bootstrap.js
