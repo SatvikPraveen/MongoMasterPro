@@ -68,12 +68,11 @@ jobs:
 
   modules:
     name: Module matrix (MongoDB ${{ matrix.mongo }})
-    runs-on: ubuntu-latest
+    # mongod 8.0 refuses to start on Linux kernel >= 6.19, which ubuntu-latest
+    # runners now use (https://jira.mongodb.org/browse/SERVER-121912, closed
+    # with no 8.0 fix). Run 8.0 on the older-kernel ubuntu-22.04 image.
+    runs-on: ${{ matrix.mongo == '8.0' && 'ubuntu-22.04' || 'ubuntu-latest' }}
     needs: [lint, python-tests]
-    # mongod 8.0 refuses to start on Linux kernel >= 6.19, which the hosted
-    # runners now use (https://jira.mongodb.org/browse/SERVER-121912). Keep it
-    # in the matrix but non-blocking until a fixed 8.0 patch ships; 8.2 starts.
-    continue-on-error: ${{ matrix.mongo == '8.0' }}
     strategy:
       fail-fast: false
       matrix:
@@ -99,6 +98,7 @@ jobs:
           for i in $(seq 1 30); do
             docker exec mongo mongosh --quiet --eval 'db.adminCommand("ping").ok' >/dev/null 2>&1 && break; sleep 2
           done
+          [ "$(docker inspect -f '{{.State.Running}}' mongo)" = true ] || { docker inspect -f 'exit={{.State.ExitCode}} oom={{.State.OOMKilled}}' mongo; docker logs mongo 2>&1 | tail -60; exit 1; }
           docker exec mongo mongosh --quiet --eval 'rs.initiate({_id:"rs0",members:[{_id:0,host:"localhost:27017"}]})'
           for i in $(seq 1 30); do
             docker exec mongo mongosh --quiet --eval 'db.hello().isWritablePrimary' | grep -q true && break; sleep 2
